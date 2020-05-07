@@ -1,0 +1,354 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 287ee256d731b594a9fa9088213e1742, type: 3}
+  m_Name: Manifest
+  m_EditorClassIdentifier: 
+  remoteServer: http://10.200.10.30:7888
+  localServer: http://10.200.10.30:7888
+  channel: 0
+  activeVariants: []
+  bundles:
+  - assets/bundles/code_g
+  - assets/bundles/scene/test
+  - assets/bundles/scene/ui
+  - assets/bundles/texture_g
+  - assets/bundles/ui/uimain
+  - assets/bundles/ui/uimi
+  - assets/bundles/ui/uinnn
+  - manifest
+  - prefab
+  dirs:
+  - Assets\Bundles\Code
+  - Assets\Bundles\Scene
+  - Assets\Bundles\Texture
+  - Assets\Bundles\UI
+  - Assets\Bundles
+  - Assets\Bundles\Prefab
+  assets:
+  - bundle: 0
+    dir: 0
+    name: Hotfix.dll.bytes
+  - bundle: 0
+    dir: 0
+    name: Hotfix.pdb.bytes
+  - bundle: 1
+    dir: 1
+    name: Test.unity
+  - bundle: 2
+    dir: 1
+    name: UI.unity
+  - bundle: 3
+    dir: 2
+    name: "bg_loading - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 1 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 1 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 1.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 2 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 2 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 2.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 3 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 3 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 3.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 4 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 4 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 4.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 5 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 5 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 5.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 6 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 6 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 6.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 7 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 7 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 7.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 8 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 8 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 8.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 9 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 9 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 9.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 10 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 10 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 10.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 11 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 11 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 11.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 12 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 12 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 12.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 13 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 13 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 13.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 14 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 14 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 14.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 15 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 15 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 15.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 16 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 16 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 16.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 17 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 17 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 17.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 18 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 18 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 18.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 19 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 19 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 19.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 20 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 20 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 20.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 21 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 21 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 21.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 22 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 22 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 22.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 23 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 23 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 23.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 24 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 24 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 24.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 25 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 25 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 25.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 26 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 26 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 26.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 27 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 27 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 27.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 28 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 28 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 28.png
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 29 - \u526F\u672C (2).png"
+  - bundle: 3
+    dir: 2
+    name: "bg_loading 29 - \u526F\u672C.png"
+  - bundle: 3
+    dir: 2
+    name: bg_loading 29.png
+  - bundle: 3
+    dir: 2
+    name: bg_loading.png
+  - bundle: 4
+    dir: 3
+    name: UIMain.prefab
+  - bundle: 5
+    dir: 3
+    name: UIMi.prefab
+  - bundle: 6
+    dir: 3
+    name: UInnn.prefab
+  - bundle: 7
+    dir: 4
+    name: Manifest.asset
+  - bundle: 8
+    dir: 5
+    name: Capsule.prefab
+  - bundle: 8
+    dir: 5
+    name: Cube.prefab
+  - bundle: 8
+    dir: 5
+    name: GameObject 1.prefab
+  - bundle: 8
+    dir: 5
+    name: GameObject.prefab
+  - bundle: 8
+    dir: 5
+    name: Sphere 1.prefab
+  - bundle: 8
+    dir: 5
+    name: Sphere 2.prefab
+  - bundle: 8
+    dir: 5
+    name: Sphere 3.prefab
+  - bundle: 8
+    dir: 5
+    name: Sphere.prefab
