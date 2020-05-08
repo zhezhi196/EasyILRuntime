@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,6 +9,12 @@ namespace Module
 {
     public class Awaiter : IAwaiter
     {
+        public static Awaiter GetAwaiter()
+        {
+            return new Awaiter();
+        }
+        
+
         private bool m_isComplete;
         private Action callback;
         public bool IsCompleted
@@ -28,10 +34,12 @@ namespace Module
         {
             callback?.Invoke();
             m_isComplete = true;
+
         }
         public void GetResult()
         {
             m_isComplete = false;
+            callback = null;
         }
     }
 }
