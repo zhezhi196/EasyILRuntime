@@ -236,6 +236,11 @@ namespace Module
             
         }
 
+        public static ObjectPool LoadGameoObject<T>(string path, Action<T> onLoad) where T: IPoolObject
+        {
+            return LoadGameoObject(path, (go) => { onLoad?.Invoke(go.GetComponent<T>()); });
+        }
+
         public static ObjectPool LoadGameoObject(string path, Action<GameObject> onLoad)
         {
             ObjectPool pool = null;

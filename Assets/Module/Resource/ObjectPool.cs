@@ -74,6 +74,14 @@ namespace Module
             }
         }
         
+        public void GetObject<T>(Action<T> callBack)
+        {
+            GetObject(go =>
+            {
+                callBack?.Invoke(go.GetComponent<T>());
+            });
+        }
+        
         public void GetObject(Action<GameObject> callBack)
         {
             if (!isActive)
@@ -109,6 +117,15 @@ namespace Module
                 {
                     target.OnReturnToPool();
                 }
+            }
+        }
+        public void ReturnObject(IPoolObject obj)
+        {
+            if (obj != null)
+            {
+                activeObject.Enqueue(obj.gameObject);
+                obj.gameObject.SetActive(false);
+                obj.OnReturnToPool();
             }
         }
     }
