@@ -25,7 +25,7 @@ namespace HotFix
         {
             if (Input.GetKeyDown(KeyCode.A))
             {
-                ResourceManager.LoadPrefab("Prefab/Cube.prefab",null, OnLoad);
+                ResourceManager.LoadGameObject("Prefab/Cube.prefab",null, OnLoad);
             }
         }
 

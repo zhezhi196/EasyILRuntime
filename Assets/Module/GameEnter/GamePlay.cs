@@ -46,19 +46,16 @@ namespace Module
 
         private void Update()
         {
-            Clock.UpdateLilst();
+            Clock.Update();
             FPS.Update();
             Async.Update();
             UIComponent.Update();
+            
             EventCenter.Dispatch(EventKey.Update);
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                EventCenter.Dispatch(EventKey.Escape);
-            }
             
             if(Input.GetKeyDown(KeyCode.T))
             {
+                BundleManager.LoadGameoObject("Prefab/Cube.prefab", OnLoadTest);
                 //Debug.Log(ServerSimulator.GetSqlService<PlayerData>().Where((data => data.ID == 1)).name);
             }
             else if (Input.GetKeyDown(KeyCode.Y))
@@ -67,6 +64,17 @@ namespace Module
             else if (Input.GetKeyDown(KeyCode.U))
             {
             }
+
+
+            //Debug.Log("loadIndex: " + loadIndex++);
+        }
+
+        private int loadIndex;
+        private int index;
+
+        private void OnLoadTest(GameObject obj)
+        {
+            Debug.Log("OnLoadTest: " + index++);
         }
 
         #region 原生事件

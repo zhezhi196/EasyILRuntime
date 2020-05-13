@@ -212,80 +212,59 @@ namespace Module
         public static ObjectPool PreLoad(string path, Action<Object> onLoad)
         {
             ObjectPool pool = null;
-            if (!objectPool.ContainsKey(path))
-            {
-                pool = new ObjectPool();
-                objectPool.Add(path, pool);
-                Assets.LoadAsync(GetAssetPath(path), typeof(Object)).onComplete += asset =>
-                {
-                    if (asset.asset == null)
-                    {
-                        GameDebug.LogError($"Connot find prefab{path}");
-                    }
-
-                    pool.InitPrefab(asset.asset);
-                    onLoad?.Invoke(asset.asset);
-                };
-            }
-            else
-            {
-                if (!objectPool[path].isActive)
-                {
-                    pool = objectPool[path];
-                    Assets.LoadAsync(GetAssetPath(path), typeof(Object)).onComplete += asset =>
-                    {
-                        if (asset.asset == null)
-                        {
-                            GameDebug.LogError($"Connot find prefab{path}");
-                        }
-
-                        pool.InitPrefab(asset.asset);
-                        onLoad?.Invoke(asset.asset);
-                    };
-                }
-                else
-                {
-                    onLoad?.Invoke(pool.prefab);
-
-                }
-            } 
-            return pool;
-        }
-
-        public static ObjectPool LoadPrefab(string path, Action<GameObject> onLoad)
-        {
-            ObjectPool pool = null;
-
             if (!objectPool.TryGetValue(path, out pool))
             {
                 pool = new ObjectPool();
                 objectPool.Add(path, pool);
             }
+
+            if (!pool.isActive)
+            {
+                Assets.LoadAsync(GetAssetPath(path), typeof(GameObject)).onComplete += asset =>
+                {
+                    GameObject ass = (GameObject) asset.asset;
+                    pool.InitPrefab(ass);
+                    onLoad?.Invoke(ass);
+                };
+            }
             else
             {
-                if (!pool.isActive)
-                {
-                    Assets.LoadAsync(GetAssetPath(path), typeof(Object)).onComplete += asset =>
-                    {
-                        pool.InitPrefab(asset.asset);
-                        pool.GetCacheObject();
-                        pool.GetObject((Object go) =>
-                        {
-                            onLoad?.Invoke((GameObject)go);
-                        });
-
-                    };
-                }
-                else
-                {
-                    pool.GetObject(go =>
-                    {
-                        GameObject o = (GameObject) go;
-                        onLoad?.Invoke(o);
-                    });
-                }
+                onLoad?.Invoke(pool.prefab);
             }
+
+            return pool;
             
+        }
+
+        public static ObjectPool LoadGameoObject(string path, Action<GameObject> onLoad)
+        {
+            ObjectPool pool = null;
+            if (!objectPool.TryGetValue(path, out pool))
+            {
+                pool = new ObjectPool();
+                objectPool.Add(path, pool);
+            }
+
+            if (!pool.isActive)
+            {
+                Assets.LoadAsync(GetAssetPath(path), typeof(GameObject)).onComplete += asset =>
+                {
+                    if (asset.asset == null)
+                    {
+                        Debug.LogError("Connot find prefab :" + path);
+                        return;
+                    }
+
+                    pool.InitPrefab((GameObject) (asset.asset));
+                    pool.InvokeAllCacheAction();
+                    pool.GetObject(onLoad);
+                };
+            }
+            else
+            {
+                pool.GetObject(onLoad);
+            }
+
             return pool;
         }
 

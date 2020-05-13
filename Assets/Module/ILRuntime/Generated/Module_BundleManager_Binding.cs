@@ -26,8 +26,8 @@ namespace ILRuntime.Runtime.Generated
             method = type.GetMethod("PreLoad", flag, null, args, null);
             app.RegisterCLRMethodRedirection(method, PreLoad_0);
             args = new Type[]{typeof(System.String), typeof(System.Action<UnityEngine.GameObject>)};
-            method = type.GetMethod("LoadPrefab", flag, null, args, null);
-            app.RegisterCLRMethodRedirection(method, LoadPrefab_1);
+            method = type.GetMethod("LoadGameoObject", flag, null, args, null);
+            app.RegisterCLRMethodRedirection(method, LoadGameoObject_1);
 
 
         }
@@ -53,7 +53,7 @@ namespace ILRuntime.Runtime.Generated
             return ILIntepreter.PushObject(__ret, __mStack, result_of_this_method);
         }
 
-        static StackObject* LoadPrefab_1(ILIntepreter __intp, StackObject* __esp, IList<object> __mStack, CLRMethod __method, bool isNewObj)
+        static StackObject* LoadGameoObject_1(ILIntepreter __intp, StackObject* __esp, IList<object> __mStack, CLRMethod __method, bool isNewObj)
         {
             ILRuntime.Runtime.Enviorment.AppDomain __domain = __intp.AppDomain;
             StackObject* ptr_of_this_method;
@@ -68,7 +68,7 @@ namespace ILRuntime.Runtime.Generated
             __intp.Free(ptr_of_this_method);
 
 
-            var result_of_this_method = Module.BundleManager.LoadPrefab(@path, @onLoad);
+            var result_of_this_method = Module.BundleManager.LoadGameoObject(@path, @onLoad);
 
             return ILIntepreter.PushObject(__ret, __mStack, result_of_this_method);
         }

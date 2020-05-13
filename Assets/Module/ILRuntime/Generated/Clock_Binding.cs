@@ -26,8 +26,8 @@ namespace ILRuntime.Runtime.Generated
             method = type.GetMethod("Restart", flag, null, args, null);
             app.RegisterCLRMethodRedirection(method, Restart_0);
             args = new Type[]{};
-            method = type.GetMethod("Stop", flag, null, args, null);
-            app.RegisterCLRMethodRedirection(method, Stop_1);
+            method = type.GetMethod("Pause", flag, null, args, null);
+            app.RegisterCLRMethodRedirection(method, Pause_1);
 
             args = new Type[]{};
             method = type.GetConstructor(flag, null, args, null);
@@ -51,7 +51,7 @@ namespace ILRuntime.Runtime.Generated
             return __ret;
         }
 
-        static StackObject* Stop_1(ILIntepreter __intp, StackObject* __esp, IList<object> __mStack, CLRMethod __method, bool isNewObj)
+        static StackObject* Pause_1(ILIntepreter __intp, StackObject* __esp, IList<object> __mStack, CLRMethod __method, bool isNewObj)
         {
             ILRuntime.Runtime.Enviorment.AppDomain __domain = __intp.AppDomain;
             StackObject* ptr_of_this_method;
@@ -61,7 +61,7 @@ namespace ILRuntime.Runtime.Generated
             global::Clock instance_of_this_method = (global::Clock)typeof(global::Clock).CheckCLRTypes(StackObject.ToObject(ptr_of_this_method, __domain, __mStack));
             __intp.Free(ptr_of_this_method);
 
-            instance_of_this_method.Stop();
+            instance_of_this_method.Pause();
 
             return __ret;
         }

@@ -15,11 +15,11 @@ public class Clock
 {
     public static List<Clock> clockList = new List<Clock>();
 
-    public static void UpdateLilst()
+    public static void Update()
     {
         for (int i = 0; i < clockList.Count; i++)
         {
-            clockList[i].Update();
+            clockList[i].OnUpdate();
         }
     }
 
@@ -81,7 +81,7 @@ public class Clock
         targetTime = 0;
     }
 
-    public void Update()
+    public void OnUpdate()
     {
         if (isActive)
         {

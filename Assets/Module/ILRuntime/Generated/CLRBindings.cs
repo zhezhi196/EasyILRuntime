@@ -54,10 +54,12 @@ namespace ILRuntime.Runtime.Generated
             Module_Loading_Binding.Register(app);
             Module_RunTimeAction_1_ILTypeInstance_Binding.Register(app);
             Module_GameDebug_Binding.Register(app);
+            Module_ViewReference_Binding.Register(app);
+            System_Collections_Generic_Dictionary_2_Type_FieldInfo_Array_Binding.Register(app);
+            Module_ViewBehaviour_Binding.Register(app);
             UnityEngine_Component_Binding.Register(app);
             UnityEngine_Behaviour_Binding.Register(app);
             System_Reflection_FieldInfo_Binding.Register(app);
-            Module_ViewReference_Binding.Register(app);
             System_Collections_Generic_List_1_InspectorStringData_Binding.Register(app);
             Module_InspectorData_Binding.Register(app);
             Module_InspectorStringData_Binding.Register(app);
@@ -74,8 +76,6 @@ namespace ILRuntime.Runtime.Generated
             System_Collections_Generic_List_1_InspectorColorData_Binding.Register(app);
             Module_InspectorColorData_Binding.Register(app);
             UnityEngine_Vector2_Binding.Register(app);
-            System_Collections_Generic_Dictionary_2_Type_FieldInfo_Array_Binding.Register(app);
-            Module_ViewBehaviour_Binding.Register(app);
             Module_ObjectPool_Binding.Register(app);
             Module_GamePlay_Binding.Register(app);
             UnityEngine_Transform_Binding.Register(app);
@@ -83,13 +83,12 @@ namespace ILRuntime.Runtime.Generated
             Module_BundleManager_Binding.Register(app);
             UnityEngine_GameObject_Binding.Register(app);
             System_Action_1_GameObject_Binding.Register(app);
-            Clock_Binding.Register(app);
             System_Collections_Generic_Dictionary_2_ILTypeInstance_ILTypeInstance_Binding.Register(app);
             Module_Voter_Binding.Register(app);
             System_Collections_Generic_Dictionary_2_ILTypeInstance_ILTypeInstance_Binding_Enumerator_Binding.Register(app);
             System_Collections_Generic_KeyValuePair_2_ILTypeInstance_ILTypeInstance_Binding.Register(app);
+            Clock_Binding.Register(app);
             Module_ExtendUtil_Binding.Register(app);
-            System_Threading_Interlocked_Binding.Register(app);
             System_Action_Binding.Register(app);
             UnityEngine_CanvasGroup_Binding.Register(app);
             Module_UIViewReference_Binding.Register(app);

@@ -59,9 +59,9 @@ namespace HotFix
             return go;
         }
         
-        public static ObjectPool LoadPrefab(string path,Transform parent, Action<GameObject> onLoad)
+        public static ObjectPool LoadGameObject(string path,Transform parent, Action<GameObject> onLoad)
         {
-            return BundleManager.LoadPrefab(path, go =>
+            return BundleManager.LoadGameoObject(path, go =>
             {
                 ViewReference[] views = go.transform.GetComponentsInChildren<ViewReference>();
                 for (int i = 0; i < views.Length; i++)

@@ -16,19 +16,7 @@ namespace Module
 {
     public class ObjectPool
     {
-        public class ObjectItem
-        {
-            public bool isActive { set; get; }
-            public Object Obj;
-
-            public ObjectItem(Object obj, bool isActive)
-            {
-                this.isActive = isActive;
-                Obj = obj;
-            }
-        }
-
-        private Queue<Action<Object>> cache = new Queue<Action<Object>>();
+        private Queue<Action<GameObject>> cacheAction = new Queue<Action<GameObject>>();
         
         #region poolRoot
 
@@ -51,9 +39,7 @@ namespace Module
         /// <summary>
         /// 对象的prefab
         /// </summary>
-        public Object prefab { private set; get; }
-
-        private Dictionary<string, object> allPara = new Dictionary<string, object>();
+        public GameObject prefab { private set; get; }
         
         public bool isActive
         {
@@ -63,9 +49,9 @@ namespace Module
         /// <summary>
         /// 所有生成的对象
         /// </summary>
-        public List<ObjectItem> ObjectList { private set; get; }
+        private  Queue<GameObject> activeObject { set; get; }
 
-        public ObjectPool(Object prefab)
+        public ObjectPool(GameObject prefab)
         {
             InitPrefab(prefab);
         }
@@ -74,74 +60,54 @@ namespace Module
         {
         }
 
-        public void InitPrefab(Object prefab)
+        public void InitPrefab(GameObject prefab)
         {
             this.prefab = prefab;
-
-            ObjectList = new List<ObjectItem>();
+            activeObject = new Queue<GameObject>();
         }
 
-        public void GetCacheObject()
+        public void InvokeAllCacheAction()
         {
-            for (int i = 0; i < cache.Count; i++)
+            for (int i = 0; i < cacheAction.Count; i++)
             {
-                GetObject(cache.Dequeue());
+                GetObject(cacheAction.Dequeue());
             }
         }
-
-        public void GetObject(Action<Object> callBack)
+        
+        public void GetObject(Action<GameObject> callBack)
         {
             if (!isActive)
             {
-                cache.Enqueue(callBack);
+                cacheAction.Enqueue(callBack);
                 return;
             }
-            for (int i = 0; i < ObjectList.Count; i++)
-            {
-                if (!ObjectList[i].isActive)
-                {
-                    ObjectList[i].isActive = true;
-                    if (ObjectList[i].Obj == null)
-                    {
-                        ObjectList.RemoveAt(i);
-                        continue;
-                    }
-                    callBack?.Invoke(ObjectList[i].Obj);
-                    return ;
-                }
-            }
 
-            Object obj = GameObject.Instantiate(prefab);
-            ObjectItem newItem = new ObjectItem(obj, true);
-            ObjectList.Add(newItem);
-            callBack?.Invoke(obj);
+             GameObject returnValue = activeObject.Count > 0 ? activeObject.Dequeue() : GameObject.Instantiate(prefab);
+             IPoolObject target = returnValue.GetComponent<IPoolObject>();
+             if (target != null)
+             {
+                 target.pool = this;
+                 target.OnGetObjectFromPool();
+             }
+
+            returnValue.SetActive(true);
+            callBack?.Invoke(returnValue);
         }
 
         /// <summary>
         /// 归还对象
         /// </summary>
         /// <param id="obj"></param>
-        public void ReturnObject(Object obj)
+        public void ReturnObject(GameObject obj)
         {
-            for (int i = 0; i < ObjectList.Count; i++)
+            if (obj != null)
             {
-                if (ObjectList[i].Obj.Equals(obj) && ObjectList[i].isActive)
+                activeObject.Enqueue(obj);
+                obj.SetActive(false);
+                IPoolObject target = obj.GetComponent<IPoolObject>();
+                if (target != null)
                 {
-                    ObjectList[i].isActive = false;
-                    ((GameObject)ObjectList[i].Obj).transform.SetParent(poolRoot);
-                    break;
-                }
-            }
-        }
-
-        public void RemoveObject(Object obj)
-        {
-            for (int i = 0; i < ObjectList.Count; i++)
-            {
-                if (ObjectList[i].Obj.Equals(obj))
-                {
-                    ObjectList.RemoveAt(i);
-                    break;
+                    target.OnReturnToPool();
                 }
             }
         }
