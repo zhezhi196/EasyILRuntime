@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using LitJson;
+using MongoDB.Bson;
 using UnityEngine;
 using xasset;
 using Object = UnityEngine.Object;
@@ -60,9 +62,14 @@ namespace Module
             }
             else if (Input.GetKeyDown(KeyCode.Y))
             {
+                Color c=new Color(0.5f,0.5f,0.5f,0.5f);
+                Debug.Log(c.ToString());
             }
             else if (Input.GetKeyDown(KeyCode.U))
             {
+                JsonData data = new JsonData();
+                data.Add(1);
+                Debug.Log(data.ToJson());
             }
 
 

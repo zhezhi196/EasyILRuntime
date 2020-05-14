@@ -6,8 +6,22 @@ using UnityEngine;
 
 namespace ToolsEditor
 {
+    public enum MonsterType
+    {
+        Enemy,
+        Friend,
+        Neutral,
+        Player
+    }
+
+    public enum MonsterBase
+    {
+        Remote,
+        Melee,
+    }
+    
     [Serializable]
-    public class MonsterEditorData : IEditorData
+    public class MonsterEditorData 
     {
         #region 数据信息
         [FoldoutGroup("@UID")]
@@ -217,18 +231,5 @@ namespace ToolsEditor
             
         }
         #endregion
-
-
-        public void SaveEditorJson()
-        {
-        }
-
-        public void GenerateGameClass()
-        {
-        }
-
-        public void GenerateGameJson()
-        {
-        }
     }
 }

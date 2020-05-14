@@ -115,7 +115,7 @@ namespace ToolsEditor
             }
             else if (type == typeof(float))
             {
-                return "float";
+                return "double";
             }
             else if (type == typeof(double))
             {
@@ -129,6 +129,25 @@ namespace ToolsEditor
             {
                 return type.Name;
             }
+        }
+
+        public static (bool,object) GetSerializable(Type type,object value)
+        {
+            if (value == null) return (true,string.Empty);
+            if (type == typeof(Color))
+            {
+                Color color = (Color) value;
+                return (true,string.Join("_", color.r, color.g, color.b, color.a));
+            }
+            else if (type==typeof(Transform))
+            {
+                Transform transform = (Transform) value;
+                return (true,string.Join("#",
+                    string.Join("_", transform.position.x, transform.position.y, transform.position.z),
+                    string.Join("_", transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z)));
+            }
+
+            return (false, value);
         }
 
     }
