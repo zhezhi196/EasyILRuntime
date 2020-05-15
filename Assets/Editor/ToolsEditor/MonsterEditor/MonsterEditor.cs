@@ -34,15 +34,22 @@ namespace ToolsEditor
         [Button("加载")] [HorizontalGroup("ConfigButton",Order = -1)] 
         private void Load()
         {
-            if (File.Exists(GetfullPath()))
-            {
-                using (StreamReader reader = new StreamReader(GetfullPath()))
-                {
-                    string json = reader.ReadToEnd();
-                    monsterData = JsonMapper.ToObject<List<MonsterEditorData>>(json);
-                }
-                
-            }
+            // if (File.Exists(GetfullPath()))
+            // {
+            //     using (StreamReader reader = new StreamReader(GetfullPath()))
+            //     {
+            //         monsterData.Clear();
+            //         string json = reader.ReadToEnd();
+            //         JsonData data = JsonMapper.ToObject(json);
+            //         
+            //         for (int i = 0; i < data.Count; i++)
+            //         {
+            //             MonsterEditorData d = JsonConvert.ToObject<MonsterEditorData>(data[i]);
+            //             monsterData.Add(d);    
+            //         }
+            //     }
+            //     
+            // }
         }
         [Button("保存")][HorizontalGroup("ConfigButton",Order = -1)] 
         private void Save()

@@ -24,6 +24,87 @@ namespace Module
 
             return data;
         }
+        //
+        // public static T ToObject<T>(JsonData data) where T: new()
+        // {
+        //
+        //     Type type = typeof(T);
+        //     T target = new T();
+        //     
+        //     FieldInfo[] fieldInfos = type.GetFields();
+        //     for (int i = 0; i < fieldInfos.Length; i++)
+        //     {
+        //         string colorSpite = null;
+        //         try
+        //         {
+        //             colorSpite= data[fieldInfos[i].Name].ToString();
+        //         }
+        //         catch (Exception e)
+        //         {
+        //             continue; 
+        //         }
+        //
+        //         if (fieldInfos[i].FieldType == typeof(Color))
+        //         {
+        //             string[] spite = colorSpite.Split('_');
+        //             fieldInfos[i].SetValue(target,new Color(spite[0].ToFloat(),spite[1].ToFloat(),spite[2].ToFloat(),spite[3].ToFloat()));
+        //         }
+        //         else if (fieldInfos[i].FieldType == typeof(Vector4))
+        //         {
+        //             string[] spite = colorSpite.Split('_');
+        //             fieldInfos[i].SetValue(target,new Vector4(spite[0].ToFloat(),spite[1].ToFloat(),spite[2].ToFloat(),spite[3].ToFloat()));
+        //         }
+        //         else if (fieldInfos[i].FieldType == typeof(Vector3)||fieldInfos[i].FieldType==typeof(Vector3Int))
+        //         {
+        //             string[] spite = colorSpite.Split('_');
+        //             fieldInfos[i].SetValue(target,new Vector3(spite[0].ToFloat(),spite[1].ToFloat(),spite[2].ToFloat()));
+        //         }    
+        //         else if (fieldInfos[i].FieldType == typeof(Vector2)||fieldInfos[i].FieldType==typeof(Vector2Int))
+        //         {
+        //             string[] spite = colorSpite.Split('_');
+        //             fieldInfos[i].SetValue(target,new Vector2(spite[0].ToFloat(),spite[1].ToFloat()));
+        //         }   
+        //         else if (fieldInfos[i].FieldType == typeof(Transform))
+        //         {
+        //             string[] spite = colorSpite.Split('#');
+        //             string[] posString = spite[0].Split('_');
+        //             string[] eagurString = spite[1].Split('_');
+        //             GameObject g = new GameObject();
+        //             g.transform.position = new Vector3(posString[0].ToFloat(), posString[1].ToFloat(),
+        //                 posString[2].ToFloat());
+        //             g.transform.eulerAngles = new Vector3(eagurString[0].ToFloat(), eagurString[1].ToFloat(),
+        //                 eagurString[2].ToFloat());
+        //             fieldInfos[i].SetValue(target, g.transform);
+        //         }
+        //         else if (fieldInfos[i].FieldType==typeof(int))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToString().ToInt());
+        //         }   
+        //         else if (fieldInfos[i].FieldType==typeof(float))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToString().ToFloat());
+        //         }  
+        //         else if (fieldInfos[i].FieldType==typeof(double))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToString().ToDouble());
+        //         } 
+        //         else if (fieldInfos[i].FieldType==typeof(string))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToString());
+        //         } 
+        //         else if (fieldInfos[i].FieldType==typeof(long))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToLong());
+        //         } 
+        //         else if (fieldInfos[i].FieldType==typeof(bool))
+        //         {
+        //             fieldInfos[i].SetValue(target,data[fieldInfos[i].Name].ToBool());
+        //         } 
+        //     }
+        //
+        //     return target;
+        //
+        // }
 
         private static string GetJsonString(object fieldValue)
         {
