@@ -8,17 +8,21 @@
 
 using DG.Tweening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using LitJson;
 using Module;
+using NPOI.SS.Formula.PTG;
+using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
+using IFormatter = System.Runtime.Serialization.IFormatter;
 using Object = System.Object;
 
 namespace Module
@@ -32,17 +36,18 @@ namespace Module
             Type t = type;
             while (true)
             {
-                if (t.BaseType == null||t.BaseType == typeof(object))
+                if (t.BaseType == null || t.BaseType == typeof(object))
                 {
                     break;
                 }
+
                 t = t.BaseType;
             }
 
             return t;
         }
 
-        public static bool IsChild(this Type type,Type target)
+        public static bool IsChild(this Type type, Type target)
         {
             Type t = type;
 
@@ -60,7 +65,7 @@ namespace Module
         }
 
         #endregion
-        
+
         #region Object
         public static int[] ToIntArray(this object[] array)
         {
@@ -94,7 +99,7 @@ namespace Module
             }
             else if (obj is int)
             {
-                return (T)obj;
+                return (T) obj;
             }
 
 
@@ -173,7 +178,7 @@ namespace Module
                 ms.Close();
             }
 
-            return (T)retval;
+            return (T) retval;
             //            string json = JsonMapper.ToJson(obj);
             //            return JsonMapper.ToObject<T>(json);
         }
@@ -201,7 +206,7 @@ namespace Module
             using (MemoryStream ms = new MemoryStream(buffer))
             {
                 IFormatter iFormatter = new BinaryFormatter();
-                T obj = (T)iFormatter.Deserialize(ms);
+                T obj = (T) iFormatter.Deserialize(ms);
                 return obj;
             }
         }
@@ -304,7 +309,8 @@ namespace Module
             //Vector3[] path=curve.Evaluate()
         }
 
-        public static void DOLookAt(this Transform target, Vector3 toward, Vector3 direction, float distance, float duation)
+        public static void DOLookAt(this Transform target, Vector3 toward, Vector3 direction, float distance,
+            float duation)
         {
             target.DORotate(Quaternion.LookRotation(direction).eulerAngles, duation);
             Vector3 moveTo = toward - direction.normalized * distance;
@@ -424,7 +430,6 @@ namespace Module
         }
 
 
-
         /// <summary>
         ///     设置某物体的层
         /// </summary>
@@ -481,9 +486,9 @@ namespace Module
 
         public static T GetScript<T>(this GameObject obj) where T : ViewBehaviour
         {
-            return (T)obj.GetComponent<ViewReference>().target;
+            return (T) obj.GetComponent<ViewReference>().target;
         }
-        
+
         /// <summary>
         /// 获取或创建组建
         /// </summary>
@@ -732,6 +737,7 @@ namespace Module
         #endregion
 
         #region List
+
         public static void ClearNull<T>(this List<T> lst)
         {
             for (int i = lst.Count - 1; i >= 0; i--)
@@ -742,6 +748,7 @@ namespace Module
                 }
             }
         }
+
         public static void DefineCount<T>(this List<T> lst, int count, T defaultValue)
         {
             if (lst == null) return;
@@ -760,6 +767,7 @@ namespace Module
                 }
             }
         }
+
         public static void Move<T>(this List<T> lst, T value, int index)
         {
             if (!lst.Contains(value)) return;
@@ -819,13 +827,12 @@ namespace Module
 
         public static void Shuffle<T>(this List<T> list)
         {
-            for(int i = list.Count - 1; i >= 0; i--)
+            for (int i = list.Count - 1; i >= 0; i--)
             {
                 int random = UnityEngine.Random.Range(0, i);
                 T t = list[i];
                 list[i] = list[random];
                 list[random] = t;
-                
             }
         }
 
@@ -959,6 +966,7 @@ namespace Module
             {
                 list.Add(item);
             }
+
             return list;
         }
 
@@ -1179,7 +1187,7 @@ namespace Module
         }
 
         #endregion
-        
+
         #region MemberInfo
 
         public static object GetValue(this MemberInfo member, object[] args)
@@ -1198,6 +1206,5 @@ namespace Module
         }
 
         #endregion
-        
     }
 }

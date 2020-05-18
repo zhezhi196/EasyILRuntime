@@ -19,6 +19,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using ILRuntime.Runtime;
+using UnityEngine;
+using Object = System.Object;
 
 namespace LitJson
 {
@@ -844,6 +847,45 @@ namespace LitJson
             if (obj is Double)
             {
                 writer.Write((double)obj);
+                return;
+            }
+
+            if (obj is float)
+            {
+                double temp = 0;
+                Double.TryParse(obj.ToString(), out temp);
+                writer.Write(temp);
+                return;
+            }
+            if (obj is Color)
+            {
+                Color c = (Color) obj;
+                writer.Write(string.Join("_", c.r, c.g, c.b, c.a));
+                return;
+            }
+            if (obj is Vector4)
+            {
+                Vector4 c = (Vector4) obj;
+                writer.Write(string.Join("_", c.x, c.y, c.z, c.w));
+                return;
+            }
+            if (obj is Vector3 || obj is Vector3Int)
+            {
+                Vector3 c = (Vector3) obj;
+                writer.Write(string.Join("_", c.x, c.y, c.z));
+                return;
+            }
+            if (obj is Vector2 || obj is Vector2Int)
+            {
+                Vector2 c = (Vector2) obj;
+                writer.Write(string.Join("_", c.x, c.y));
+                return;
+            }
+
+            if (obj is Transform)
+            {
+                Transform c = (Transform) obj;
+                writer.Write(string.Join("#", string.Join("_", c.position.x, c.position.y, c.position.z), string.Join("_", c.eulerAngles.x, c.eulerAngles.y, c.eulerAngles.z)));
                 return;
             }
 

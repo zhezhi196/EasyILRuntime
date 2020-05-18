@@ -54,16 +54,19 @@ namespace ToolsEditor
         [Button("保存")][HorizontalGroup("ConfigButton",Order = -1)] 
         private void Save()
         {
-            JsonData data = new JsonData();
-            for (int i = 0; i < monsterData.Count; i++)
-            {
-                data.Add(JsonConvert.ToJson(monsterData[i],fieldBool));
-            }
-            using (StreamWriter wirter = new StreamWriter(GetfullPath()))
-            {
-                wirter.Write(data.ToJson());
-            }
-            AssetDatabase.Refresh();
+            Debug.Log(JsonMapper.ToJson(monsterData));
+            //Debug.Log(JsonMapper.ToObject(monsterData.ToJsonData()));
+            
+            // JsonData data = new JsonData();
+            // for (int i = 0; i < monsterData.Count; i++)
+            // {
+            //     data.Add(JsonConvert.ToJson(monsterData[i],fieldBool));
+            // }
+            // using (StreamWriter wirter = new StreamWriter(GetfullPath()))
+            // {
+            //     wirter.Write(data.ToJson());
+            // }
+            // AssetDatabase.Refresh();
         }
         [Button("配置")][HorizontalGroup("ConfigButton",Order = -1)] 
         private void Config()

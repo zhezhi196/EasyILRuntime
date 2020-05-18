@@ -68,7 +68,8 @@ namespace Module
             else if (Input.GetKeyDown(KeyCode.U))
             {
                 JsonData data = new JsonData();
-                data.Add(1);
+                object ddd = 1;
+                data["aaa"] = "1";
                 Debug.Log(data.ToJson());
             }
 
