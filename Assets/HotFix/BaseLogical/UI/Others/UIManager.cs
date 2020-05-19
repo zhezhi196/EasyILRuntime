@@ -26,7 +26,7 @@ namespace HotFix
             Voter voter = new Voter(UIObject.UIObjects.Count);
             voter.OnComplete(() =>
             {
-                Debug.Log("所有UI已预加载完毕");
+                GameDebug.Log("所有UI已预加载完毕");
                 runtime.NextAction();
             });
             

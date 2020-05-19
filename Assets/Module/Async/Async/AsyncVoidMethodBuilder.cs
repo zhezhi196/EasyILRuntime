@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Security;
 using Module;
+using Debug = UnityEngine.Debug;
 
 namespace System.Runtime.CompilerServices
 {
@@ -17,7 +18,7 @@ namespace System.Runtime.CompilerServices
             
         public void SetException(Exception exception)
         {
-            GameDebug.LogError(exception);
+            Debug.LogError(exception);
         }
 
         public void SetResult()

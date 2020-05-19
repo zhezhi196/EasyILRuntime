@@ -36,7 +36,7 @@ namespace HotFix
         
         private void OnHotFixFinish()
         {
-            Debug.Log("完全做完初始化.....");
+            GameDebug.Log("完全做完初始化.....");
             UIObject.Open(UIConfig.UIMain, UITweenType.Fade);
             GMHelper.Init();
         }

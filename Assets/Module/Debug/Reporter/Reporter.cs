@@ -5,6 +5,7 @@ using UnityEngine;
 //using System;
 using System.Collections;
 using System.Collections.Generic;
+using Module;
 using UnityEngine.SceneManagement;
 
 [System.Serializable]
@@ -2010,7 +2011,7 @@ public class Reporter : MonoBehaviour
         if (TotalMemUsage > maxSize)
         {
             clear();
-            Debug.Log("Memory Usage Reach" + maxSize + " mb So It is Cleared");
+            GameDebug.Log("Memory Usage Reach" + maxSize + " mb So It is Cleared");
             return;
         }
 

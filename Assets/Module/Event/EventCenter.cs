@@ -32,7 +32,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -51,7 +51,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -70,7 +70,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T, K>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -89,7 +89,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T, K, L>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -108,7 +108,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -127,7 +127,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M, N>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;
@@ -146,7 +146,7 @@ namespace Module
             gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M, N, B>;
             if (gameEvent == null)
             {
-                GameDebug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
+                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
             }
 
             return gameEvent;

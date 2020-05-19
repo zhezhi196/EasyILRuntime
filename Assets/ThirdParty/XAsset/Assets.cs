@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Module;
 using UnityEngine;
 using UnityEngine.Video;
 using Debug = UnityEngine.Debug;
@@ -156,7 +157,7 @@ namespace xasset
                 }
                 else
                 {
-                    Debug.Log($"渠道版本号: {manifest.channel}");
+                    GameDebug.Log($"渠道版本号: {manifest.channel}");
 
                     if (manifest.channel == Channel.LocalDebug || Application.platform != RuntimePlatform.WindowsEditor)
                     {
@@ -174,7 +175,7 @@ namespace xasset
                         downloadURL = string.Join("/", manifest.remoteServer, manifest.channel, platform) + "/";
                     }
 
-                    Debug.Log("下载地址做成: " + downloadURL);
+                    GameDebug.Log("下载地址做成: " + downloadURL);
 
                     Bundles.activeVariants = manifest.activeVariants;
                     _bundles = manifest.bundles;
@@ -304,14 +305,14 @@ namespace xasset
         [Conditional("LOG_ENABLE")]
         private static void Log(string s)
         {
-            Debug.Log(string.Format("[Assets]{0}", s));
+            GameDebug.Log(string.Format("[Assets]{0}", s));
         }
 
         private static Asset Load(string path, Type type, bool async)
         {
             if (string.IsNullOrEmpty(path))
             {
-                Debug.LogError("invalid path");
+                GameDebug.LogError("invalid path");
                 return null;
             }
 

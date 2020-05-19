@@ -256,7 +256,7 @@ namespace Module
                 {
                     if (asset.asset == null)
                     {
-                        Debug.LogError("Connot find prefab :" + path);
+                        GameDebug.LogError("Connot find prefab :" + path);
                         return;
                     }
 

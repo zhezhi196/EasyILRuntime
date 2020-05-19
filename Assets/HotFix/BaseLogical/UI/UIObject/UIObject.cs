@@ -172,7 +172,7 @@ namespace HotFix
                 }
                 catch (Exception e)
                 {
-                    GameDebug.LogError($"{uiType.name}: OnOpenStart error: {e}");
+                    Debug.LogError($"{uiType.name}: OnOpenStart error: {e}");
                 }
 
                 Voter voter = new Voter(2);
@@ -196,7 +196,7 @@ namespace HotFix
                                 }
                                 catch (Exception e)
                                 {
-                                    GameDebug.LogError($"{currentUI.uiType.name}: OnCloseComplete error: {e}");
+                                    Debug.LogError($"{currentUI.uiType.name}: OnCloseComplete error: {e}");
                                 }
                                 closeObj.view.gameObject.SetActive(false);
                                 voter.Add();
@@ -225,7 +225,7 @@ namespace HotFix
                     }
                     catch (Exception e)
                     {
-                        GameDebug.LogError($"{currentUI.uiType.name}: OnOpenComplete error: {e}");
+                        Debug.LogError($"{currentUI.uiType.name}: OnOpenComplete error: {e}");
                     }
                     
                     currentUI.ctrl.EnterPartAnimator(tweenType, () =>
@@ -241,7 +241,7 @@ namespace HotFix
                 }
                 catch (Exception e)
                 {
-                    GameDebug.LogError($"{uiType.name}: Refresh error: {e}");
+                    Debug.LogError($"{uiType.name}: Refresh error: {e}");
                 }
             }, isPopup);
 
@@ -252,7 +252,7 @@ namespace HotFix
         {
             if (!modul.isPopup)
             {
-                GameDebug.LogError($"{uiType.name} 非弹窗,不能直接关闭");
+                Debug.LogError($"{uiType.name} 非弹窗,不能直接关闭");
                 return this;
             }
 
@@ -269,7 +269,7 @@ namespace HotFix
                     view.gameObject.SetActive(false);
                 });
             });
-            
+
             uiQueue.RemoveAt(uiQueue.Count - 1);
             currentUI.ctrl.Refresh();
             return currentUI;

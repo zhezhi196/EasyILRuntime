@@ -58,23 +58,23 @@ namespace Module
             if(Input.GetKeyDown(KeyCode.T))
             {
                 BundleManager.LoadGameoObject("Prefab/Cube.prefab", OnLoadTest);
-                //Debug.Log(ServerSimulator.GetSqlService<PlayerData>().Where((data => data.ID == 1)).name);
+                //GameDebug.Log(ServerSimulator.GetSqlService<PlayerData>().Where((data => data.ID == 1)).name);
             }
             else if (Input.GetKeyDown(KeyCode.Y))
             {
                 Color c=new Color(0.5f,0.5f,0.5f,0.5f);
-                Debug.Log(c.ToString());
+                GameDebug.Log(c.ToString());
             }
             else if (Input.GetKeyDown(KeyCode.U))
             {
                 JsonData data = new JsonData();
                 object ddd = 1;
                 data["aaa"] = "1";
-                Debug.Log(data.ToJson());
+                GameDebug.Log(data.ToJson());
             }
 
 
-            //Debug.Log("loadIndex: " + loadIndex++);
+            //GameDebug.Log("loadIndex: " + loadIndex++);
         }
 
         private int loadIndex;
@@ -82,7 +82,7 @@ namespace Module
 
         private void OnLoadTest(GameObject obj)
         {
-            Debug.Log("OnLoadTest: " + index++);
+            GameDebug.Log("OnLoadTest: " + index++);
         }
 
         #region 原生事件
