@@ -29,7 +29,7 @@ namespace HotFix
 
         protected override void Init(RunTimeSequence runtime)
         {
-            ObjectPool.poolRoot.transform.SetParent(GamePlay.Instance.transform);
+            ObjectPool.poolRoot.transform.SetParent(Module.GamePlay.Instance.transform);
             bundleManager = BundleManager.Get<BundleManager>();
             runtime.NextAction();
         }

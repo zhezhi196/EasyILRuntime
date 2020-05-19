@@ -13,7 +13,7 @@ namespace Module
 {
     public abstract class BridgeBase
     {
-        public const string BridgeFullName = "HotFix.ILBridgeHotFix";
+        public const string BridgeFullName = "HotFix.GamePlay";
         public readonly Dictionary<string, Type> allTypes = new Dictionary<string, Type>();
         public BridgeBase(byte[] dllByte, byte[] pdbByte)
         {

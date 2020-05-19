@@ -8,7 +8,7 @@ using xasset;
 
 namespace HotFix
 {
-    public class ILBridgeHotFix : ILBridge
+    public class GamePlay : ILBridge
     {
         public void Init(BridgeBase modulBridge)
         {
