@@ -11,8 +11,6 @@ namespace Module
 {
     public class GamePlay : MonoBehaviour
     {
-        private BridgeBase bridge;
-
         #region gamePointer
 
         private static GamePlay instance;
@@ -32,11 +30,15 @@ namespace Module
         
         #endregion
         
+        private BridgeBase bridge;
+        
         protected virtual void OnBeforeInit()
         {
             FPS.SetFps();
         }
-
+        
+        #region 原生事件
+        
         void Awake()
         {
             OnBeforeInit();
@@ -45,47 +47,15 @@ namespace Module
             Manager.Initialize(sequence).OnComplete(() => bridge = HotFixManager.GetBridge());
             sequence.BeginAction();
         }
-
+        
         private void Update()
         {
             Clock.Update();
             FPS.Update();
             Async.Update();
             UIComponent.Update();
-            
             EventCenter.Dispatch(EventKey.Update);
-            
-            if(Input.GetKeyDown(KeyCode.T))
-            {
-                BundleManager.LoadGameoObject("Prefab/Cube.prefab", OnLoadTest);
-                //GameDebug.Log(ServerSimulator.GetSqlService<PlayerData>().Where((data => data.ID == 1)).name);
-            }
-            else if (Input.GetKeyDown(KeyCode.Y))
-            {
-                Color c=new Color(0.5f,0.5f,0.5f,0.5f);
-                GameDebug.Log(c.ToString());
-            }
-            else if (Input.GetKeyDown(KeyCode.U))
-            {
-                JsonData data = new JsonData();
-                object ddd = 1;
-                data["aaa"] = "1";
-                GameDebug.Log(data.ToJson());
-            }
-
-
-            //GameDebug.Log("loadIndex: " + loadIndex++);
         }
-
-        private int loadIndex;
-        private int index;
-
-        private void OnLoadTest(GameObject obj)
-        {
-            GameDebug.Log("OnLoadTest: " + index++);
-        }
-
-        #region 原生事件
 
         private void FixedUpdate()
         {
