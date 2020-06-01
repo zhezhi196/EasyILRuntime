@@ -214,7 +214,7 @@ namespace Module
             ObjectPool pool = null;
             if (!objectPool.TryGetValue(path, out pool))
             {
-                pool = new ObjectPool();
+                pool = new ObjectPool(path);
                 objectPool.Add(path, pool);
             }
 
@@ -223,7 +223,7 @@ namespace Module
                 Assets.LoadAsync(GetAssetPath(path), typeof(GameObject)).onComplete += asset =>
                 {
                     GameObject ass = (GameObject) asset.asset;
-                    pool.InitPrefab(ass);
+                    pool.InitPrefab(path,ass);
                     onLoad?.Invoke(ass);
                 };
             }
@@ -246,7 +246,7 @@ namespace Module
             ObjectPool pool = null;
             if (!objectPool.TryGetValue(path, out pool))
             {
-                pool = new ObjectPool();
+                pool = new ObjectPool(path);
                 objectPool.Add(path, pool);
             }
 
@@ -260,7 +260,7 @@ namespace Module
                         return;
                     }
 
-                    pool.InitPrefab((GameObject) (asset.asset));
+                    pool.InitPrefab(path,(GameObject) (asset.asset));
                     pool.InvokeAllCacheAction();
                     pool.GetObject(onLoad);
                 };

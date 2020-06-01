@@ -13,7 +13,7 @@ namespace Module
     {
         public override Type BaseCLRType
         {
-            get { return typeof(IDataBase); }
+            get { return typeof(TableData); }
         }
 
         public override Type AdaptorType
@@ -27,7 +27,7 @@ namespace Module
         }
 
 
-        public class Adaptor : IDataBase, CrossBindingAdaptorType
+        public class Adaptor : TableData, CrossBindingAdaptorType
         {
             private AppDomain appdomain;
             private ILTypeInstance instance;

@@ -19,7 +19,7 @@ namespace HotFix
             get { return "数据初始化"; }
         }
         
-        private static Dictionary<string, IDataBase[]> m_tableDic = new Dictionary<string, IDataBase[]>();
+        private static Dictionary<string, TableData[]> m_tableDic = new Dictionary<string, TableData[]>();
         
         protected override void BeforeInit()
         {
@@ -46,7 +46,7 @@ namespace HotFix
             {
                 foreach (KeyValuePair<string, Type> keyValuePair in HotFixManager.bridge.allTypes)
                 {
-                    if (keyValuePair.Value.BaseType == typeof(IDataBase))
+                    if (keyValuePair.Value.BaseType == typeof(TableData))
                     {
                         Assets.LoadAsync($"Assets/Bundles/Config/Tables/{keyValuePair.Value.Name}.json", typeof(TextAsset)).onComplete += asset =>
                         {
@@ -62,23 +62,23 @@ namespace HotFix
             runtime.NextAction();
         }
         
-        private IDataBase[] ReadData(string content, Type type)
+        private TableData[] ReadData(string content, Type type)
         {
             string[] spiteValue = content.Split('\n');
-            IDataBase[] data = new IDataBase[spiteValue.Length];
+            TableData[] data = new TableData[spiteValue.Length];
 
             for (int i = 0; i < spiteValue.Length; i++)
             {
-                data[i]= (IDataBase)JsonMapper.ToObject(spiteValue[i], type);
+                data[i]= (TableData)JsonMapper.ToObject(spiteValue[i], type);
             }
 
             return data;
         }
         
 
-        public static T Where<T>(Predicate<T> predicate) where T: IDataBase
+        public static T Where<T>(Predicate<T> predicate) where T: TableData
         {
-            IDataBase[] data = m_tableDic[typeof(T).FullName];
+            TableData[] data = m_tableDic[typeof(T).FullName];
             for (int i = 0; i < data.Length; i++)
             {
                 T t = (T) data[i];
@@ -91,9 +91,9 @@ namespace HotFix
             return default;
         }
 
-        public static T[] WhereList<T>(Predicate<T> predicate) where T: IDataBase
+        public static T[] WhereList<T>(Predicate<T> predicate) where T: TableData
         {
-            IDataBase[] data = m_tableDic[typeof(T).FullName];
+            TableData[] data = m_tableDic[typeof(T).FullName];
             List<T> temp = new List<T>();
             for (int i = 0; i < data.Length; i++)
             {

@@ -6,9 +6,9 @@ namespace Module
     {
         [PrimaryKey, AutoIncrement] public int ID { get; set; }
     }
-    public abstract class IDataBase
+    public abstract class TableData
     {
         public int Id;
-        public IDataBase(){}
+        public TableData(){}
     }
 }
