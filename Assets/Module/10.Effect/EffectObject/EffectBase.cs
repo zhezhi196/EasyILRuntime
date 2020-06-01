@@ -16,7 +16,6 @@ namespace Module
         public virtual void Pause(){}
         public virtual void Stop(){}
         public virtual void Simulate(float time){}
-        
 
         public virtual void OnGetObjectFromPool(){}
         public virtual void OnReturnToPool(){}
