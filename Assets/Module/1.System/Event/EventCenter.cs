@@ -21,135 +21,86 @@ namespace Module
 
         private static GameEvent AddDispatcher(string ID)
         {
-            GameEvent gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
                 gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent)gameEvent;
         }
 
         private static GameEvent<T> AddDispatcher<T>(string ID)
         {
-            GameEvent<T> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T>)gameEvent;
         }
 
         private static GameEvent<T, K> AddDispatcher<T, K>(string ID)
         {
-            GameEvent<T, K> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T, K>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T, K>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T, K>)gameEvent;
         }
 
         private static GameEvent<T, K, L> AddDispatcher<T, K, L>(string ID)
         {
-            GameEvent<T, K, L> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T, K, L>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T, K, L>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T, K, L>)gameEvent;
         }
 
         private static GameEvent<T, K, L, M> AddDispatcher<T, K, L, M>(string ID)
         {
-            GameEvent<T, K, L, M> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T, K, L, M>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T, K, L, M>)gameEvent;
         }
 
         private static GameEvent<T, K, L, M, N> AddDispatcher<T, K, L, M, N>(string ID)
         {
-            GameEvent<T, K, L, M, N> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T, K, L, M, N>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M, N>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T, K, L, M, N>)gameEvent;
         }
 
         private static GameEvent<T, K, L, M, N, B> AddDispatcher<T, K, L, M, N, B>(string ID)
         {
-            GameEvent<T, K, L, M, N, B> gameEvent = null;
-            if (!m_EventPool.ContainsKey(ID))
+            GameEventBase gameEvent = null;
+            if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent<T, K, L, M, N, B>(ID);
+                gameEvent = new GameEvent(ID);
                 m_EventPool.Add(ID, gameEvent);
-                return gameEvent;
             }
 
-            gameEvent = m_EventPool[ID] as GameEvent<T, K, L, M, N, B>;
-            if (gameEvent == null)
-            {
-                Debug.LogError("EventID:" + ID + "的类型是" + m_EventPool[ID].GetType().FullName);
-            }
-
-            return gameEvent;
+            return (GameEvent<T, K, L, M, N, B>)gameEvent;
         }
 
         #endregion
