@@ -20,6 +20,7 @@ namespace Module
         private static Dictionary<string, ObjectPool> objectPool = new Dictionary<string, ObjectPool>();
         private int allItem;
         protected override int runOrder { get; } = -999;
+
         protected override string processDiscription
         {
             get { return "资源下载完毕"; }
@@ -35,8 +36,8 @@ namespace Module
             this.runtime = runtime;
             Versions.Load();
             CheckVersion();
-            
         }
+
         private void CheckVersion()
         {
             Assets.Initialize(() =>
@@ -53,13 +54,15 @@ namespace Module
                 if (!File.Exists(path))
                 {
                     //从streamAsset拿MD5码
-                    Assets.LoadAsync(Assets.GetAssetBundleDataPathURL(Versions.versionText), typeof(TextAsset)).onComplete += asset =>
+                    Assets.LoadAsync(Assets.GetAssetBundleDataPathURL(Versions.versionText), typeof(TextAsset))
+                        .onComplete += asset =>
                     {
                         if (asset.error != null)
                         {
                             LoadVersions(string.Empty);
                             return;
                         }
+
                         //把streamAsset的version文件拷贝到persistentDataPath
                         string dir = Path.GetDirectoryName(path);
                         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -73,13 +76,14 @@ namespace Module
                     LoadVersions(File.ReadAllText(path));
                 }
             }, error => runtime.NextAction());
- 
         }
+
         private void Download()
         {
             currentDownload = downLoadQueue.Dequeue();
             currentDownload.Start();
         }
+
         private void Update()
         {
             if (currentDownload == null)
@@ -88,7 +92,7 @@ namespace Module
                 {
                     Versions.Save();
                     Complete();
-                    
+
                     return;
                 }
                 else
@@ -100,25 +104,27 @@ namespace Module
             currentDownload.Update();
 
             EventCenter.Dispatch(EventKey.BundleProcess, (float) (allItem - downLoadQueue.Count) / allItem);
-            float loading = UIComponent.SetLoading(this.GetType().FullName, $"正在下载资源: {(allItem - downLoadQueue.Count)}/{allItem}", (float) (allItem - downLoadQueue.Count) / allItem);
+            float loading = UIComponent.SetLoading(this.GetType().FullName,
+                $"正在下载资源: {(allItem - downLoadQueue.Count)}/{allItem}",
+                (float) (allItem - downLoadQueue.Count) / allItem);
             if (currentDownload.isDone)
             {
                 SaveDownload(currentDownload);
                 currentDownload = null;
                 GameDebug.Log($"loading process: {allItem - downLoadQueue.Count}/{allItem}");
             }
-
-
         }
+
         private void Complete()
         {
             EventCenter.UnRegister(EventKey.Update, Update);
             runtime.NextAction();
             EventCenter.Dispatch(EventKey.BundleInitComplete);
         }
+
         private void SaveDownload(Download downLoad)
         {
-            if(!downLoad.isDone) return;
+            if (!downLoad.isDone) return;
             if (_serverVersions.ContainsKey(downLoad.path))
             {
                 _versions[downLoad.path] = _serverVersions[downLoad.path];
@@ -140,9 +146,10 @@ namespace Module
             }
             else
             {
-                File.WriteAllText(path,sb.ToString());
+                File.WriteAllText(path, sb.ToString());
             }
         }
+
         private void LoadVersions(string text)
         {
             //把本地的version写入字典
@@ -155,6 +162,7 @@ namespace Module
                     GameDebug.Log("热更服务器出现错误");
                     return;
                 }
+
                 //把服务器的version写入字典
                 ReadVersionToMap(asset.text, ref _serverVersions);
                 foreach (var item in _serverVersions)
@@ -189,6 +197,7 @@ namespace Module
                 }
             };
         }
+
         private void ReadVersionToMap(string text, ref Dictionary<string, string> map)
         {
             map.Clear();
@@ -206,7 +215,7 @@ namespace Module
                 }
             }
         }
-        
+
         #region 加载 预加载
 
         public static ObjectPool PreLoad(string path, Action<Object> onLoad)
@@ -223,7 +232,7 @@ namespace Module
                 Assets.LoadAsync(GetAssetPath(path), typeof(GameObject)).onComplete += asset =>
                 {
                     GameObject ass = (GameObject) asset.asset;
-                    pool.InitPrefab(path,ass);
+                    pool.InitPrefab(path, ass);
                     onLoad?.Invoke(ass);
                 };
             }
@@ -233,10 +242,9 @@ namespace Module
             }
 
             return pool;
-            
         }
 
-        public static ObjectPool LoadGameoObject<T>(string path, Action<T> onLoad) where T: IPoolObject
+        public static ObjectPool LoadGameoObject<T>(string path, Action<T> onLoad) where T : IPoolObject
         {
             return LoadGameoObject(path, (go) => { onLoad?.Invoke(go.GetComponent<T>()); });
         }
@@ -260,7 +268,7 @@ namespace Module
                         return;
                     }
 
-                    pool.InitPrefab(path,(GameObject) (asset.asset));
+                    pool.InitPrefab(path, (GameObject) (asset.asset));
                     pool.InvokeAllCacheAction();
                     pool.GetObject(onLoad);
                 };
