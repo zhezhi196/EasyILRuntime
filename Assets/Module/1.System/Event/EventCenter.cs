@@ -36,7 +36,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
@@ -48,7 +48,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T, K>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
@@ -60,7 +60,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T, K, L>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
@@ -72,7 +72,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T, K, L, M>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
@@ -84,7 +84,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T, K, L, M, N>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
@@ -96,7 +96,7 @@ namespace Module
             GameEventBase gameEvent = null;
             if (!m_EventPool.TryGetValue(ID, out gameEvent))
             {
-                gameEvent = new GameEvent(ID);
+                gameEvent = new GameEvent<T, K, L, M, N, B>(ID);
                 m_EventPool.Add(ID, gameEvent);
             }
 
