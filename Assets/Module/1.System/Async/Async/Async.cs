@@ -11,11 +11,12 @@ namespace Module
     public abstract class Async
     {
         protected AsyncTask task;
-        protected bool isBusy;
+        protected string key;
         protected abstract bool isComplete { get; }
         public abstract void AsyncUpdate();
+        protected abstract void OnClear();
+        
         protected static List<Async> asyncList = new List<Async>();
-
         public static void Update()
         {
             for (int i = 0; i < asyncList.Count; i++)
@@ -23,40 +24,55 @@ namespace Module
                 asyncList[i].AsyncUpdate();
             }
         }
-
-        public static AsyncTask WaitforSeconds(float time)
+        
+        public static void StopAsync(string key)
         {
-            return WaitForSecondsClass.GetClass(time).task;
+            for (int i = 0; i < asyncList.Count; i++)
+            {
+                if (asyncList[i].key == key)
+                {
+                    asyncList.RemoveAt(i);
+                }
+            }
+        }
+        
+        public static void Clear()
+        {
+            for (int i = 0; i < asyncList.Count; i++)
+            {
+                asyncList[i].OnClear();
+            }
+            asyncList.Clear();
+        }
+        
+        public static AsyncTask WaitforSeconds(float time, string key = null)
+        {
+            return WaitForSecondsClass.GetClass(key,time).task;
         }
 
-        public static AsyncTask WaitforSecondsRealTime(float time)
+        public static AsyncTask WaitforSecondsRealTime(float time, string key = null)
         {
-            return WaitForSecondsRealtimeClass.GetClass(time).task;
+            return WaitForSecondsRealtimeClass.GetClass(key,time).task;
         }
 
-        public static AsyncTask WaitUntil(Func<bool> predicate)
+        public static AsyncTask WaitUntil(Func<bool> predicate, string key = null)
         {
-            return WaitUntilClass.GetClass(predicate).task;
+            return WaitUntilClass.GetClass(key,predicate).task;
         }
 
-        public static AsyncTask WaitForEndOfFrame()
+        public static AsyncTask WaitForEndOfFrame(string key = null)
         {
-            return WaitForEndOfFrameClass.GetClass().task;
+            return WaitForEndOfFrameClass.GetClass(key).task;
         }
 
-        public static AsyncTask WaitForWWW(WWW www)
+        public static AsyncTask WaitForWWW(WWW www, string key = null)
         {
-            return WaitForWWWClass.GetClass(www).task;
+            return WaitForWWWClass.GetClass(key,www).task;
         }
 
-        public static AsyncTask WaitForUnityWebRequest(UnityWebRequest request)
+        public static AsyncTask WaitForAsyncOption(AsyncOperation option, string key = null)
         {
-            return WaitForUnityWebRequestClass.GetClass(request).task;
-        }
-
-        public static AsyncTask WaitForAsyncOption(AsyncOperation option)
-        {
-            return WaitForAsyncOptionClass.GetClass(option).task;
+            return WaitForAsyncOptionClass.GetClass(key,option).task;
         }
 
         #region 所有类
@@ -65,20 +81,20 @@ namespace Module
         {
             public static Queue<WaitForSecondsClass> classPool = new Queue<WaitForSecondsClass>();
 
-            public static WaitForSecondsClass GetClass(float time)
+            public static WaitForSecondsClass GetClass(string key,float time)
             {
                 if (classPool.Count > 0)
                 {
-                    
                     WaitForSecondsClass result = classPool.Dequeue();
                     result.remainTime = time;
                     result.task = AsyncTask.GetTask();
                     asyncList.Add(result);
+                    result.key = key;
                     return result;
                 }
                 else
                 {
-                    return new WaitForSecondsClass(time);
+                    return new WaitForSecondsClass(key,time);
                 }
             }
 
@@ -89,11 +105,12 @@ namespace Module
                 get { return remainTime <= 0; }
             }
 
-            public WaitForSecondsClass(float time)
+            public WaitForSecondsClass(string key,float time)
             {
                 remainTime = time;
                 task = AsyncTask.GetTask();
                 asyncList.Add(this);
+                this.key = key;
             }
 
             public override void AsyncUpdate()
@@ -106,25 +123,31 @@ namespace Module
                     classPool.Enqueue(this);
                 }
             }
+
+            protected override void OnClear()
+            {
+                classPool.Clear();
+            }
         }
 
         private class WaitForSecondsRealtimeClass : Async
         {
             public static Queue<WaitForSecondsRealtimeClass> classPool = new Queue<WaitForSecondsRealtimeClass>();
 
-            public static WaitForSecondsRealtimeClass GetClass(float time)
+            public static WaitForSecondsRealtimeClass GetClass(string key,float time)
             {
                 if (classPool.Count > 0)
                 {
                     WaitForSecondsRealtimeClass result = classPool.Dequeue();
                     result.remainTime = time;
                     result.task = AsyncTask.GetTask();
+                    result.key = key;
                     asyncList.Add(result);
                     return result;
                 }
                 else
                 {
-                    return new WaitForSecondsRealtimeClass(time);
+                    return new WaitForSecondsRealtimeClass(key,time);
                 }
             }
 
@@ -135,10 +158,11 @@ namespace Module
 
             private float remainTime;
 
-            public WaitForSecondsRealtimeClass(float time)
+            public WaitForSecondsRealtimeClass(string key,float time)
             {
                 remainTime = time;
                 task = AsyncTask.GetTask();
+                this.key = key;
                 asyncList.Add(this);
             }
 
@@ -152,13 +176,18 @@ namespace Module
                     classPool.Enqueue(this);
                 }
             }
+
+            protected override void OnClear()
+            {
+                classPool.Clear();
+            }
         }
 
         private class WaitUntilClass : Async
         {
             public static Queue<WaitUntilClass> classPool = new Queue<WaitUntilClass>();
 
-            public static WaitUntilClass GetClass(Func<bool> predicate)
+            public static WaitUntilClass GetClass(string key,Func<bool> predicate)
             {
                 if (classPool.Count > 0)
                 {
@@ -166,11 +195,12 @@ namespace Module
                     result.predicate = predicate;
                     result.task = AsyncTask.GetTask();
                     asyncList.Add(result);
+                    result.key = key;
                     return result;
                 }
                 else
                 {
-                    return new WaitUntilClass(predicate);
+                    return new WaitUntilClass(key,predicate);
                 }
             }
 
@@ -181,10 +211,11 @@ namespace Module
 
             private Func<bool> predicate;
 
-            public WaitUntilClass(Func<bool> predicate)
+            public WaitUntilClass(string key,Func<bool> predicate)
             {
                 this.predicate = predicate;
                 task = AsyncTask.GetTask();
+                this.key = key;
                 asyncList.Add(this);
             }
 
@@ -197,25 +228,30 @@ namespace Module
                     classPool.Enqueue(this);
                 }
             }
+            protected override void OnClear()
+            {
+                classPool.Clear();
+            }
         }
 
         private class WaitForEndOfFrameClass : Async
         {
             public static Queue<WaitForEndOfFrameClass> classPool = new Queue<WaitForEndOfFrameClass>();
 
-            public static WaitForEndOfFrameClass GetClass()
+            public static WaitForEndOfFrameClass GetClass(string key)
             {
                 if (classPool.Count > 0)
                 {
                     WaitForEndOfFrameClass result = classPool.Dequeue();
                     result.m_isComplete = false;
                     result.task = AsyncTask.GetTask();
+                    result.key = key;
                     asyncList.Add(result);
                     return result;
                 }
                 else
                 {
-                    return new WaitForEndOfFrameClass();
+                    return new WaitForEndOfFrameClass(key);
                 }
             }
 
@@ -226,9 +262,10 @@ namespace Module
                 get { return m_isComplete; }
             }
 
-            public WaitForEndOfFrameClass()
+            public WaitForEndOfFrameClass(string key)
             {
                 task = AsyncTask.GetTask();
+                this.key = key;
                 asyncList.Add(this);
             }
 
@@ -245,25 +282,31 @@ namespace Module
                     m_isComplete = true;
                 }
             }
+            protected override void OnClear()
+            {
+                Debug.LogError(classPool.Count);
+                classPool.Clear();
+            }
         }
 
         private class WaitForWWWClass : Async
         {
             public static Queue<WaitForWWWClass> classPool = new Queue<WaitForWWWClass>();
 
-            public static WaitForWWWClass GetClass(WWW www)
+            public static WaitForWWWClass GetClass(string key,WWW www)
             {
                 if (classPool.Count > 0)
                 {
                     WaitForWWWClass result = classPool.Dequeue();
                     result.www = www;
                     result.task = AsyncTask.GetTask();
+                    result.key = key;
                     asyncList.Add(result);
                     return result;
                 }
                 else
                 {
-                    return new WaitForWWWClass(www);
+                    return new WaitForWWWClass(key,www);
                 }
             }
 
@@ -274,10 +317,11 @@ namespace Module
 
             private WWW www;
 
-            public WaitForWWWClass(WWW www)
+            public WaitForWWWClass(string key,WWW www)
             {
                 this.www = www;
                 task = AsyncTask.GetTask();
+                this.key = key;
                 asyncList.Add(this);
             }
 
@@ -290,70 +334,31 @@ namespace Module
                     classPool.Enqueue(this);
                 }
             }
-        }
-
-        private class WaitForUnityWebRequestClass : Async
-        {
-            public static Queue<WaitForUnityWebRequestClass> classPool = new Queue<WaitForUnityWebRequestClass>();
-
-            public static WaitForUnityWebRequestClass GetClass(UnityWebRequest www)
+            protected override void OnClear()
             {
-                if (classPool.Count > 0)
-                {
-                    WaitForUnityWebRequestClass result = classPool.Dequeue();
-                    result.www = www;
-                    result.task = AsyncTask.GetTask();
-                    asyncList.Add(result);
-                    return result;
-                }
-                else
-                {
-                    return new WaitForUnityWebRequestClass(www);
-                }
-            }
-
-            protected override bool isComplete
-            {
-                get { return www.isDone; }
-            }
-
-            private UnityWebRequest www;
-
-            public WaitForUnityWebRequestClass(UnityWebRequest www)
-            {
-                this.www = www;
-                task = AsyncTask.GetTask();
-                asyncList.Add(this);
-            }
-
-            public override void AsyncUpdate()
-            {
-                if (isComplete)
-                {
-                    task.SetResult();
-                    asyncList.Remove(this);
-                    classPool.Enqueue(this);
-                }
+                classPool.Clear();
             }
         }
+
 
         private class WaitForAsyncOptionClass : Async
         {
             public static Queue<WaitForAsyncOptionClass> classPool = new Queue<WaitForAsyncOptionClass>();
 
-            public static WaitForAsyncOptionClass GetClass(AsyncOperation option)
+            public static WaitForAsyncOptionClass GetClass(string key,AsyncOperation option)
             {
                 if (classPool.Count > 0)
                 {
                     WaitForAsyncOptionClass result = classPool.Dequeue();
                     result.option = option;
                     result.task = AsyncTask.GetTask();
+                    result.key = key;
                     asyncList.Add(result);
                     return result;
                 }
                 else
                 {
-                    return new WaitForAsyncOptionClass(option);
+                    return new WaitForAsyncOptionClass(key,option);
                 }
             }
 
@@ -364,10 +369,11 @@ namespace Module
 
             private AsyncOperation option;
 
-            public WaitForAsyncOptionClass(AsyncOperation option)
+            public WaitForAsyncOptionClass(string key,AsyncOperation option)
             {
                 this.option = option;
                 task = AsyncTask.GetTask();
+                this.key = key;
                 asyncList.Add(this);
             }
 
@@ -380,8 +386,15 @@ namespace Module
                     classPool.Enqueue(this);
                 }
             }
+            protected override void OnClear()
+            {
+                classPool.Clear();
+            }
         }
 
         #endregion
+
+
+
     }
 }

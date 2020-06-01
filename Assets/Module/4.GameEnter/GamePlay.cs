@@ -34,6 +34,7 @@ namespace Module
         
         protected virtual void OnBeforeInit()
         {
+            Async.Clear();
             FPS.SetFps();
         }
         
