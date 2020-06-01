@@ -18,42 +18,45 @@ public class UnityStart
 
     static UnityStart()
     {
-        
-        var dllPath = Path.Combine(ScriptAssembliesDir, HotfixDll);
-        if (File.Exists(dllPath))
+        try
         {
-
-            File.Copy(Path.Combine(ScriptAssembliesDir, HotfixDll), Path.Combine(CodeDir, "Hotfix.dll.bytes"), true);
-        }
-
-        dllPath = Path.Combine(ScriptAssembliesDir, HotfixPdb);
-        if (File.Exists(dllPath))
-        {
-            File.Copy(Path.Combine(ScriptAssembliesDir, HotfixPdb), Path.Combine(CodeDir, "Hotfix.pdb.bytes"), true);
-        }
-
-
-        
-        Debug.Log($"复制Hotfix.dll, Hotfix.pdb到{CodeDir}完成");
-        AssetDatabase.Refresh();
-        hotFixType.Clear();
-
-        Type[] t = Assembly.Load("HotFix").GetTypes();
-
-        for (int i = 0; i < t.Length; i++)
-        {
-            if (t[i].Namespace == "HotFix")
+            var dllPath = Path.Combine(ScriptAssembliesDir, HotfixDll);
+            if (File.Exists(dllPath))
             {
-                {
-                    if (t[i].GetRoot().FullName == "Module.ViewBehaviour" && !t[i].IsAbstract)
-                    {
-                        hotFixType.Add(t[i].Name);
-                    }
-                }
+                File.Copy(Path.Combine(ScriptAssembliesDir, HotfixDll), Path.Combine(CodeDir, "Hotfix.dll.bytes"), true);
             }
 
-            hotFixType.Sort();
+            dllPath = Path.Combine(ScriptAssembliesDir, HotfixPdb);
+            if (File.Exists(dllPath))
+            {
+                File.Copy(Path.Combine(ScriptAssembliesDir, HotfixPdb), Path.Combine(CodeDir, "Hotfix.pdb.bytes"), true);
+            }
+        
+            Debug.Log($"复制Hotfix.dll, Hotfix.pdb到{CodeDir}完成");
+            AssetDatabase.Refresh();
+            hotFixType.Clear();
+
+            Type[] t = Assembly.Load("HotFix").GetTypes();
+
+            for (int i = 0; i < t.Length; i++)
+            {
+                if (t[i].Namespace == "HotFix")
+                {
+                    {
+                        if (t[i].GetRoot().FullName == "Module.ViewBehaviour" && !t[i].IsAbstract)
+                        {
+                            hotFixType.Add(t[i].Name);
+                        }
+                    }
+                }
+
+                hotFixType.Sort();
+            }
         }
+        catch
+        {
+        }
+  
     }
 }
 
