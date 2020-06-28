@@ -4,31 +4,31 @@ using System.Collections.Generic;
 using Module;
 using UnityEngine;
 
-namespace HotFix
+namespace Module
 {
-    public interface ICtrlUi
-    {
-        bool isActive { get; }
-        UIModul RefreshModul(UITweenType tweenType, bool isPopup,UIObject from, object[] args);
-        void OnStart();
-        void Refresh();
-        void OnDestroy();
-        void Back(UIObject lastUI);
-        void OnOpenStart();
-        void OnOpenComplete();
-        void OnCloseStart();
-        void OnCloseComplete();
-        V GetOtherView<V>() where V : UIView;
+    // public interface ICtrlUi
+    // {
+    //     bool isActive { get; }
+    //     UIModul RefreshModul(UITweenType tweenType, bool isPopup,UIObject from, object[] args);
+    //     void OnStart();
+    //     void Refresh();
+    //     void OnDestroy();
+    //     void Back(UIObject lastUI);
+    //     void OnOpenStart();
+    //     void OnOpenComplete();
+    //     void OnCloseStart();
+    //     void OnCloseComplete();
+    //     V GetOtherView<V>() where V : UIView;
+    //
+    //     UIView CreatView(GameObject prefab,bool isPopup);
+    //     void ExitPartAnimator(UITweenType tweenType,Action runNext);
+    //     void EnterPartAnimator(UITweenType tweenType,Action runNext);
+    // }
 
-        UIView CreatView(GameObject prefab,bool isPopup);
-        void ExitPartAnimator(UITweenType tweenType,Action runNext);
-        void EnterPartAnimator(UITweenType tweenType,Action runNext);
-    }
-
-    public class UICtrl<ModuleType, ViewType> : ICtrlUi where ViewType : UIView where ModuleType : UIModul, new()
+    public class UICtrl
     {
-        public ViewType view;
-        public ModuleType modul;
+        public UIViewReference view;
+        public UIModul modul;
 
         public bool isActive
         {
@@ -39,7 +39,7 @@ namespace HotFix
         {
             if (modul == null)
             {
-                modul = new ModuleType();
+                modul = new UIModul();
             }
 
             modul.OnRefresh(tweenType, isPopup, from, args);
@@ -67,10 +67,6 @@ namespace HotFix
             }
 
             return view;
-        }
-        public V GetOtherView<V>() where V : UIView
-        {
-            return null;
         }
         
         #region EventMethod

@@ -1,3 +1,5 @@
+using Module;
+
 namespace HotFix
 {
 	public class UIMainView : UIView
@@ -6,7 +8,7 @@ namespace HotFix
 	public class UIMainModul : UIModul
 	{
 	}
-	public class UIMainCtrl : UICtrl<UIMainModul, UIMainView>
+	public class UIMainCtrl : UICtrl
 	{
 	}
 }

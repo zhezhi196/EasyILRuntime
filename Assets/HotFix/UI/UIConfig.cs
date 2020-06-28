@@ -1,3 +1,5 @@
+using Module;
+
 namespace HotFix
 {
     public static partial class UIConfig

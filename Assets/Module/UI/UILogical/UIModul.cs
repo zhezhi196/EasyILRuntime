@@ -4,16 +4,8 @@ using DG.Tweening;
 using Module;
 using UnityEngine;
 
-namespace HotFix
+namespace Module
 {
-    public abstract class UIView : HotFixMonoBehaviour<UIViewReference>
-    {
-        public float tweenInterval;
-        public AnimationCurve tweenCurve;
-        
-        public float delay;
-    }
-
     public class UIModul
     {
         public UITweenType tweenType;

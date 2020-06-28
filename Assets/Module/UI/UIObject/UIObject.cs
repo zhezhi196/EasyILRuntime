@@ -8,38 +8,9 @@ using Module;
 using Sirenix.Utilities;
 using UnityEngine;
 
-namespace HotFix
+namespace Module
 {
-    #region UIEnum
-
-    public enum UITweenType
-    {
-        Ignore,
-        None,
-        Fade,
-        Left,
-        Right,
-        Up,
-        Down,
-        Scale
-    }
-
-    public enum OpenFlag
-    {
-        /// <summary>
-        /// ABCD---打开B---ABCDB
-        /// </summary>
-        Inorder,
-
-        /// <summary>
-        /// ABCD---打开B---AB
-        /// </summary>
-        Insertion,
-    }
-
-    #endregion
-
-    public  class UIObject
+    public class UIObject
     {
         private enum OpenOrClose
         {
@@ -60,7 +31,7 @@ namespace HotFix
 
         public static UIObject Open(UIType uiType, UITweenType tweenType, params object[] args)
         {
-            if (currentUI != null && currentUI.modul != null && currentUI.modul.isPopup)
+            if (currentUI != null && currentUI.ctrl.modul != null && currentUI.modul.isPopup)
             {
                 currentUI.Close();
             }
@@ -86,27 +57,15 @@ namespace HotFix
         #region field
 
         private GameObject m_prefab;
-        private ICtrlUi m_ctrl;
-        private UIModul m_modul;
-        private UIView m_view;
+        private UICtrl m_ctrl;
         
         #endregion
 
         #region 属性
 
-        public ICtrlUi ctrl
+        public UICtrl ctrl
         {
             get { return m_ctrl; }
-        }
-
-        public UIModul modul
-        {
-            get { return m_modul; }
-        }
-
-        public UIView view
-        {
-            get { return m_view; }
         }
 
         public UIType uiType { get; }
@@ -130,7 +89,7 @@ namespace HotFix
         {
             if (uiType.preLoad)
             {
-                ResourceManager.PreLoad(uiType.prefabPath, obj =>
+                BundleManager.PreLoad(uiType.prefabPath, obj =>
                 {
                     m_prefab = (GameObject) obj;
 
@@ -154,13 +113,12 @@ namespace HotFix
                 return this;
             }
 
-            Module.UIComponent.Freeze(uiType.name);
+            UIComponent.Freeze(uiType.name); 
 
             if (!isActive)
             {
-                m_ctrl = (ICtrlUi) Activator.CreateInstance(uiType.ctrlType);
+                m_ctrl = HotFixManager.GetInstance()
             }
-
 
             m_modul = m_ctrl.RefreshModul(tweenType, isPopup, currentUI, args);
 
@@ -176,7 +134,7 @@ namespace HotFix
                 }
 
                 Voter voter = new Voter(2);
-                voter.OnComplete(() => Module.UIComponent.UnFreeze(uiType.name));
+                voter.OnComplete(() => UIComponent.UnFreeze(uiType.name));
                 
                 if (currentUI != null)
                 {                    

@@ -96,8 +96,17 @@ namespace Module
         
         private string GetPath(string extend)
         {
-            
             return $"{Application.dataPath}/Bundles/Code/Hotfix.{extend}.bytes";
+        }
+
+        public static T GetInstance<T>(string type, params object[] args)
+        {
+            return (T)bridge.CreatInstance(type, args);
+        }
+
+        public static object GetInstance(string type, params object[] args)
+        {
+            return bridge.CreatInstance(type, args);
         }
 
         public static BridgeBase GetBridge()

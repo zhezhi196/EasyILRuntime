@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HotFix
+namespace Module
 {
     public class UIType
     {

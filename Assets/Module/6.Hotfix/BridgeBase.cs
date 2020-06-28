@@ -15,6 +15,7 @@ namespace Module
     {
         public const string BridgeFullName = "HotFix.GamePlay";
         public readonly Dictionary<string, Type> allTypes = new Dictionary<string, Type>();
+        public abstract object CreatInstance(string type,params object[] args);
         public BridgeBase(byte[] dllByte, byte[] pdbByte)
         {
         }
@@ -24,6 +25,11 @@ namespace Module
     public class AssemblyBridge : BridgeBase
     {
         private Assembly _assembly;
+        public override object CreatInstance(string type,params object[] args)
+        {
+            return  _assembly.CreateInstance(type,false,BindingFlags.Default,null,args,null,null);
+        }
+
         public override ILBridge iLBridge { get; }
         public AssemblyBridge(byte[] dllByte, byte[] pdbByte) : base(dllByte, pdbByte)
         {
@@ -41,6 +47,11 @@ namespace Module
 
     public class AppDomainBridge : BridgeBase
     {
+        public override object CreatInstance(string type, params object[] args)
+        {
+            return appdomain.Instantiate(type, args);
+        }
+
         public override ILBridge iLBridge { get; }
         private AppDomain appdomain;
 

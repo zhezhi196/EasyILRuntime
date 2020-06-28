@@ -14,9 +14,16 @@ using Object = UnityEngine.Object;
 
 namespace Module
 {
+    [Flags]
+    public enum PoolFlag
+    {
+        FromPool = 1 << 0,
+        AutoActive = 1 << 1,
+    }
+
     public class ObjectPool
     {
-        private Queue<(Action<GameObject>, bool)> cacheAction = new Queue<(Action<GameObject>, bool)>();
+        private Queue<(Action<GameObject>, PoolFlag)> cacheAction = new Queue<(Action<GameObject>, PoolFlag)>();
 
         #region poolRoot
 
@@ -28,7 +35,7 @@ namespace Module
             {
                 if (m_root == null)
                 {
-                    m_root = new GameObject("PoolRoot").transform;
+                    m_root = new GameObject("GamePlay/PoolRoot").transform;
                 }
 
                 return m_root;
@@ -76,6 +83,17 @@ namespace Module
             activeObject = new Queue<GameObject>();
         }
 
+        public void SetDefaultCount(int count, Transform parent, bool autoActive = true)
+        {
+            if (!isActive) return;
+            for (int i = 0; i < count; i++)
+            {
+                GameObject go = GameObject.Instantiate(prefab, parent);
+                if (autoActive) go.SetActive(false);
+                activeObject.Enqueue(go);
+            }
+        }
+
         public void InvokeAllCacheAction()
         {
             int index = cacheAction.Count;
@@ -86,24 +104,25 @@ namespace Module
             }
         }
 
-        public void GetObject<T>(Action<T> callBack, bool fromPool = true)
+        public void GetObject<T>(Action<T> callBack, PoolFlag flag = PoolFlag.AutoActive ^ PoolFlag.FromPool)
         {
-            GetObject(go => { callBack?.Invoke(go.GetComponent<T>()); }, fromPool);
+            GetObject(go => { callBack?.Invoke(go.GetComponent<T>()); }, flag);
         }
 
-        public void GetObject(Action<GameObject> callBack, bool fromPool = true)
+        public void GetObject(Action<GameObject> callBack, PoolFlag flag = PoolFlag.AutoActive ^ PoolFlag.FromPool)
         {
             if (!isActive)
             {
-                cacheAction.Enqueue((callBack, fromPool));
+                cacheAction.Enqueue((callBack, flag));
                 return;
             }
 
-            GameObject returnValue = activeObject.Count > 0 && fromPool
+            GameObject returnValue = activeObject.Count > 0 && flag.HasFlag(PoolFlag.FromPool)
                 ? activeObject.Dequeue()
                 : GameObject.Instantiate(prefab);
             IPoolObject target = returnValue.GetComponent<IPoolObject>();
-            returnValue.SetActive(true);
+            if (flag.HasFlag(PoolFlag.AutoActive))
+                returnValue.SetActive(true);
             callBack?.Invoke(returnValue);
             if (target != null)
             {
@@ -112,7 +131,7 @@ namespace Module
             }
         }
 
-        public GameObject GetObject(bool fromPool = true)
+        public GameObject GetObject(PoolFlag flag = PoolFlag.AutoActive ^ PoolFlag.FromPool)
         {
             if (!isActive)
             {
@@ -120,11 +139,14 @@ namespace Module
                 return null;
             }
 
-            GameObject returnValue = activeObject.Count > 0 && fromPool
-                ? activeObject.Dequeue()
-                : GameObject.Instantiate(prefab);
+            GameObject returnValue = null;
+            while (returnValue==null)
+            {
+                returnValue = activeObject.Count > 0&& flag.HasFlag(PoolFlag.FromPool) ? activeObject.Dequeue() : GameObject.Instantiate(prefab);
+            }
             IPoolObject target = returnValue.GetComponent<IPoolObject>();
-            returnValue.SetActive(true);
+            if (flag.HasFlag(PoolFlag.AutoActive))
+                returnValue.SetActive(true);
             if (target != null)
             {
                 target.pool = this;
@@ -134,7 +156,7 @@ namespace Module
             return returnValue;
         }
 
-        public T GetObject<T>(bool fromPool = true) where T : IPoolObject
+        public T GetObject<T>(PoolFlag flag = PoolFlag.AutoActive ^ PoolFlag.FromPool) where T : IPoolObject
         {
             if (!isActive)
             {
@@ -142,11 +164,14 @@ namespace Module
                 return default;
             }
 
-            GameObject returnValue = activeObject.Count > 0 && fromPool
-                ? activeObject.Dequeue()
-                : GameObject.Instantiate(prefab);
+            GameObject returnValue = null;
+            while (returnValue==null)
+            {
+                returnValue = activeObject.Count > 0&& flag.HasFlag(PoolFlag.FromPool) ? activeObject.Dequeue() : GameObject.Instantiate(prefab);
+            }
             IPoolObject target = returnValue.GetComponent<IPoolObject>();
-            returnValue.SetActive(true);
+            if (flag.HasFlag(PoolFlag.AutoActive))
+                returnValue.SetActive(true);
             if (target != null)
             {
                 target.pool = this;
@@ -185,5 +210,6 @@ namespace Module
                 obj.OnReturnToPool();
             }
         }
+
     }
 }
