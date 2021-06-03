@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public class EffectPlay : IProcess, ISetID<object, EffectPlay>
+    public class EffectPlay : IProcess, IDMark<object, EffectPlay>
     {
         #region Static
 
@@ -79,7 +79,7 @@ namespace Module
 
         private bool m_isComplete;
         public object ID { get; set; }
-        public Func<bool> monitor { get; set; }
+        public Func<bool> listener { get; set; }
         public bool ignoreTimeScale { get; private set; } = false;
         public EffectBase effect { get; private set; }
         public float runTime;
@@ -97,13 +97,13 @@ namespace Module
         {
             get
             {
-                if (monitor == null)
+                if (listener == null)
                 {
                     return m_isComplete;
                 }
                 else
                 {
-                    return m_isComplete || monitor.Invoke();
+                    return m_isComplete || listener.Invoke();
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace Module
             return this;
         }
 
-        public EffectPlay SetID(object id)
+        public EffectPlay SetID(object id, string tag=null)
         {
             this.ID = id;
             List<EffectPlay> p = null;
@@ -170,9 +170,9 @@ namespace Module
             return this;
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public bool MoveNext()

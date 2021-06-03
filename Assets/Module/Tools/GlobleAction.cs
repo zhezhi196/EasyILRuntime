@@ -4,7 +4,6 @@ namespace Module
 {
     public class GlobleAction
     {
-        public static Action<UIBtnBase> onButtonClick;
-        public static Action<UIToggle> onToggleClick;
+        public static Action<IButtonConfig> onButtonClick;
     }
 }

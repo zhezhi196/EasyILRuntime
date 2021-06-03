@@ -3,9 +3,10 @@ using UnityEngine;
 
 namespace Module
 {
-    public interface IRewardObject
+    public interface IRewardObject : IconObject
     {
-        void GetIapIcon(Action<Sprite> callback);
-        void GetIapReward(long count);
+        string rewardDes { get; }
+        void GetReward(float count);
+        
     }
 }

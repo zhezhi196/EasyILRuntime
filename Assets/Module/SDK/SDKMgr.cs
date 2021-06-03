@@ -19,6 +19,7 @@ namespace SDK
         public PaySDKBase MyPaySDK { get; private set; }
         public AnalyticsSDKBase MyAnalyticsSDK { get; private set; }
         public CommonBase MyCommon { get; private set; }
+        public OneSignalBase MyOneSignal { get; private set; }
 
         private bool isDebug = false;
 
@@ -34,7 +35,6 @@ namespace SDK
                 GameObject go = new GameObject("UACommunication");
                 go.AddComponent<AdUACommunication>();
                 go.AddComponent<PayUACommunication>();
-                
             }
 
 #if UNITY_EDITOR
@@ -42,23 +42,27 @@ namespace SDK
             MyPaySDK = new PaySDKBase();
             MyAnalyticsSDK = new AnalyticsSDKBase();
             MyCommon = new CommonBase();
+            MyOneSignal = new OneSignalBase();
 #elif UNITY_ANDROID
              MyAdSDK = new AdSDKAndroid();
              MyPaySDK = new PaySDKAndroid();
              MyAnalyticsSDK = new AnalyticsSDKAndroid();
              MyCommon = new CommonAndroid();
+             MyOneSignal = new OneSignalAndroid();
 #elif UNITY_IOS
             MyAdSDK = new AdSDKIOS();
             MyPaySDK = new PaySDKIOS();
             MyAnalyticsSDK = new AnalyticsSDKIOS();
             MyCommon = new CommonIOS();
+            MyOneSignal = new OneSignalIOS();
 #endif
 
-            
+
             MyAdSDK.InitAdSDK();
             MyPaySDK.InitPaySDK();
             MyAnalyticsSDK.InitAnalytics();
             MyCommon.InitCommon();
+            MyOneSignal.InitOneSignal();
             isDebug =  MyCommon.IsSDKLog();
             Debug.Log("Unity ---  isDebug = " + isDebug);
         }

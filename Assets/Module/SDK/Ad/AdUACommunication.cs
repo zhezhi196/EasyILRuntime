@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Module;
 using UnityEngine;
 
 namespace SDK
@@ -71,11 +72,18 @@ namespace SDK
 
     public class AdUACommunication : MonoBehaviour
     {
-
+        
         public void OnAdStateChange(string state)
         {
+            SDKMgr.GetInstance().Log("AdUACommunication --- OnAdStateChange  state = " + state);
             E_AdState adState = (E_AdState)(Convert.ToInt32(state.Trim()));
+            SDKMgr.GetInstance().Log("AdUACommunication --- OnAdStateChange  adState = " + adState);
             SDKMgr.GetInstance().MyAdSDK.OnAdStateChange(adState);
+        }
+
+        public void Back()
+        {
+            EventCenter.Dispatch(ConstKey.Back);
         }
 
     }

@@ -169,19 +169,6 @@ namespace Module
 
         #region 随机一个概率是否中奖
 
-        public static bool RandomValue(float value)
-        {
-            if (value == 1) return true;
-            if (value == 0) return false;
-            float v = Random.Range(0f, 1f);
-            return v <= value;
-        }
-
-        public static bool RandomBool()
-        {
-            int temp = Random.Range(0, 1);
-            return temp == 0;
-        }
         public static string ToHash(byte[] data)
         {
             var sb = new StringBuilder();
@@ -203,39 +190,13 @@ namespace Module
             var data = md5.ComputeHash(buffer);
             return ToHash(data);
         }
-        public static int RandomSymbol()
-        {
-            int temp = Random.Range(0, 1);
-            if (temp == 0) return -1;
-            return temp;
-        }
-
-        public static int RandomWeight(params float[] rate)
-        {
-            float sum = 0;
-            for (int i = 0; i < rate.Length; i++)
-            {
-                sum += rate[i];
-            }
-
-            float value = Random.Range(0f, sum);
-            float org = 0;
-            for (int i = 0; i < rate.Length; i++)
-            {
-                if (value >= org && value < org + rate[i])
-                {
-                    return i;
-                }
-                else
-                {
-                    org += rate[i];
-                }
-            }
-
-            return -1;
-        }
 
         #endregion
+
+        public static int Get2Power(int index)
+        {
+            return (int)Mathf.Pow(2, index);
+        }
 
         public static float GetScreenScale()
         {
@@ -274,84 +235,6 @@ namespace Module
             // var logEntries = System.Type.GetType("UnityEditorInternal.LogEntries,UnityEditor.dll");
             // var clearMethod = logEntries.GetMethod("Clear", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
             // clearMethod.Invoke(null, null);
-        }
-
-        /// <summary>
-        /// 从rate中按照权重随机count个值出来
-        /// </summary>
-        /// <param name="rate"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        public static List<int> RandomSeveralWeight(List<float> rate, int count)
-        {
-            List<int> value = new List<int>();
-            if (count >= rate.Count)
-            {
-                for (int i = 0; i < rate.Count; i++)
-                {
-                    value.Add(i);
-                }
-                return value;
-            }
-            float[] temp = new float[rate.Count];
-            for (int i = 0; i < rate.Count; i++)
-            {
-                temp[i] = rate[i];
-            }
-            for (int i = 0; i < count; i++)
-            {
-                int index = RandomWeight(temp);
-                temp[index] = 0;
-                value.Add(index);
-            }
-            return value;
-        }
-
-        public static int RandomOneByCompletelyRandom(int min, int max)
-        {
-            if(min > max)
-            {
-                return -1;
-            }
-            int value = Random.Range(min, max + 1);
-            return value;
-        }
-
-        public static List<int> RandomSomeInList(int count, int ran)
-        {
-            List<int> all = new List<int>();
-            for (int i = 0; i < count; i++)
-            {
-                all.Add(i);
-            }
-            List<int> result = new List<int>();
-            for (int i = 0; i < ran; i++)
-            {
-                if(all.Count > 0)
-                {
-                    int temp = Random.Range(0, all.Count);
-                    result.Add(all[temp]);
-                    all.Remove(temp);
-                }
-            }
-            return result;
-        }
-
-        public static List<int> RandomSomeByCompletelyRandom(int count, int min, int max)
-        {
-            List<int> result = new List<int>();
-            int ranMin = Math.Min(count, min);
-            int ranMax = Math.Min(count, max);
-            int ranNum = RandomOneByCompletelyRandom(ranMin, ranMax);
-            return RandomSomeInList(count, ranNum);
-        }
-
-        public static Vector3 RandomVector3(Vector3 min, Vector3 max)
-        {
-            float x = Random.Range(min.x, max.x);
-            float y = Random.Range(min.y, max.y);
-            float z = Random.Range(min.z, max.z);
-            return new Vector3(x,y,z);
         }
         
         public static Material GenerateMaterial(Shader shader)
@@ -451,7 +334,7 @@ namespace Module
             return null;
         }
 
-        public static void Float2Time(float t,out int d, out int h, out int m, out int s)
+        public static void Float2Time(float t, out int d, out int h, out int m, out int s)
         {
             d = 0;
             h = 0;

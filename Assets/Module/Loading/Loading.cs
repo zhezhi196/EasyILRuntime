@@ -52,26 +52,26 @@ namespace Module
         public object Current { get; }
         public int station { get; set; }
 
-        public Func<bool> monitor { get; set; }
+        public Func<bool> listener { get; set; }
 
         public bool isComplete
         {
             get
             {
-                if (monitor == null)
+                if (listener == null)
                 {
                     return _isComplete;
                 }
                 else
                 {
-                    return _isComplete || monitor();
+                    return _isComplete || listener();
                 }
             }
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public Action onComplete;

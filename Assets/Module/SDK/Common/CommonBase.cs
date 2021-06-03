@@ -38,5 +38,32 @@ namespace SDK
         {
 
         }
+
+        /// <summary>
+        /// 获取设备唯一标识码
+        /// </summary>
+        /// <returns></returns>
+        public virtual string GetUDID()
+        {
+            return "";
+        }
+
+        /// <summary>
+        /// 获取Android签名文件MD5值
+        /// </summary>
+        /// <returns></returns>
+        public virtual string GetKeyStoreMD5()
+        {
+            return "";
+        }
+
+        /// <summary>
+        /// 设置屏幕亮度
+        /// </summary>
+        /// <param name="brightness">屏幕亮度值(0-255)</param>
+        public virtual void SetBrightness(int brightness)
+        {
+
+        }
     }
 }

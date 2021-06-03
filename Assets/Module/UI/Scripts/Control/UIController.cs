@@ -244,6 +244,22 @@ namespace Module
 
             return pos1;
         }
+        /// <summary>
+        /// UI坐标转换
+        /// 计算一个ui元素在新的节点下的坐标
+        /// </summary>
+        /// <param name="newParent">新的根节点</param>
+        /// <param name="pos">ui世界坐标</param>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public Vector2 ConverUI2NewParent(RectTransform newParent,RectTransform ui,Camera camera)
+        {
+            RectTransform uiNodeRectTrans = ui.GetComponent<RectTransform>();
+            Vector2 uiPosOffset = new Vector2(uiNodeRectTrans.sizeDelta.x * (0.5f - uiNodeRectTrans.pivot.x), uiNodeRectTrans.sizeDelta.y * (0.5f - uiNodeRectTrans.pivot.y));
+            Vector2 newpos = Vector3.zero;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(newParent, ui.transform.position, camera, out newpos);
+            return newpos+ uiPosOffset;
+        }
 
         public void SortStack(UIObject uiObject, OpenFlag flag)
         {

@@ -40,5 +40,22 @@ namespace SDK
         {
             return jo.Call<bool>("IsSDKLog");
         }
+
+        public override string GetKeyStoreMD5()
+        {
+            string sign = jo.Call<string>("GetSign");
+            SDKMgr.GetInstance().Log("CommonAndroid  GetKeyStoreMD5 = " + sign);
+            return sign;
+        }
+
+        public override string GetUDID()
+        {
+            return jo.Call<string>("GetUdID");
+        }
+
+        public override void SetBrightness(int brightness)
+        {
+            jo.Call("SetBrightness", brightness);
+        }
     }
 }

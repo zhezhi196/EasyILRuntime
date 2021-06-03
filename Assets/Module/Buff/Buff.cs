@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Module
 {
+    [Serializable]
     public abstract class Buff
     {
         public int uuid
@@ -12,14 +15,47 @@ namespace Module
         }
 
         public IBuffData dbData { get; set; }
+        /// <summary>
+        /// buff层数
+        /// </summary>
         public int layCount { get; set; }
+        /// <summary>
+        /// buff是否激活
+        /// </summary>
         public bool isActive { get; set; }
+        /// <summary>
+        /// 玩家或者怪物
+        /// </summary>
         public IBuffAgent agent { get; set; }
+        /// <summary>
+        /// buff时钟
+        /// </summary>
         public Clock clock { get; set; }
-        
+        /// <summary>
+        /// buff类型
+        /// </summary>
         public BuffType type { get; set; }
         
+        [ShowInInspector]
+        private float remainTime
+        {
+            get
+            {
+                if (clock == null) return -1;
+                return clock.remainTime;
+            }
+        }
+
         #region AddBuff RemoveBuff
+        /// <summary>
+        /// 添加buff
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="buffType"></param>
+        /// <param name="agent"></param>
+        /// <param name="layCount"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T AddBuff<T>(IBuffData data, BuffType buffType, IBuffAgent agent, int layCount = 1) where T : Buff, new()
         {
             T buff = null;
@@ -95,7 +131,11 @@ namespace Module
             buff.OnAdd(agent,data);
             return buff;
         }
-
+        /// <summary>
+        /// 移除buff
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <param name="agent"></param>
         public static void RemoveBuff(int uuid, IBuffAgent agent)
         {
             for (int i = 0; i < agent.buffList.Count; i++)
@@ -111,7 +151,7 @@ namespace Module
         #endregion
 
         #region Callback
-
+        
         public virtual void OnAdd(IBuffAgent agent, IBuffData data)
         {
             isActive = true;
@@ -131,7 +171,10 @@ namespace Module
         #endregion
 
         #region Method
-
+        /// <summary>
+        /// 重新开始
+        /// </summary>
+        /// <param name="option"></param>
         public virtual void Restart(BuffOption option)
         {
             if (clock != null)
@@ -146,8 +189,19 @@ namespace Module
                     clock.StartTick();
                 }
             }
+            
+            clock.onComplete -= OnComplteBuff;
+            clock.onComplete += OnComplteBuff;
         }
 
+        private void OnComplteBuff()
+        {
+            RemoveBuff(uuid, agent);
+        }
+
+        /// <summary>
+        /// 暂停
+        /// </summary>
         public virtual void Pause()
         {
             if (clock != null)
@@ -155,7 +209,9 @@ namespace Module
                 clock.Pause();
             }
         }
-
+        /// <summary>
+        /// buff继续
+        /// </summary>
         public virtual void Continue()
         {
             if (clock != null)
@@ -163,7 +219,9 @@ namespace Module
                 clock.StartTick();
             }
         }
-
+        /// <summary>
+        /// buff停止
+        /// </summary>
         public virtual void Stop()
         {
             if (clock != null)

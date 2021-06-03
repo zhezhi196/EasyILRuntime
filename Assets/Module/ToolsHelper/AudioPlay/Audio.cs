@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Module
 {
@@ -11,7 +13,8 @@ namespace Module
 
         public ObjectPool pool { get; set; }
         public AudioPlayType playType { get; set; }
-        public bool autoCollection = true;
+        public bool autoCollection = false;
+        private Coroutine playCoroutine;
 
         private void Awake()
         {
@@ -20,6 +23,16 @@ namespace Module
 
         private void OnEnable()
         {
+            if (playType == AudioPlayType.Music)
+            {
+                audioSource.volume = AudioPlay.MusicVolume;
+            }
+            else if (playType == AudioPlayType.Audio)
+            {
+                audioSource.volume = AudioPlay.AudioVolume;
+            }
+
+            audioSource.mute = AudioPlay.Mute;
             AudioPlay.onMusicVolumeChanged += OnMusicVolumeChanged;
             AudioPlay.onAudioVolumeChanged += OnAudioVolumeChanged;
             AudioPlay.onMuteChanged += OnMuteChanged;
@@ -50,7 +63,7 @@ namespace Module
 
         private void OnMusicVolumeChanged(float obj)
         {
-            if (audioSource != null && playType == AudioPlayType.Music)
+            if (audioSource != null && (playType == AudioPlayType.Music))
             {
                 audioSource.volume = obj;
             }
@@ -58,13 +71,14 @@ namespace Module
 
         public void ReturnToPool()
         {
-            if (autoCollection)
+            if (pool != null)
             {
                 pool.ReturnObject(this);
                 audioSource.Stop();
                 audioSource.clip = null;
                 audioSource.loop = false;
                 audioSource.spatialBlend = 0;
+                transform.SetParent(ObjectPool.poolRoot);
             }
         }
 
@@ -72,17 +86,18 @@ namespace Module
         {
         }
 
-        public void Play(AudioClip clip, bool oneShot, AudioPlay play)
+        public void Play(AudioClip clip, bool oneShot, AudioPlay play, bool autoStop = true)
         {
             if (!gameObject.activeInHierarchy) return;
             if (playType == AudioPlayType.Music)
             {
                 audioSource.volume = AudioPlay.MusicVolume;
-             }
-             else if (playType == AudioPlayType.Audio)
-             {
-                 audioSource.volume = AudioPlay.AudioVolume;
-             }
+                if (playCoroutine != null) StopCoroutine(playCoroutine);
+            }
+            else if (playType == AudioPlayType.Audio)
+            {
+                audioSource.volume = AudioPlay.AudioVolume;
+            }
             
              audioSource.mute = AudioPlay.Mute;
             
@@ -96,13 +111,29 @@ namespace Module
                  audioSource.Play();
              }
 
-            StartCoroutine(PlayCoroutine(play));
+             if (autoStop)
+             {
+                 playCoroutine = StartCoroutine(PlayCoroutine(play));
+             }
         }
 
         private IEnumerator PlayCoroutine(AudioPlay play)
         {
             yield return play;
+            playCoroutine = null;
             play.Stop();
+        }
+
+        public void StopPlay()
+        {
+            audioSource.Stop();
+            if (playCoroutine != null) StopCoroutine(playCoroutine);
+        }
+
+[Button]
+        public void TestPlay()
+        {
+            audioSource.Play();
         }
     }
 }

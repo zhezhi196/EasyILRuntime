@@ -33,7 +33,7 @@ namespace Module.Set
         {
             if (this.value != value1)
             {
-                GameDebug.Log("Setting MusicVolume:"+value1);
+                GameDebug.LogFormat("Setting MusicVolume:{0}",value1);
                 value = value1;
                 LocalFileMgr.SetFloat(key, value1);
                 AudioPlay.SetMusicVolume(value);

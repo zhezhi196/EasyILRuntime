@@ -11,7 +11,10 @@ namespace Module.Set
         {
             get { return "QualitySetting"; }
         }
-
+        int scWidth = Screen.width;
+        int scHeight = Screen.height;
+        int designWidth = 1920; //这个是设计分辨率
+        int designHeight = 1080;
         public QualityType value { get; set; }
 
         public void Init()
@@ -22,7 +25,25 @@ namespace Module.Set
 
         private void SetQuality(QualityType quality)
         {
+            GameDebug.Log("SetQuality:" + quality);
             QualitySettings.SetQualityLevel((int) quality, true);
+            if (quality == QualityType.Low)
+            {
+                if (scWidth < 1280)
+                {
+                    Screen.SetResolution(scWidth, scHeight, true);
+                }
+                else {
+                    float f = 1280f / scWidth;
+                    Screen.SetResolution(1280, (int)(scHeight*f), true);
+                }
+                Setting.graphicSetting.fps.WriteData(30);
+            }
+            else
+            {
+                Screen.SetResolution(scWidth, scHeight, true);
+                Setting.graphicSetting.fps.WriteData(60);
+            }
         }
 
         public QualityType ReadData()

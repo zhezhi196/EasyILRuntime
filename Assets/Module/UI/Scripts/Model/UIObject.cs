@@ -9,7 +9,6 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using Sirenix.Utilities;
 using UnityEngine;
 
 namespace Module
@@ -279,6 +278,7 @@ namespace Module
 
         public Tweener JustOpen(UITweenType tweenType)
         {
+            _mViewBase.gameObject.OnActive(true);
             try
             {
                 viewBase.OnShowStart();
@@ -287,23 +287,15 @@ namespace Module
             {
                 GameDebug.LogError(winName + "的OnShowStart函数有错误:" + e);
             }
-            _mViewBase.gameObject.OnActive(true);
             UIController.Instance.SortUI();
             Tweener tween = TweenUI(tweenType, OpenOrClose.Open);
             tween.onComplete += (() =>
             {
-                try
-                {
-                    viewBase.OnOpenComplete();
-                    EventCenter.Dispatch(ConstKey.UIOpenComplete, winName);
-                    OnOpenComplete?.Invoke(tweenType);
-                    OnOpenComplete = null;
-                    tween = null;
-                }
-                catch (Exception e)
-                {
-                    GameDebug.LogError(winName + "的OnOpenComplete函数有错误:" + e);
-                }
+                viewBase.OnOpenComplete();
+                EventCenter.Dispatch(ConstKey.UIOpenComplete, winName);
+                OnOpenComplete?.Invoke(tweenType);
+                OnOpenComplete = null;
+                tween = null;
             });
 
             return tween;

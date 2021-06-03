@@ -10,19 +10,24 @@ namespace SDK
         /// <summary>
         /// 支付成功回调
         /// </summary>
-        public Action<string> PaySucceedCallBack = null;
+        public Dictionary<string, Action<string>> PaySucceedCallBack = new Dictionary<string, Action<string>>();
+
         /// <summary>
         /// 支付失败回调
         /// </summary>
-        public Action<string> PayFailedCallBack = null;
+        public Dictionary<string,Action<string>> PayFailedCallBack = new Dictionary<string, Action<string>>();
         /// <summary>
-        /// 掉单恢复回调
+        /// 查询是否有掉单恢复回调
         /// </summary>
         public Action<string> RecoveryOrderCallBack = null;
         /// <summary>
         /// 查询商品详情回调
         /// </summary>
         public Action<string> QueryGoodsDetailsCallBack = null;
+        /// <summary>
+        /// 消耗商品回调
+        /// </summary>
+        public Action<string> ConsumeOrderCallBack = null;
 
         /// <summary>
         /// 初始化
@@ -39,12 +44,12 @@ namespace SDK
         /// <param name="type">商品类型(消耗(inApp),订阅(subs))</param>
         /// <param name="succeed"></param>
         /// <param name="failed"></param>
-        public virtual void Buy(string sku,string type,Action<string> succeed,Action<string> failed)
+        public virtual void Buy(string sku,string key, string type, Action<string> succeed, Action<string> failed)
         {
-            if (succeed !=null && failed != null)
+            if (succeed != null && failed != null)
             {
-                PaySucceedCallBack = succeed;
-                PayFailedCallBack = failed;
+                PaySucceedCallBack.Add(key,succeed);
+                PayFailedCallBack.Add(key, failed);
             }
         }
 
@@ -56,7 +61,7 @@ namespace SDK
         {
             if (goodsDetails != null)
             {
-                QueryGoodsDetailsCallBack = goodsDetails;
+                QueryGoodsDetailsCallBack += goodsDetails;
             }
         }
 
@@ -78,6 +83,7 @@ namespace SDK
             if (recoveryOrder != null)
             {
                 RecoveryOrderCallBack = recoveryOrder;
+                //RecoveryOrderCallBack?.Invoke("ds|endless.nightmare.weird.hospital.horror.scary.free.android.part.499");
             }
         }
 
@@ -85,16 +91,20 @@ namespace SDK
         /// 消耗商品
         /// </summary>
         /// <param name="sku"></param>
-        public virtual void ConsumeOrder(string sku)
+        public virtual void ConsumeOrder(string sku,Action<string> consumer)
         {
-
+            if (consumer != null)
+            {
+                ConsumeOrderCallBack = consumer;
+                //ConsumeOrderCallBack?.Invoke("");
+            }
         }
 
         /// <summary>
         /// 购买回调
         /// </summary>
-        ///                             0              |1  |2   |3    |4         |5
-        /// <param name="state">true(成功)或false(失败)|sku|time|token|Signature|orderID</param>
+        ///                             0              |1  |2   |3    |4         |5      |6
+        /// <param name="state">true(成功)或false(失败)|sku|time|token|Signature|orderID|KEY</param>
         public void OnBuyCallBack(string state)
         {
             SDKMgr.GetInstance().Log("PaySDKBase  OnBuyCallBack --- " + state);
@@ -103,28 +113,41 @@ namespace SDK
 
             if (PaySucceedCallBack != null && result)
             {
-                PaySucceedCallBack(state);
-                PaySucceedCallBack = null;
+                PaySucceedCallBack[tempStr[6]].Invoke(state);
+                PaySucceedCallBack.Remove(tempStr[6]);
             }
             else if (PayFailedCallBack != null && !result)
             {
-                PayFailedCallBack(state);
-                PayFailedCallBack = null;
+                PayFailedCallBack[tempStr[6]].Invoke(state);
+                PayFailedCallBack.Remove(tempStr[6]);
             }
         }
 
         /// <summary>
-        /// 掉单恢复回调
+        /// 查询商品是否有掉单回调
         /// </summary>
-        /// <param name="state">OrderId|sku</param>
+        /// <param name="state">sku</param>
         public void OnRecoveryOrder(string state)
         {
            
             if (RecoveryOrderCallBack != null)
             {
-                RecoveryOrderCallBack(state);
-                RecoveryOrderCallBack = null;
+                RecoveryOrderCallBack?.Invoke(state);
+                
             }
+        }
+
+        /// <summary>
+        /// 消耗商品回调
+        /// </summary>
+        /// <param name="state">true(成功)或false(失败)|sku</param>
+        public void OnConsumeOrder(string state)
+        {
+            if (ConsumeOrderCallBack != null)
+            {
+                ConsumeOrderCallBack?.Invoke(state);
+            }
+
         }
 
         /// <summary>
@@ -135,8 +158,8 @@ namespace SDK
         {
             if (QueryGoodsDetailsCallBack != null)
             {
-                QueryGoodsDetailsCallBack(state);
-                QueryGoodsDetailsCallBack = null;
+                QueryGoodsDetailsCallBack?.Invoke(state);
+                
             }
         }
     }

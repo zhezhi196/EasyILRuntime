@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public class Voter : ISetID<object, Voter>
+    public class Voter : IDMark<object, Voter>
     {
         public static Dictionary<object, List<Voter>> voterDic = new Dictionary<object, List<Voter>>();
         public object ID { get; set; }
@@ -56,7 +56,7 @@ namespace Module
             return this;
         }
 
-        public Voter SetID(object ID)
+        public Voter SetID(object ID, string tag=null)
         {
             List<Voter> voter = null;
             if (!voterDic.TryGetValue(ID, out voter))
@@ -67,6 +67,11 @@ namespace Module
             
             voter.Add(this);
             return this;
+        }
+
+        public override string ToString()
+        {
+            return "Current:" + count + " Max:" + maxCount;
         }
     }
     public class Voter<T> : Voter

@@ -2,20 +2,32 @@ using System.Collections.Generic;
 using System.IO;
 using LitJson;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Module
 {
+    public enum LabelFlag
+    {
+        None,
+        [LabelText("所有字母大写")]
+        AllUper,
+        [LabelText("所有字母小写")]
+        AllLower,
+    }
     [ExecuteInEditMode]
+    [RequireComponent(typeof(Text))]
+    [RequireComponent(typeof(FontSetting))]
     public class Label : MonoBehaviour
     {
         public int Key = -1;
         public Text text;
-        public void SetKey(int key)
+        public LabelFlag flag;
+
+        public void SetKey(int key, LabelFlag flag = LabelFlag.None)
         {
             this.Key = key;
+            this.flag = flag;
             OnLanguageChanged(Language.currentLanguage);
         }
         
@@ -30,7 +42,7 @@ namespace Module
         {
             if (text != null)
             {
-                text.text = Language.GetContent(Key);
+                text.text = Language.GetContent(Key, flag);
             }
         }
         private void OnDestroy()
@@ -68,6 +80,7 @@ namespace Module
             switch (Language.currentLanguage)
             {
                 case SystemLanguage.Chinese:
+                case SystemLanguage.ChineseSimplified:
                     text.text = language[Key].CN;
                     break;
                 case SystemLanguage.English:

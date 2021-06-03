@@ -5,7 +5,7 @@ namespace Module
  {
      public interface ITimeCtrl
      {
-         event Action<float> onTimescale;
+         event Action<float> onTimeScale;
          float timeScale { get; }
          float GetUnscaleDelatime(bool ignorePause);
          float GetDelatime(bool ignorePause);

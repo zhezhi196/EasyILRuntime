@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Sirenix.Utilities;
 
 namespace Module
 {
@@ -28,12 +27,7 @@ namespace Module
             }
         }
 
-        public static string Read(string save, string path = "SaveData")
-        {
-            string loc = GetKey(save);
-            string data = LocalSaveFile.GetString(loc);
-            return data;
-        }
+
 
         public static bool Read(ILocalSave save, string path = "SaveData")
         {
@@ -55,12 +49,34 @@ namespace Module
 
         public static void Delete(ILocalSave save, string path = "SaveData")
         {
-            LocalSaveFile.RemoveKey(GetKey(save.localUid));
+            LocalSaveFile.RemoveKey(GetKey(save.localUid), path);
+        }
+        
+        public static string Read(string save, string path = "SaveData")
+        {
+            string loc = GetKey(save);
+            string data = LocalSaveFile.GetString(loc);
+            return data;
+        }
+
+        public static void Write(string key, string writeData, bool timeStamp = true, string path = "SaveData")
+        {
+            if (timeStamp)
+            {
+                LocalSaveFile.SetDateTime(localTime, TimeHelper.GetNow());
+            }
+
+            LocalSaveFile.SetString(GetKey(key), writeData);
+        }
+
+        public static void Delete(string key, string path = "SaveData")
+        {
+            LocalSaveFile.RemoveKey(GetKey(key),path);
         }
 
         public static void DeleteAll(string path = "SaveData")
         {
-            LocalSaveFile.DeleteAll();
+            LocalSaveFile.DeleteAll(path);
         }
     }
 }

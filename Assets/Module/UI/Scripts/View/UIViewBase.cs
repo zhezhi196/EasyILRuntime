@@ -10,7 +10,6 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 
 namespace Module
@@ -31,7 +30,28 @@ namespace Module
         [LabelText("UI部件动画时间")] public float partAnimationTime = 0.2f;
         public event Action OnWinInitComplete;
         [LabelText("关闭时销毁")] public bool destroyViewOnClose;
-
+#if UNITY_EDITOR
+        [Button("button Channel")]
+        public void SetButton()
+        {
+            IButtonConfig[] config = transform.GetComponentsInChildren<IButtonConfig>(true);
+            for (int i = 0; i < config.Length; i++)
+            {
+                if (!config[i].config.channel.HasFlag(ChannelType.AppStoreCN))
+                {
+                    config[i].config.channel = ChannelType.googlePlay | ChannelType.AppStore | ChannelType.Huawei |
+                                               ChannelType.UnKnow2 | ChannelType.UnKnow3 | ChannelType.UnKnow4 |
+                                               ChannelType.UnKnow5 | ChannelType.UnKnow6;
+                }
+                else
+                {
+                    config[i].config.channel = (ChannelType) (-1);
+                }
+            }
+            
+            UnityEditor.EditorUtility.SetDirty(gameObject);
+        }
+#endif
         /// <summary>
         /// 只在生成的时候运行一次，相当于start函数
         /// </summary>

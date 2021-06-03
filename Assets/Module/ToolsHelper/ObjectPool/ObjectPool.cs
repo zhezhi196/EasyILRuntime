@@ -95,6 +95,7 @@ namespace Module
             new Queue<(Action<GameObject>, Transform, PoolFlag)>();
 
         public GameObject prefab;
+        private Transform _parentRoot;
         private bool isIPoolObject;
         private List<PoolData> poolObject = new List<PoolData>();
         public event Action onComplete;
@@ -103,16 +104,16 @@ namespace Module
 
         #region public
 
-        public Func<bool> monitor { get; set; }
+        public Func<bool> listener { get; set; }
 
         public bool isComplete
         {
             get { return prefab != null; }
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public bool MoveNext()
@@ -127,7 +128,14 @@ namespace Module
 
         public string path { get; }
 
-        public Transform parentRoot { get; }
+        public Transform parentRoot
+        {
+            get
+            {
+                if (_parentRoot == null || _parentRoot.gameObject == null) return poolRoot;
+                return _parentRoot;
+            }
+        }
 
         #endregion
 
@@ -187,8 +195,7 @@ namespace Module
         private ObjectPool(string path, Transform root)
         {
             this.path = path;
-            if (root == null) root = poolRoot;
-            this.parentRoot = root;
+            _parentRoot = root;
         }
 
         private void InitPrefab(GameObject p)

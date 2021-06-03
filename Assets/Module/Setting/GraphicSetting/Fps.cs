@@ -21,7 +21,7 @@ namespace Module.Set
 
         public void WriteData(int value1)
         {
-            GameDebug.Log("Setting Fps:" + value1);
+            GameDebug.LogFormat("Setting Fps:{0}" , value1);
             value = value1;
             Application.targetFrameRate = value;
         }

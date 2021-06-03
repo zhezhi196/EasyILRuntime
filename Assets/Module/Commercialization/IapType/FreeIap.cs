@@ -8,11 +8,14 @@ namespace Module
         {
         }
 
-        public override void OnTryGetReward(Action<IapResult> callback, IapResult result,bool skipConsume)
+        public override string OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
         {
             getCount++;
             result.result = IapResultMessage.Success;
+            onResultIapBeforeCall?.Invoke(result);
             callback?.Invoke(result);
+            onResultIapAfterCall?.Invoke(result);
+            return null;
         }
 
         public override bool CanPay()

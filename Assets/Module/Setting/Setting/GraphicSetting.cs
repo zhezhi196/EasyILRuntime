@@ -6,9 +6,9 @@ namespace Module
 {
     public enum QualityType
     {
-        High,
-        Medium,
         Low,
+        Medium,
+        High,
     }
     
     public class GraphicSetting : SettingConfig
@@ -414,12 +414,35 @@ namespace Module
             string name = SystemInfo.operatingSystem;
             QualityType quality = QualityType.Low;
             int fps = 60;
-            if (SystemInfo.systemMemorySize >= base_store_size * 4 && SystemInfo.processorFrequency >= 1500)
+            GameDebug.LogErrorFormat("安卓手机配置: 系统内存{0},系统显存{1},系统主频{2}", SystemInfo.systemMemorySize, SystemInfo.graphicsMemorySize,
+                SystemInfo.processorFrequency);
+            //if (SystemInfo.systemMemorySize >= base_store_size * 4 && SystemInfo.processorFrequency >= 2200)
+            //{
+            //    quality = QualityType.High;
+            //    fps = 60;
+            //}
+            //else if(SystemInfo.systemMemorySize >= base_store_size * 2 && SystemInfo.processorFrequency >= 1500)
+            //{
+            //    quality = QualityType.Medium;
+            //    fps = 60;
+            //}
+            //else if (SystemInfo.systemMemorySize >= base_store_size * 1 && SystemInfo.processorFrequency >= 1200)
+            //{
+            //    quality = QualityType.Low;
+            //    fps = 30;
+            //}
+            //else
+            //{
+            //    quality = QualityType.Low;
+            //    fps = 30;
+            //}
+
+            if (SystemInfo.graphicsMemorySize >= 2000 && SystemInfo.systemMemorySize >= 6000)
             {
                 quality = QualityType.High;
                 fps = 60;
             }
-            else if (SystemInfo.systemMemorySize >= base_store_size * 1.5 && SystemInfo.processorFrequency >= 1200)
+            else if (SystemInfo.graphicsMemorySize >= 1000 && SystemInfo.systemMemorySize >= 3000)
             {
                 quality = QualityType.Medium;
                 fps = 60;
@@ -427,7 +450,7 @@ namespace Module
             else
             {
                 quality = QualityType.Low;
-                fps = 60;
+                fps = 30;
             }
 
             return (name, quality, fps);

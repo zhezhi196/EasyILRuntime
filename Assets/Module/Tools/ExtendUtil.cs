@@ -8,6 +8,7 @@
 
 using DG.Tweening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -16,7 +17,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Module;
-using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = System.Object;
@@ -25,7 +25,6 @@ namespace Module
 {
     public static class ExtendUtil
     {
-
         #region Type
 
         public static Type GetRoot(this Type type)
@@ -72,32 +71,22 @@ namespace Module
             return sp;
         }
         
-        public static List<int> ToIntList(this object[] array)
+        public static List<int> ToIntList(this IList array)
         {
             List<int> temp = new List<int>();
 
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < array.Count; i++)
             {
-                temp.Add(temp[i]);
-            }
-
-            return temp;
-        }
-        public static int[] ToIntArray(this object[] array)
-        {
-            int[] temp = new int[array.Length];
-            for (int i = 0; i < array.Length; i++)
-            {
-                temp[i] = array[i].ToInt();
+                temp.Add(array[i].ToInt());
             }
 
             return temp;
         }
 
-        public static float[] ToFloatArray(this object[] array)
+        public static float[] ToFloatArray(this IList array)
         {
-            float[] temp = new float[array.Length];
-            for (int i = 0; i < array.Length; i++)
+            float[] temp = new float[array.Count];
+            for (int i = 0; i < array.Count; i++)
             {
                 temp[i] = array[i].ToFloat();
             }
@@ -195,6 +184,7 @@ namespace Module
         {
             DateTime temp = default(DateTime);
             if (obj == null) return temp;
+
             DateTime.TryParse(obj.ToString(), out temp);
             return temp;
         }
@@ -260,7 +250,7 @@ namespace Module
 
         #region Vector3
 
-        public static float Distance(this Vector3 v1,Vector3 target)
+        public static float Distance(this Vector3 v1, Vector3 target)
         {
             return Vector3.Distance(v1, target);
         }
@@ -295,20 +285,33 @@ namespace Module
         #endregion
 
         #region Transform
+
         public static void Sort<T>(this Transform layout, Comparison<T> compare, T[] children = null) where T: Component
         {
-            if (children != null)
-            {
-                children.Sort(compare);
-            }
-            else
+            if (children == null)
             {
                 children = layout.transform.GetComponentsInChildren<T>(true);
             }
 
-            for (int i = 0; i < layout.transform.childCount; i++)
+            children.Sort(compare);
+
+            for (int i = 0; i < children.Length; i++)
             {
-                children[i].transform.SetParent(layout.transform);
+                children[i].transform.SetSiblingIndex(i);
+            }
+        }
+
+
+        public static void Sort<T>(this Transform layout, T[] children = null) where T : Component
+        {
+            if (children == null)
+            {
+                children = layout.transform.GetComponentsInChildren<T>(true);
+            }
+
+            for (int i = 0; i < children.Length; i++)
+            {
+                children[i].transform.SetSiblingIndex(i);
             }
         }
         public static bool IsForward2Target(this Transform player, Vector3 target)
@@ -324,6 +327,37 @@ namespace Module
             Vector3 jiaoPoint = Tools.GetIntersectWithLineAndPlane(target, Vector3.down,
                 player.up, player.position);
             return Vector3.Distance(player.position, jiaoPoint);
+        }
+
+        public static Transform[] GetNameChildren(this Transform transform, string name, bool includeUnactive)
+        {
+            List<Transform> result = new List<Transform>();
+
+            Transform[] all = transform.GetComponentsInChildren<Transform>(includeUnactive);
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (all[i].name.Contains(name))
+                {
+                    result.Add(all[i]);
+                }
+            }
+
+            return result.ToArray();
+        }
+        
+        public static Transform GetNameChild(this Transform transform, string name,bool includeUnactive=true)
+        {
+            
+            Transform[] all = transform.GetComponentsInChildren<Transform>(includeUnactive);
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (all[i].name.Contains(name))
+                {
+                    return all[i];
+                }
+            }
+
+            return null;
         }
         public static FollowTween DoFollow(this Transform tra, Transform target, float speed)
         {
@@ -377,6 +411,10 @@ namespace Module
 
         public static void SetParentZero(this Transform tra, Transform parent)
         {
+            if (parent == null || parent.gameObject == null|| tra==null|| tra.gameObject==null)
+            {
+                return;
+            }
             tra.SetParent(parent);
             if (parent != null)
             {
@@ -434,13 +472,26 @@ namespace Module
             return tr;
         }
 
+        public static Transform NewChild(this Transform tra, string name)
+        {
+            GameObject go = new GameObject(name);
+            go.transform.SetParent(tra);
+            go.transform.position = tra.position;
+            go.transform.eulerAngles = tra.eulerAngles;
+            return go.transform;
+        }
+        
+#endregion
+
+        #region Component
+
         /// <summary>
         ///     设置某物体的层
         /// </summary>
         /// <param id="tra"></param>
         /// <param id="index"></param>
         /// <param id="includeChild"></param>
-        public static void SetLayer(this Transform tra, int index, bool includeChild = false)
+        public static void SetLayer(this Component tra, int index, bool includeChild = false)
         {
             if (!includeChild)
             {
@@ -457,15 +508,11 @@ namespace Module
             }
         }
 
-        public static void SetLayer(this Transform tra, string name, bool includeChild = false)
+        public static void SetLayer(this Component tra, string name, bool includeChild = false)
         {
             int index = LayerMask.NameToLayer(name);
             tra.SetLayer(index, includeChild);
         }
-
-        #endregion
-
-        #region Component
 
         public static void SetTag(this Component com, string tag, bool includChild)
         {
@@ -482,6 +529,15 @@ namespace Module
             {
                 com.tag = tag;
             }
+        }
+
+        #endregion
+
+        #region Image
+
+        public static void SetAlpha(this Image alpha, float value)
+        {
+            alpha.color = new Color(alpha.color.r, alpha.color.g, alpha.color.b, value);
         }
 
         #endregion
@@ -516,7 +572,7 @@ namespace Module
             return t;
         }
 
-        public static void OnActive(this GameObject obj,bool active)
+        public static void OnActive(this GameObject obj, bool active)
         {
             if (obj != null)
             {
@@ -527,11 +583,12 @@ namespace Module
                 GameDebug.LogErrorFormat("{0} is null ", obj);
             }
         }
-        
-        public static void OnActive(this Transform obj,bool active)
+
+        public static void OnActive(this Transform obj, bool active)
         {
-            obj.gameObject.SetActive(active);   
+            obj.gameObject.OnActive(active);
         }
+
         #endregion
 
         #region int
@@ -593,7 +650,7 @@ namespace Module
                 int dot = priceStr.IndexOf('.');
                 return value.ToString("C" + (priceStr.Length - dot - 1));
             }
-        }
+        } 
         public static float Clamp(this float value, float from, float to)
         {
             if (from > to)
@@ -676,6 +733,13 @@ namespace Module
             }
         }
 
+        public static Vector3 ToVector(this string str)
+        {
+            str = str.Substring(1, str.Length - 2);
+            string[] res = str.Split(',');
+            return new Vector3(res[0].ToFloat(), res[1].ToFloat(), res[2].ToFloat());
+        }
+
         #region 获取url的参数
 
         public static string GetHttpArgs(this string str, string key)
@@ -728,6 +792,20 @@ namespace Module
 
         #region List
 
+        public static void Sort<T>(this IList<T> list,Comparison<T> compare)
+        {
+            if (list is List<T>)
+            {
+                ((List<T>) list).Sort(compare);
+            }
+            else
+            {
+                List<T> objList = new List<T>((IEnumerable<T>) list);
+                objList.Sort(compare);
+                for (int index = 0; index < list.Count; ++index)
+                    list[index] = objList[index];
+            }
+        }
         public static void ClearNull<T>(this List<T> lst)
         {
             for (int i = lst.Count - 1; i >= 0; i--)
@@ -773,14 +851,7 @@ namespace Module
             array.Add(value);
         }
 
-        public static bool IsNullOrEmpty<T>(this List<T> lst)
-        {
-            if (lst == null) return true;
-            if (lst.Count == 0) return true;
-            return false;
-        }
-
-        public static bool IsNullOrEmpty<T>(this Stack<T> lst)
+        public static bool IsNullOrEmpty(this IList lst)
         {
             if (lst == null) return true;
             if (lst.Count == 0) return true;
@@ -796,26 +867,6 @@ namespace Module
                 list[i] = list[random];
                 list[random] = t;
             }
-        }
-
-        public static T Random<T>(this List<T> array)
-        {
-            int index = UnityEngine.Random.Range(0, array.Count);
-            return array[index];
-        }
-
-        public static T Random<T>(this List<T> array, Predicate<T> predicate)
-        {
-            for (int i = 0; i < array.Count; i++)
-            {
-                int index = UnityEngine.Random.Range(0, array.Count);
-                if (predicate.Invoke(array[index]))
-                {
-                    return array[index];
-                }
-            }
-
-            return default(T);
         }
 
         public static T GetNext<T>(this List<T> array, T value, bool loop)
@@ -926,26 +977,6 @@ namespace Module
             }
         }
 
-        public static bool IsNullOrEmpty<T>(this T[] lst)
-        {
-            if (lst == null) return true;
-            if (lst.Length == 0) return true;
-            return false;
-        }
-
-
-
-        public static bool IsAllNull<T>(this T[] lst)
-        {
-            if (lst.IsNullOrEmpty()) return true;
-            for (int i = 0; i < lst.Length; i++)
-            {
-                if (lst[i] != null) return false;
-            }
-
-            return true;
-        }
-
         public static void Clear<T>(this T[] lst)
         {
             if (lst == null) return;
@@ -980,92 +1011,6 @@ namespace Module
             }
 
             return count;
-        }
-        public static T Random<T>(this T[] array)
-        {
-            int index = UnityEngine.Random.Range(0, array.Length);
-            return array[index];
-        }
-
-        public static T Random<T>(this T[] array, out int index)
-        {
-            index = UnityEngine.Random.Range(0, array.Length - 1);
-            return array[index];
-        }
-
-        public static List<T> RandomRate<T>(this List<T> array, int count, Predicate<T> predicate,params float[] rate)
-        {
-            List<T> target = new List<T>();
-            for (int i = 0; i < array.Count; i++)
-            {
-                if (predicate.Invoke(array[i]))
-                {
-                    target.Add(array[i]);
-                }
-            }
-
-            if (target.Count <= count)
-            {
-                return target;
-            }
-            else
-            {
-                List<T> result = new List<T>();
-                int temp = 0;
-                while (result.Count < count)
-                {
-                    int index = UnityEngine.Random.Range(0, target.Count);
-                    if (!result.Contains(target[index])&& Tools.RandomValue(rate[temp]))
-                    {
-                        result.Add(target[index]);
-                        temp++;
-                    }
-                }
-
-
-
-                return result;
-            }
-        }
-        public static List<T> Random<T>(this List<T> array, int count, Predicate<T> predicate)
-        {
-            List<T> target = new List<T>();
-            for (int i = 0; i < array.Count; i++)
-            {
-                if (predicate.Invoke(array[i]))
-                {
-                    target.Add(array[i]);
-                }
-            }
-
-            if (target.Count <= count)
-            {
-                return target;
-            }
-            else
-            {
-                List<T> result = new List<T>();
-                int temp = 0;
-                while (result.Count < count)
-                {
-                    int index = UnityEngine.Random.Range(0, target.Count);
-                    if (!result.Contains(target[index]))
-                    {
-                        result.Add(target[index]);
-                        temp++;
-                    }
-                }
-
-
-
-                return result;
-            }
-        }
-
-        public static T[] Random<T>(this T[] array, int count, Predicate<T> predicate)
-        {
-            List<T> target = new List<T>(array);
-            return target.Random(count, predicate).ToArray();
         }
 
         public static T GetNext<T>(this T[] array, T value, bool loop)
@@ -1185,6 +1130,58 @@ namespace Module
 
         #endregion
 
+        #region DateTime
+
+        public static bool IsNewDay(this DateTime newDay, DateTime last)
+        {
+            if (newDay.Year == last.Year)
+            {
+                if (newDay.Month == last.Month)
+                {
+                    return newDay.Day > last.Day;
+                }
+                else
+                {
+                    return newDay.Month > last.Month;
+                }
+            }
+            else
+            {
+                return newDay.Year > last.Year;
+            }
+        }
+
+        #endregion
+
+        #region Matrix4x4
+
+        public static Quaternion GetRotation(this Matrix4x4 matrix4X4)
+        {
+            float qw = Mathf.Sqrt(1f + matrix4X4.m00 + matrix4X4.m11 + matrix4X4.m22)/2;
+            float w = 4*qw;
+            float qx = (matrix4X4.m21 - matrix4X4.m12)/w;
+            float qy = (matrix4X4.m02 - matrix4X4.m20)/w;
+            float qz = (matrix4X4.m10 - matrix4X4.m01)/w;
+            return new Quaternion(qx, qy, qz, qw);
+        }
+
+        public static Vector3 GetPostion(this Matrix4x4 matrix4X4)
+        {
+            var x = matrix4X4.m03;
+            var y = matrix4X4.m13;
+            var z = matrix4X4.m23;
+            return new Vector3(x,y,z);
+        }
+
+        public static Vector3 GetScale(this Matrix4x4 m)
+        {
+            var x = Mathf.Sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
+            var y = Mathf.Sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
+            var z = Mathf.Sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
+            return new Vector3(x,y,z);
+        }
+
+        #endregion
 
     }
 }

@@ -29,7 +29,7 @@
         {
             if (this.value != value1)
             {
-                GameDebug.Log("Setting Sensitivity:" + value1);
+                GameDebug.LogFormat("Setting Sensitivity:{0}" , value1);
                 this.value = value1;
                 LocalFileMgr.SetFloat(key, value1);
             }

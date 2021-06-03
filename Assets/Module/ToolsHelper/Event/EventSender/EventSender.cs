@@ -41,7 +41,7 @@ namespace Module
             for (int i = 0; i < eventKey.Length; i++)
             {
                 EventCenter.Dispatch<uint, string, IEventCallback>(ConstKey.EventKey, eventKey[i].eventKey, eventKey[i].eventArgs, sender);
-                GameDebug.Log("发送事件ID: " + eventKey[i]);
+                GameDebug.LogFormat("发送事件ID: {0}" , eventKey[i]);
             }
         }
     }

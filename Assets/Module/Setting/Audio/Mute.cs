@@ -33,7 +33,7 @@ namespace Module.Set
         {
             if (this.value != value1)
             {
-                GameDebug.Log("Setting Mute:"+value1);
+                GameDebug.LogFormat("Setting Mute:{0}", value1);
                 this.value = value1;
                 LocalFileMgr.SetBool(key, value1);
                 AudioPlay.SetMute(value);

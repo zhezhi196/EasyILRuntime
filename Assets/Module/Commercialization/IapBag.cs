@@ -3,30 +3,34 @@ using UnityEngine;
 
 namespace Module
 {
-    [Flags]
-    public enum IapRewardFlag
-    {
-        NoAudio = 1,
-        NoLoading = 2,
-        NoAnalysis = 4
-    }
     /// <summary>
     /// 礼包,其中commodity是获得的物品.iap对象是消耗端的逻辑
     /// </summary>
-    public abstract class IapBag : IapReward
+    public abstract class IapBag : IapBagBase
     {
         protected Commodity _commodity;
 
-        public virtual bool isActive
+        public override bool canBeShow
         {
             get
             {
-                if (commodity == null) return false;
-                return commodity.isActive;
+                if (iapState == IapState.Normal)
+                {
+                    if (commodity == null) return false;
+                    return commodity.canBeShow;
+                }
+                else if (iapState == IapState.Invalid)
+                {
+                    return false;
+                }
+                else if (iapState == IapState.Skip)
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
-
-        public Iap iap { get; }
 
         public Commodity commodity
         {
@@ -35,35 +39,32 @@ namespace Module
 
         public IapBag(IapDataBase sqlData, long count)
         {
-            this.iap = Iap.GetIap(sqlData);
+            this._iap = Iap.GetIap(sqlData);
         }
 
         public IapBag(Iap iap, long count)
         {
-            this.iap = iap;
+            this._iap = iap;
         }
 
-        public virtual void GetIcon(Action<Sprite> callback)
+        /// <summary>
+        /// 获得的物品奖励数量,不计算像广告双倍的那些,如若要得到包括广告后的那些,请到iapresult里面获取
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public override float GetCommodityCount(int index = 0)
         {
+            return (_commodity.count * product).ToFloat();
         }
-
-        public virtual float GetPrice()
+        
+        /// <summary>
+        /// 获取商品
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public override Commodity GetCommodity(int index = 0)
         {
-            return 0;
+            return commodity;
         }
-
-        public string GetPriceWithCulture()
-        {
-            ICurrency currency = iap as ICurrency;
-            
-            if (currency != null)
-            {
-                return currency.price;
-            }
-
-            return null;
-        }
-
-        public abstract void GetReward(Action<IapResult> callback, IapRewardFlag flag = 0);
     }
 }

@@ -27,27 +27,27 @@ namespace Module
             get { return m_run; }
         }
 
-        public Func<bool> monitor { get; set; }
+        public Func<bool> listener { get; set; }
 
         public bool isComplete
         {
             get
             {
                 bool temp = m_queue.Count == 0 && m_isComplete;
-                if (monitor == null)
+                if (listener == null)
                 {
                     return temp;
                 }
                 else
                 {
-                    return temp || monitor();
+                    return temp || listener();
                 }
             }
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public int count

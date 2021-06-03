@@ -12,15 +12,16 @@ namespace SDK
         public override void InitPaySDK()
         {
             base.InitPaySDK();
-            jc = new AndroidJavaClass("com.chenguan.play.GooglePlayManager");
+            jc = new AndroidJavaClass("com.chenguan.pay.IAPManager");
             jo = jc.GetStatic<AndroidJavaObject>("Instance");
             jo.Call("InitIAP");
         }
 
-        public override void Buy(string sku, string type, Action<string> succeed, Action<string> failed)
+        public override void Buy(string sku, string key, string type, Action<string> succeed, Action<string> failed)
         {
-            base.Buy(sku, type, succeed, failed);
-            jo.Call("Purchase", sku,type);
+            SDKMgr.GetInstance().Log("PaySDKAndroid  ---  Buy  sku = " + sku);
+            base.Buy(sku, key, type, succeed, failed);
+            jo.Call("Purchase", sku, type, key);
         }
 
         public override void QuerySkuDetails(string type, Action<string> goodsDetails)
@@ -41,10 +42,11 @@ namespace SDK
             jo.Call("QueryPurchases", itemType);
         }
 
-        public override void ConsumeOrder(string sku)
+   
+        public override void ConsumeOrder(string sku, Action<string> consumer)
         {
-            base.ConsumeOrder(sku);
-            jo.Call("ConsumeOrder",sku);
+            base.ConsumeOrder(sku, consumer);
+            jo.Call("ConsumeOrder", sku);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Audio;
@@ -10,12 +9,20 @@ namespace Module
 {
     public enum AudioPlayType
     {
+        /// <summary>
+        /// 音效
+        /// </summary>
         Audio,
-        Music
+        /// <summary>
+        /// 背景音乐
+        /// </summary>
+        Music,
     }
 
-    public class AudioPlay : ISetID<object, AudioPlay>, IProcess
+    public class AudioPlay : IDMark<object, AudioPlay>, IProcess
     {
+        #region AudioArg
+
         private struct AudioArg<T>
         {
             public T args;
@@ -33,158 +40,76 @@ namespace Module
                 changed = true;
             }
         }
-        public const string audioPrefabPath = "AudioCompont/AudioPrefab.prefab";
 
-        public static float MusicVolume;
-        public static float AudioVolume;
-        public static bool Mute;
-        public static string currentMusic;
-        
-        public static event Action<float> onMusicVolumeChanged;
-        public static event Action<float> onAudioVolumeChanged;
-        public static event Action<bool> onMuteChanged;
+        #endregion
 
-        public static void SetMusicVolume(float value)
+        #region Log
+        public static bool isLog = false;
+
+        private static void Log(object obj)
         {
-            MusicVolume = value;
-            onMusicVolumeChanged?.Invoke(value);
+            if (isLog)
+            {
+                GameDebug.Log(obj);
+            }
         }
 
-        public static void SetAudioVolume(float value)
+        private static void LogFormat(string obj, params object[] arg)
         {
-            AudioVolume = value;
-            onAudioVolumeChanged?.Invoke(value);
+            if (isLog)
+            {
+                GameDebug.LogFormat(obj, arg);
+            }
         }
 
-        public static void SetMute(bool mute)
+        private static void LogError(object obj)
         {
-            Mute = mute;
-            onMuteChanged?.Invoke(mute);
+            if (isLog)
+            {
+                GameDebug.LogError(obj);
+            }
         }
 
-        #region Dic
+        #endregion
 
-        private static Dictionary<object, List<AudioPlay>> audioPlays = new Dictionary<object, List<AudioPlay>>();
+        #region Static Private
+
         private static Dictionary<string, AudioInfo> audioPath = new Dictionary<string, AudioInfo>();
-
-        #endregion
-
-        #region 2dPoint
-
+        private static List<AudioPlay> allPlay = new List<AudioPlay>();
+        private static AudioPlay _currentMusic;
+        
         private static AudioListener _listener;
-
-        public static AudioListener listener
-        {
-            get
-            {
-                if (_listener == null)
-                {
-                    _listener = GameObject.Find("GamePlay/Audio").GetComponent<AudioListener>();
-                }
-
-                return _listener;
-            }
-        }
-
         private static Audio _2dAudioSource;
+        private static Audio _bgm;
+        private const string audioPrefabPath = "AudioCompont/AudioPrefab.prefab";
 
-        public static Audio globleAudioSource
-        {
-            get
-            {
-                if (_2dAudioSource == null)
-                {
-                    _2dAudioSource = listener.GetComponent<Audio>();
-                    _2dAudioSource.autoCollection = false;
-                }
-
-                return _2dAudioSource;
-            }
-        }
-
-        #endregion
-
-        #region ID Controller
-
-        public static void StopByID(object id)
-        {
-            List<AudioPlay> list = null;
-            if (audioPlays.TryGetValue(id, out list))
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i].Stop();
-                }
-            }
-        }
-
-        public static void PauseByID(object id)
-        {
-            List<AudioPlay> list = null;
-            if (audioPlays.TryGetValue(id, out list))
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i].Pause();
-                }
-            }
-        }
-
-        public static void ContinueByID(object id)
-        {
-            List<AudioPlay> list = null;
-            if (audioPlays.TryGetValue(id, out list))
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i].Continue();
-                }
-            }
-        }
-
-        public static void UnloadByID(object id)
-        {
-            List<AudioPlay> list = null;
-            if (audioPlays.TryGetValue(id, out list))
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i].UnLoad();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Globle
-
-        public static void Unload(string name)
-        {
-            AudioInfo info = null;
-            if (audioPath.TryGetValue(name, out info))
-            {
-                info.play.UnLoad();
-            }
-        }
-
-        #endregion
-
-        #region Play
-
+        
         private static AudioPlay PlayPrivate(string name, Audio audio, Transform parent,bool isOneShot,AudioPlayType playType, Action<AudioPlay, AudioClip, Audio> callback)
         {
-            AudioPlay play = new AudioPlay();
-            if (audio != null && !audio.gameObject.activeInHierarchy) return play;
-            play.isOneShot = isOneShot;
-            play.playType = playType;
-            //GameDebug.Log("尝试播放音效: "+name);
+            AudioPlay play = new AudioPlay {isOneShot = isOneShot, playType = playType};
+            allPlay.Add(play);
+            
+            if (audio != null && !audio.gameObject.activeInHierarchy)
+            {
+                LogFormat("{0}这个Audio没有激活", audio.gameObject.name);
+                return play;
+            }
+            if (playType == AudioPlayType.Music)
+            {
+                LogFormat("播放背景音乐: {0}", name);
+            }
+            else
+            {
+                LogFormat("尝试播放音效: {0}", name);
+            }
+
             AudioInfo info = default;
             if (!audioPath.TryGetValue(name, out info))
             {
                 AudioData data = DataMgr.Instance.GetSqlService<AudioData>().Where(fd => fd.name == name);
                 if (data == null)
                 {
-                    GameDebug.LogError("无法找到音频文件: "+name);
+                    LogError("无法找到音频文件: " + name);
                     return play;
                 }
 
@@ -220,30 +145,110 @@ namespace Module
 
             return play;
         }
+        
+        #endregion
 
-        public static AudioPlay Play(string name, AudioPlayType playType, Audio audio)
+        #region 静态属性
+
+        public static float MusicVolume { get; set; }
+        public static float AudioVolume { get; set; }
+        public static bool Mute { get; set; }
+
+        public static AudioPlay currentMusic
         {
-            return PlayPrivate(name, audio, null, false, playType, (play, clip, ago) => play.Play(clip));
+            get { return _currentMusic; }
         }
 
-        public static AudioPlay Play(string name, AudioPlayType playType, Transform parent, Vector3 pos)
+        #endregion
+        
+        #region Listener
+
+
+        public static AudioListener defaultListener
         {
-            return PlayPrivate(name, null, parent, false, playType, (play, clip, ago) => play.Play(clip, pos));
+            get
+            {
+                if (_listener == null)
+                {
+                    _listener = GameObject.Find("GamePlay/Audio").GetComponent<AudioListener>();
+                }
+
+                return _listener;
+            }
         }
 
-        public static AudioPlay Play(string name, AudioPlayType playType, Vector3 pos)
+        public static Audio globleAudioSource
         {
-            return PlayPrivate(name, null, null, false, playType, (play, clip, ago) => play.Play(clip, pos));
+            get
+            {
+                if (_2dAudioSource == null)
+                {
+                    _2dAudioSource = defaultListener.GetComponent<Audio>();
+                    _2dAudioSource.autoCollection = false;
+                }
+
+                return _2dAudioSource;
+            }
         }
 
-        public static AudioPlay Play(string name, AudioPlayType playType, Transform parent)
+        public static Audio bgm
         {
-            return PlayPrivate(name, null, parent, false, playType, (play, clip, ago) => play.Play(clip));
+            get
+            {
+                if (_bgm == null)
+                {
+                    _bgm = defaultListener.transform.GetChild(0).GetComponent<Audio>();
+                    _bgm.autoCollection = false;
+                }
+                
+                return _bgm;
+            }
+        }
+
+        #endregion
+
+        #region Event
+
+        public static event Action<float> onMusicVolumeChanged;
+        public static event Action<float> onAudioVolumeChanged;
+        public static event Action<bool> onMuteChanged;
+
+        #endregion
+
+        #region Public Method
+        
+        public static AudioPlay Play(string name, Audio audio)
+        {
+            return PlayPrivate(name, audio, null, false, AudioPlayType.Audio, (play, clip, ago) => play.Play(clip));
+        }
+
+        public static AudioPlay Play(string name, Transform parent, Vector3 pos)
+        {
+            return PlayPrivate(name, null, parent, false, AudioPlayType.Audio, (play, clip, ago) => play.Play(clip, pos));
+        }
+
+        public static AudioPlay Play(string name, Vector3 pos)
+        {
+            return PlayPrivate(name, null, null, false, AudioPlayType.Audio, (play, clip, ago) => play.Play(clip, pos));
+        }
+
+        public static AudioPlay Play(string name, Transform parent)
+        {
+            return PlayPrivate(name, null, parent, false, AudioPlayType.Audio, (play, clip, ago) => play.Play(clip));
         }
 
         public static AudioPlay Play(string name, AudioPlayType playType)
         {
-            return PlayPrivate(name, globleAudioSource, null, false, playType, (play, clip, ago) => play.Play(clip));
+            if (playType == AudioPlayType.Music)
+            {
+                var tar = PlayPrivate(name, bgm, null, false, playType, (play, clip, ago) => play.Play(clip)).SetLoop(true);
+                _currentMusic = tar;
+                return tar;
+            }
+            else
+            {
+                return PlayPrivate(name, globleAudioSource, null, false, playType, (play, clip, ago) => play.Play(clip));
+            }
         }
 
         public static AudioPlay PlayOneShot(string name, Audio audio)
@@ -271,32 +276,212 @@ namespace Module
             return PlayPrivate(name, globleAudioSource, globleAudioSource.transform, true, AudioPlayType.Audio, (play, clip, ago) => play.PlayOneShot(clip));
         }
 
+        public static void SetMusicVolume(float value)
+        {
+            MusicVolume = value;
+            onMusicVolumeChanged?.Invoke(value);
+        }
+
+        public static void SetAudioVolume(float value)
+        {
+            AudioVolume = value;
+            onAudioVolumeChanged?.Invoke(value);
+        }
+
+        public static void SetMute(bool mute)
+        {
+            Mute = mute;
+            onMuteChanged?.Invoke(mute);
+        }
+
+        public static void PauseAudio(Predicate<AudioPlay> predicate)
+        {
+            if (predicate == null)
+            {
+                for (int i = 0; i < allPlay.Count; i++)
+                {
+                    allPlay[i].Pause();
+                }
+                
+                return;
+            }
+            for (int i = 0; i < allPlay.Count; i++)
+            {
+                var temp = allPlay[i];
+                if (predicate.Invoke(temp))
+                {
+                    temp.Pause();
+                }
+            }
+        }
+
+        public static void ContinueAudio(Predicate<AudioPlay> predicate)
+        {
+            if (predicate == null)
+            {
+                for (int i = 0; i < allPlay.Count; i++)
+                {
+                    allPlay[i].Continue();
+                }
+                
+                return;
+            }
+            for (int i = 0; i < allPlay.Count; i++)
+            {
+                var temp = allPlay[i];
+                if (predicate.Invoke(temp))
+                {
+                    temp.Continue();
+                }
+            }
+        }
+
+        public static void StopAudio(Predicate<AudioPlay> predicate)
+        {
+            if (predicate == null)
+            {
+                for (int i = 0; i < allPlay.Count; i++)
+                {
+                    allPlay[i].Stop();
+                }
+                
+                return;
+            }
+            for (int i = 0; i < allPlay.Count; i++)
+            {
+                var temp = allPlay[i];
+                if (predicate.Invoke(temp))
+                {
+                    temp.Stop();
+                }
+            }
+        }
+
+        public static void GetAudioClip(string name, Action<AudioClip> callback)
+        {
+            AudioInfo info = default;
+            if (!audioPath.TryGetValue(name, out info))
+            {
+                AudioData data = DataMgr.Instance.GetSqlService<AudioData>().Where(fd => fd.name == name);
+                if (data == null)
+                {
+                    LogError("无法找到音频文件: " + name);
+                }
+
+                info = new AudioInfo(name, data.path);
+                audioPath.Add(name, info);
+            }
+            
+            AssetLoad.PreloadAsset<AudioClip>(info.path, res =>
+            {
+                if (res.Result != null)
+                {
+                    info.clip = res.Result;
+                    callback?.Invoke(res.Result);
+                }
+            });
+        }
+
         #endregion
 
-        #region 属性
-        private bool isOneShot;
+        #region Private
 
-        private AudioArg<bool> isPause = new AudioArg<bool>(false);
+        private bool isOneShot;
+        private AudioArg<bool> _isPause = new AudioArg<bool>(false);
         private AudioArg<float> _3dBlend = new AudioArg<float>(0);
         private AudioArg<float> _3dRange = new AudioArg<float>(15);
-        private AudioArg<bool> isLoop = new AudioArg<bool>(false);
-        private AudioArg<float> speed = new AudioArg<float>(1);
+        private AudioArg<bool> _isLoop = new AudioArg<bool>(false);
+        private AudioArg<float> _speed = new AudioArg<float>(1);
+        private AudioArg<bool> _ignorePause = new AudioArg<bool>(false);
+
+        public bool ignorePause
+        {
+            get { return _ignorePause.args; }
+        }
+
+        private void SetArgs()
+        {
+            if (this._isLoop.changed)
+            {
+                this.audioSource.audioSource.loop = this._isLoop.args;
+                this._isLoop.changed = false;
+            }
+
+            if (_3dBlend.changed)
+            {
+                this.audioSource.audioSource.spatialBlend = _3dBlend.args;
+                this._3dBlend.changed = false;
+            }
+            
+            if (_ignorePause.changed)
+            {
+                if (!_ignorePause.args)
+                {
+                    if (TimeHelper.isPause)
+                    {
+                        Pause();
+                    }
+                    else
+                    {
+                        Continue();
+                    }
+                }
+
+                _ignorePause.changed = false;
+            }
+
+            if (_isPause.changed)
+            {
+                if (_isPause.args)
+                {
+                    this.audioSource.audioSource.Pause();
+                }
+                else
+                {
+                    this.audioSource.audioSource.UnPause();
+                }
+                
+                this._isPause.changed = false;
+            }
+
+            if (this._speed.changed)
+            {
+                this.audioSource.audioSource.pitch = _speed.args;
+                this._speed.changed = false;
+            }
+
+            if (_3dRange.changed)
+            {
+                this.audioSource.audioSource.maxDistance = _3dRange.args;
+                this._3dRange.changed = false;
+            }
+        }
         
+        private bool CanSet()
+        {
+            return audioSource != globleAudioSource && audioSource != bgm;
+        }
+        
+        #endregion
+        
+        #region 属性
         public object ID { get; set; }
-        public Func<bool> monitor { get; set; }
+        public string tag { get; set; }
+        public Func<bool> listener { get; set; }
         public Audio audioSource { get; set; }
         public AudioInfo info { get; set; }
         public AudioPlayType playType { get; set; }
-        public Action callback;
-
-        public bool MoveNext()
-        {
-            return !isComplete;
-        }
 
         public object Current
         {
             get { return audioSource; }
+        }
+        
+        public bool MoveNext()
+        {
+            if (playType == AudioPlayType.Music) return true;
+            SetArgs();
+            return !isComplete;
         }
 
         public bool isComplete
@@ -304,29 +489,24 @@ namespace Module
             get
             {
                 if (audioSource == null) return true;
-                bool temp = !audioSource.audioSource.isPlaying && !isPause.args && !isLoop.args;
-                if (monitor == null)
+                bool temp = !audioSource.audioSource.isPlaying && !_isPause.args && !_isLoop.args;
+                if (listener == null)
                 {
                     return temp;
                 }
                 else
                 {
-                    return temp || monitor.Invoke();
+                    return temp || listener.Invoke();
                 }
             }
         }
 
-
-
         #endregion
 
         #region 函数
-
-
-
+        
         public void Play(AudioClip clip, Vector3 pos)
         {
-            if (playType == AudioPlayType.Music) currentMusic = info.name;
             audioSource.playType = playType;
             audioSource.Play(clip, false, this);
             audioSource.transform.position = pos;
@@ -334,7 +514,6 @@ namespace Module
 
         public void Play(AudioClip clip)
         {
-            if (playType == AudioPlayType.Music) currentMusic = info.name;
             audioSource.playType = playType;
             audioSource.Play(clip, false, this);
         }
@@ -353,56 +532,75 @@ namespace Module
         
         public AudioPlay Pause()
         {
-            isPause.Change(true);
+            _isPause.Change(true);
             return this;
         }
 
         public AudioPlay Continue()
         {
-            isPause.Change(false);
+            _isPause.Change(false);
+            return this;
+        }
+
+        public AudioPlay Stop()
+        {
+            allPlay.Remove(this);
+            
+            if (audioSource != null)
+            {
+                audioSource.StopPlay();
+                if (playType == AudioPlayType.Music)
+                {
+                    Log("关闭背景音乐");
+                }
+                if (audioSource.autoCollection)
+                {
+                    audioSource.ReturnToPool();
+                    Reset();
+                }
+            }
+
             return this;
         }
 
         #region Set
 
-        public AudioPlay SetOnLoad(Action callback)
+        public AudioPlay SetTag(string tag)
         {
-            this.callback = callback;
+            if (tag == null) return this;
+            this.tag = tag;
             return this;
         }
 
-        public AudioPlay SetID(object ID)
+        public AudioPlay SetIgnorePause(bool ignorePause)
         {
-            if (audioSource == globleAudioSource) return this;
-            if (ID == null) return this;
-            List<AudioPlay> temp = null;
-            this.ID = ID;
-            if (!audioPlays.TryGetValue(ID, out temp))
-            {
-                temp = new List<AudioPlay>();
-                audioPlays.Add(ID, temp);
-            }
+            this._ignorePause.Change(ignorePause);
+            return this;
+        }
 
-            temp.Add(this);
+        public AudioPlay SetID(object ID, string tag1 = null)
+        {
+            if (ID == null) return this;
+            this.ID = ID;
+            SetTag(tag1);
             return this;
         }
 
         public AudioPlay SetSpeed(float speed)
         {
-            if (audioSource == globleAudioSource) return this;
-            this.speed.Change(speed);
+            if (!CanSet()) return this;
+            this._speed.Change(speed);
             return this;
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            if (audioSource == globleAudioSource) return;
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public AudioPlay Set3D(float value = 1)
         {
-            if (audioSource == globleAudioSource) return this;
+            if (!CanSet()) return this;
             if (playType == AudioPlayType.Music)
             {
                 this._3dBlend.Change(0);
@@ -417,91 +615,32 @@ namespace Module
         public AudioPlay SetLoop(bool loop)
         {
             if (isOneShot) return this;
-            this.isLoop.Change(loop);
+            this._isLoop.Change(loop);
             return this;
         }
 
         public AudioPlay Set3DRange(float range)
         {
-            if (audioSource == globleAudioSource) return this;
+            if (!CanSet()) return this;
             this._3dRange.Change(range);
             return this;
         }
 
-        #endregion
-
-        public AudioPlay Stop()
-        {
-            if (ID != null)
-            {
-                if (audioPlays.ContainsKey(ID))
-                {
-                    audioPlays[ID].Remove(this);
-                    if (audioPlays[ID].Count == 0)
-                    {
-                        audioPlays.Remove(ID);
-                    }
-                }
-            }
-
-            if (audioSource != null)
-            {
-                audioSource.ReturnToPool();
-            }
-            Reset();
-            return this;
-        }
-
-        public void UnLoad()
-        {
-            AssetLoad.Release(info.clip);
-            Stop();
-        }
-
         public void Reset()
         {
-            isPause = new AudioArg<bool>(false);
+            _isPause = new AudioArg<bool>(false);
             _3dBlend = new AudioArg<float>(0);
             _3dRange = new AudioArg<float>(15);
-            isLoop = new AudioArg<bool>(false);
-            speed = new AudioArg<float>(1);
-
+            _isLoop = new AudioArg<bool>(false);
+            _speed = new AudioArg<float>(1);
+            _ignorePause=new AudioArg<bool>(false);
             if (info != null)
                 info.play = null;
             audioSource = null;
             this.info = null;
         }
+#endregion
 
-        private void SetArgs()
-        {
-            if (this.isLoop.changed)
-            {
-                this.audioSource.audioSource.loop = this.isLoop.args;
-            }
-
-            if (_3dBlend.changed)
-            {
-                this.audioSource.audioSource.spatialBlend = _3dBlend.args;
-            }
-
-            if (isPause.changed)
-            {
-                this.audioSource.audioSource.Pause();
-            }
-
-            if (this.speed.changed)
-            {
-                this.audioSource.audioSource.pitch = speed.args;
-            }
-
-            if (_3dRange.changed)
-            {
-                this.audioSource.audioSource.maxDistance = _3dRange.args;
-            }
-
-            this.callback?.Invoke();
-        }
-
-        #endregion
+#endregion
     }
 }

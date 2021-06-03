@@ -96,7 +96,7 @@ namespace Module
         private static GameScene LoadPrivate(string name, Action callback,LoadSceneMode mode)
         {
             if (activeScene != null && activeScene.name == name) return null;
-            GameDebug.Log("开始加载场景" + name);
+            GameDebug.LogFormat("开始加载场景{0}" , name);
             GameScene scene = null;
             if (!m_scene.TryGetValue(name, out scene))
             {

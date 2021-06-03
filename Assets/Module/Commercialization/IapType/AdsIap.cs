@@ -14,6 +14,7 @@ namespace Module
     {
         public AdsType adsType;
         public E_InitializeAdType initializeAdType;
+        protected Action<IapResult> onRewardCallback;
 
         protected internal AdsIap(IapDataBase data, AdsType adsType,E_InitializeAdType initializeType) : base(data)
         {
@@ -24,55 +25,99 @@ namespace Module
             }
         }
 
-        public override async void OnTryGetReward(Action<IapResult> callback, IapResult result,bool skipConsume)
+
+        public override string OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
         {
-            base.OnTryGetReward(callback,result,skipConsume);
-#if UNITY_EDITOR
-            await Async.WaitforSecondsRealTime(1);
-            OnStateChanged(E_AdState.Rewarded);
-#else
-            if (CanPay())
+            base.OnTryGetReward(callback, result, skipConsume);
+            this.onRewardCallback = callback;
+            result.skipConsume = skipConsume;
+            if (iapState == IapState.Normal)
             {
+#if UNITY_EDITOR
+                TimeHelper.isPause = true;
+                AudioListener.pause = true;
+                OnStateChanged(E_AdState.Rewarded);
+#else
+
                 if (!skipConsume)
                 {
                     AudioListener.pause = true;
-                    TimeHelper.Pause();
+                    TimeHelper.Pause(this);
+                    GameDebug.LogFormat("调用支付窗口");
                     SDK.SDKMgr.GetInstance().MyAdSDK.PlayRewardedVideoAd(OnStateChanged);
                 }
                 else
                 {
+                    GameDebug.LogFormat("跳过支付,直接支付成功");
                     OnStateChanged(E_AdState.Rewarded);
                 }
-
-            }
 #endif
+            }
+            else if (iapState == IapState.Invalid)
+            {
+                GameDebug.LogFormat("iapState: invalid 返回支付失败");
+                OnStateChanged(E_AdState.DisplayFailed);
+            }
+            else if (iapState == IapState.Skip)
+            {
+                GameDebug.LogFormat("iapState: Skip 跳过支付,直接支付成功");
+                OnStateChanged(E_AdState.Rewarded);
+            }
+
+            return null;
         }
 
         public override bool CanPay()
         {
-            if (adsType == AdsType.Interstitial)
+            if (iapState == IapState.Normal)
             {
-                return SDK.SDKMgr.GetInstance().MyAdSDK.IsInterstitialAd(initializeAdType);
+                if (adsType == AdsType.Interstitial)
+                {
+                    return SDK.SDKMgr.GetInstance().MyAdSDK.IsInterstitialAd(initializeAdType);
+                }
+                else if (adsType == AdsType.Reward)
+                {
+                    return SDK.SDKMgr.GetInstance().MyAdSDK.IsRewardedVideoAd();
+                }
             }
-            else if (adsType == AdsType.Reward)
+            else if (iapState == IapState.Invalid)
             {
-                return SDK.SDKMgr.GetInstance().MyAdSDK.IsRewardedVideoAd();
+                return false;
             }
+            else if (iapState == IapState.Skip)
+            {
+                return true;
+            }
+
 
             return false;
         }
 
         protected void OnStateChanged(E_AdState state)
         {
+            GameDebug.LogFormat("广告状态回调: {0}" , state);
+
             if (IsCompleteState(state))
             {
-                getCount++;
                 result.result = ConvertResultMessage(state);
+                if (iapState == IapState.Normal)
+                {
+                    AudioListener.pause = false;
+                    TimeHelper.Continue(this);
+                    if (result.result == IapResultMessage.Success)
+                    {
+                        getCount++;
+                    }
+                    onResultIapBeforeCall?.Invoke(result);
+                }
+
                 this.onRewardCallback?.Invoke(result);
+                if (iapState == IapState.Normal)
+                {
+                    onResultIapAfterCall?.Invoke(result);
+                }
                 this.onRewardCallback = null;
                 this.result = null;
-                AudioListener.pause = false;
-                TimeHelper.Continue();
             }
         }
         
@@ -84,11 +129,6 @@ namespace Module
                     return IapResultMessage.Success;
                 case E_AdState.DisplayFailed:
                     return IapResultMessage.Fail;
-                case E_AdState.LoadFailed:
-                    return IapResultMessage.NetworkError;
-                case E_AdState.LeftApplication:
-                case E_AdState.Close:
-                    return IapResultMessage.Cancle;
             }
 
             return default;
@@ -96,8 +136,7 @@ namespace Module
 
         private bool IsCompleteState(E_AdState state)
         {
-            return state == E_AdState.Completed || state == E_AdState.Rewarded || state == E_AdState.Close ||
-                   state == E_AdState.DisplayFailed;
+            return state == E_AdState.Rewarded || state == E_AdState.Close || state == E_AdState.DisplayFailed;
         }
     }
 }

@@ -31,13 +31,23 @@ namespace SDK
         }
 
         /// <summary>
-        /// 掉单恢复
+        /// 查询商品是否有掉单
         /// </summary>
         /// <param name="sku">sku</param>
         public void RecoveryOrder(string sku)
         {
             SDKMgr.GetInstance().Log("PayUACommunication  RecoveryOrder --- sku = " + sku);
             SDKMgr.GetInstance().MyPaySDK.OnRecoveryOrder(sku);
+        }
+
+        /// <summary>
+        /// 消耗掉单
+        /// </summary>
+        /// <param name="state"></param>
+        public void ConsumeOrder(string state)
+        {
+            SDKMgr.GetInstance().Log("PayUACommunication  OnConsumeOrder --- state = " + state);
+            SDKMgr.GetInstance().MyPaySDK.OnConsumeOrder(state);
         }
 
         /// <summary>

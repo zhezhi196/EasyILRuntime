@@ -4,7 +4,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 实现镂空效果的Mask组件
 /// </summary>
-namespace ETModel
+namespace Module
 {
     public class HollowOutMask : MaskableGraphic, ICanvasRaycastFilter
     {

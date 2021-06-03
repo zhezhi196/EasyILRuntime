@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Video;
 using Object = UnityEngine.Object;
 
 
@@ -18,10 +20,44 @@ namespace Module
             Config,
             UI,
         }
-        public static void PreloadAsset<T>(string path, Action<AsyncOperationHandle<T>> callback)
+
+        public static AsyncOperationHandle<T> PreloadAsset<T>(string path, Action<AsyncOperationHandle<T>> callback)
         {
-            Addressables.LoadAssetAsync<T>(GetAssetsPath(path)).Completed += callback;
+            if (!Caching.compressionEnabled)
+            {
+                WaitLoad(path, callback);
+                return default;
+            }
+            var load = Addressables.LoadAssetAsync<T>(GetAssetsPath(path));
+            load.Completed += callback;
+            return load;
         }
+
+        private static async void WaitLoad<T>(string path, Action<AsyncOperationHandle<T>> callback)
+        {
+            await Async.WaitUntil(() => Caching.compressionEnabled);
+            Caching.compressionEnabled = true;
+            PreloadAsset(path, callback);
+        }
+
+        public static AsyncOperationHandle<VideoClip> LoadVideo(string path, Action<AsyncOperationHandle<VideoClip>> callback)
+        {
+            Caching.compressionEnabled = false;
+            var process = Addressables.LoadAssetAsync<VideoClip>(GetAssetsPath(path));
+            process.Completed += res =>
+            {
+                callback?.Invoke(res);
+                Caching.compressionEnabled = true;
+            };
+            return process;
+        }
+        //同步方法现在还有问题
+        // public static T PreloadAsset<T>(string path)
+        // {
+        //     var op = Addressables.LoadAssetAsync<T>(GetAssetsPath(path));
+        //     T go = op.WaitForCompletion();
+        //     return go;
+        // }
 
         public static void PreloadGameobject(string path, Action<ObjectPool, object[]> callback, params object[] args)
         {
@@ -99,7 +135,7 @@ namespace Module
             }
             Object.Destroy(obj);
         }
-        
+
         public static string GetAssetsPath(string path)
         {
             return "Assets/Bundles/" + path;

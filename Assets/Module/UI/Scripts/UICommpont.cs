@@ -263,6 +263,12 @@ namespace Module
         
         
         private static List<object> m_freezeList = new List<object>();
+
+        public static bool isLoading
+        {
+            get { return UiLoading.gameObject.activeInHierarchy; }
+        }
+
         /// <summary>
         /// 窗口是否可点击
         /// </summary>
@@ -299,11 +305,10 @@ namespace Module
             }
         }
 
-        public static void UnFreezeUI(string key, float time)
+        public static async void UnFreezeUI(string key, float time)
         {
-            Clock clock = new Clock(time) {ignoreTimescale = true};
-            clock.onComplete += () => { UnFreezeUI(key); };
-            clock.StartTick();
+            await Async.WaitforSeconds(time);
+            UnFreezeUI(key);
         }
 
         public static void CloseLoading()
@@ -316,18 +321,16 @@ namespace Module
             UiLoading.Open();
         }
 
-        public static void CommonPopup(string title, string content, params PupupOption[] option)
-        {
-            Module.CommonPopup.Popup(title,content,option);
-        }
-
-        public static void CloseCommonPopup()
-        {
-            Module.CommonPopup.Close();
-        }
         public static List<object> GetFreezeList()
         {
             return m_freezeList;
+        }
+
+        public static void UnFreezeUIAll()
+        {
+            Mask.gameObject.OnActive(false);
+            Mask.HideMask();
+            m_freezeList.Clear();
         }
     }
 }

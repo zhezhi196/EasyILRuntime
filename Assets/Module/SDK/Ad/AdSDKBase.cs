@@ -68,10 +68,11 @@ namespace SDK
        /// </summary>
         internal void OnRewarded(E_AdState e_AdState)
         {
+            SDKMgr.GetInstance().Log("AdSDKBase --- OnRewarded  e_AdState = " + e_AdState);
             if (null != RewardedVideoAdCallBack)
             {
                 RewardedVideoAdCallBack(e_AdState);
-                RewardedVideoAdCallBack = null;
+              //  RewardedVideoAdCallBack = null;
             }
         }
 
@@ -80,17 +81,32 @@ namespace SDK
         /// </summary>
         internal void OnCompleted(E_AdState e_AdState)
         {
+            SDKMgr.GetInstance().Log("AdSDKBase --- OnCompleted  e_AdState = " + e_AdState);
             if (InterstitialAdCallBack != null)
             {
                 InterstitialAdCallBack(e_AdState);
-                InterstitialAdCallBack = null;
+               //InterstitialAdCallBack = null;
             }
         }
 
         public virtual void OnAdStateChange(E_AdState state)
         {
+            SDKMgr.GetInstance().Log("AdSDKBase --- OnAdStateChange  state = " + state);
             OnRewarded(state);
             OnCompleted(state);
+
+            if (state == E_AdState.Close || state == E_AdState.Completed || state == E_AdState.DisplayFailed)
+            {
+                if (RewardedVideoAdCallBack != null)
+                {
+                    RewardedVideoAdCallBack = null;
+                }
+
+                if (InterstitialAdCallBack != null)
+                {
+                    InterstitialAdCallBack = null;
+                }
+            }
             //switch (state)
             //{
             //    case E_AdState.Rewarded:

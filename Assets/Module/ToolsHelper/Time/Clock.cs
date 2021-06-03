@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public class Clock : IProcess, ISetID<object,Clock>
+    public class Clock : IProcess, IDMark<object,Clock>
     {
         #region Static
 
@@ -88,7 +88,7 @@ namespace Module
         }
 
         public object ID { get; set; }
-        public Func<bool> monitor { get; set; }
+        public Func<bool> listener { get; set; }
         public Func<bool> stopMonitor { get; set; }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace Module
             currentHour = 0;
         }
 
-        public Clock SetID(object ID)
+        public Clock SetID(object ID, string tag1 = null)
         {
             this.ID = ID;
             return this;
@@ -311,25 +311,30 @@ namespace Module
         {
             get
             {
-                if (monitor == null)
+                if (listener == null)
                 {
                     return currentTime >= targetTime;
                 }
                 else
                 {
-                    return currentTime >= targetTime || monitor();
+                    return currentTime >= targetTime || listener();
                 }
             }
         }
 
-        public void SetMonitor(Func<bool> monitor)
+        public void SetListener(Func<bool> monitor)
         {
-            this.monitor = monitor;
+            this.listener = monitor;
         }
 
         public void SetRemoveMonitor(Func<bool> monitor)
         {
             this.stopMonitor = monitor;
+        }
+
+        public override string ToString()
+        {
+            return currentTime.ToString();
         }
     }
 } 

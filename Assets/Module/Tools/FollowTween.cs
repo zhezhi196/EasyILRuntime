@@ -12,7 +12,7 @@ namespace Module
         }
     }
 
-    public class FollowTween : ISetID<object, FollowTween>
+    public class FollowTween : IDMark<object, FollowTween>
     {
         private static List<FollowTween> tweenList = new List<FollowTween>();
 
@@ -133,7 +133,7 @@ namespace Module
             return this;
         }
 
-        public FollowTween SetID(object id)
+        public FollowTween SetID(object id, string tag=null)
         {
             this.ID = id;
             return this;

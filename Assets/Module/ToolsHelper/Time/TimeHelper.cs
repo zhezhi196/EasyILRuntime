@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using DG.Tweening;
 using UnityEngine;
 namespace Module
@@ -9,6 +11,7 @@ namespace Module
 
         public static bool isPause;
 
+        public static event Action onNewDay;
         //private float tempScale;
         public static float gameSpeed { get; set; } = 1;
         public static float timeScale
@@ -119,23 +122,43 @@ namespace Module
         }
 
         private static float lastTimeScale = Time.timeScale;
+
+        private static List<object> pauseFlag = new List<object>();
+        
         //private static float lastGameSpeed = 0;
-        public static void Pause()
+        public static void Pause(object key)
         {
-            isPause = true;
-            lastTimeScale = timeScale;
-            //lastGameSpeed = gameSpeed;
-            timeTween.Pause();
-            timeScale = 0;
-            //gameSpeed = 0;
+            if (!pauseFlag.Contains(key))
+            {
+                pauseFlag.Add(key);
+            }
+
+            if (!isPause)
+            {
+                isPause = true;
+                lastTimeScale = timeScale;
+                timeTween.Pause();
+                timeScale = 0;
+                AudioPlay.PauseAudio(st => !st.ignorePause);
+                GameDebug.LogFormat("TimeHelper Pause: ", string.Join(",", pauseFlag));
+            }
         }
 
-        public static void Continue()
+        public static void Continue(object key)
         {
-            //gameSpeed = lastGameSpeed;
-            isPause = false;
-            timeScale = lastTimeScale;
-            timeTween.Play();
+            if (pauseFlag.Contains(key))
+            {
+                pauseFlag.Remove(key);
+            }
+
+            if (pauseFlag.Count == 0 && isPause)
+            {
+                isPause = false;
+                timeScale = lastTimeScale;
+                timeTween.Play();
+                AudioPlay.ContinueAudio(st => !st.ignorePause);
+                GameDebug.LogFormat("TimeHelper Continue: " , string.Join(",", pauseFlag));
+            }
         }
 
         public static void Exit()
@@ -149,5 +172,31 @@ namespace Module
         {
             return DateTime.Now;
         }
+
+        public static bool IsNewDay(string key)
+        {
+            DateTime res = LocalFileMgr.GetDateTime(key);
+            if (GetNow().IsNewDay(res))
+            {
+                LocalFileMgr.SetDateTime(key, GetNow());
+                return true;
+            }
+
+            return false;
+        }
+
+        private static DateTime lastTime;
+
+        public static void Update()
+        {
+            if (GetNow().IsNewDay(lastTime))
+            {
+                GameDebug.Log("新的一天");
+                onNewDay?.Invoke();
+            }
+
+            lastTime = GetNow();
+        }
+    
     }
 }

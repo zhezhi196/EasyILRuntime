@@ -14,6 +14,7 @@ namespace Module
         public Vector3 speed;
         public Color maskColor;
         public Color normalColor;
+        public bool showMask;
         
         [ShowInInspector]
         public List<object> freezeList
@@ -25,12 +26,14 @@ namespace Module
         {
             bg.color = maskColor;
             dot.gameObject.SetActive(true);
+            showMask = true;
         }
 
         public void HideMask()
         {
             bg.color = normalColor;
             dot.gameObject.SetActive(false);
+            showMask = false;
         }
 
         //private void Update()

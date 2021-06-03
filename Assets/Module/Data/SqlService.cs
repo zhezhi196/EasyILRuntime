@@ -153,16 +153,6 @@ namespace Module
             }
         }
 
-        public void Update(ISqlData data)
-        {
-            using (SQLiteConnection con= DataMgr.Instance.GetSqlConnection(DbName,m_passWord,m_flag))
-            {
-                con.Update(data);
-                con.Close();
-            }
-        }
-
-
         public T WhereID(int dataId)
         {
             if (dataId == 0) return default;
@@ -190,7 +180,25 @@ namespace Module
                     typeof(T).GetProperty(argName[j]).SetValue(temp[i], value[j]);
                 }
             }
+
             connection.UpdateAll(temp);
+        }
+
+        public void Update(params T[] obj)
+        {
+            for (int i = 0; i < obj.Length; i++)
+            {
+                for (int j = 0; j < tableList.Count; j++)
+                {
+                    if (tableList[j].ID == obj[i].ID)
+                    {
+                        tableList[j] = obj[i];
+                        break;
+                    }
+                }
+            }
+
+            connection.UpdateAll(obj);
         }
         
         /// <summary>

@@ -45,8 +45,9 @@ namespace Module
         public const string UICloseStart = "UICloseStart";
 
         public const string playerTag = "Player";
-        
+        public const string AnimatorAudioKey = "AnimatorAudioKey";
         #endregion
 
+        public const string Back = "Back";
     }
 }

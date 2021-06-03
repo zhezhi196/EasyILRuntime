@@ -5,8 +5,8 @@ namespace Module
 {
     public interface IProcess : IEnumerator
     {
-        Func<bool> monitor { get; set; }
+        Func<bool> listener { get; set; }
         bool isComplete { get; }
-        void SetMonitor(Func<bool> monitor);
+        void SetListener(Func<bool> monitor);
     }
 }

@@ -20,7 +20,7 @@ namespace SDK
 
         public override bool IsInterstitialAd(E_InitializeAdType adType)
         {
-            return jo.Call<bool>("InterstitialAdEnable", adType);
+            return jo.Call<bool>("InterstitialAdEnable");
         }
 
         public override bool IsRewardedVideoAd()
@@ -31,7 +31,7 @@ namespace SDK
         public override void PlayInterstitialAd(E_InitializeAdType adType,Action<E_AdState> intersCallBack)
         {
             base.PlayInterstitialAd(adType,intersCallBack);
-            jo.Call("ShowInterstitialAd",adType);
+            jo.Call("ShowInterstitialAd");
         }
 
         public override void PlayRewardedVideoAd(Action<E_AdState> rewardedCallBack)

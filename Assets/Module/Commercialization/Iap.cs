@@ -6,6 +6,21 @@ using UnityEngine;
 
 namespace Module
 {
+    public enum IapState
+    {
+        /// <summary>
+        /// 正常生效
+        /// </summary>
+        Normal,
+        /// <summary>
+        /// 无效的
+        /// </summary>
+        Invalid,
+        /// <summary>
+        /// 跳过支付永远可用
+        /// </summary>
+        Skip
+    }
     public abstract class Iap
     {
         #region IapResult
@@ -16,7 +31,7 @@ namespace Module
         {
             foreach (KeyValuePair<IapDataBase,Iap> keyValuePair in IapDic)
             {
-                if (keyValuePair.Key.sku == sku)
+                if (keyValuePair.Value.sku == sku)
                 {
                     return keyValuePair.Value;
                 }
@@ -24,6 +39,7 @@ namespace Module
 
             return null;
         }
+
         public static Iap GetIap(IapDataBase sqldata)
         {
             Iap result = null;
@@ -58,16 +74,45 @@ namespace Module
         }
 
         #endregion
+
+        public static Action<IapResult> onResultIapBeforeCall; 
+        public static Action<IapResult> onResultIapAfterCall;
+
         
-        protected Action<IapResult> onRewardCallback;
         protected IapResult result;
         public IapDataBase dbData { get; }
         public int getCount { get; set; }
 
-        public virtual void OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
+        public string sku
         {
-            this.onRewardCallback = callback;
+            get
+            {
+                switch (Channel.channel)
+                {
+                    case ChannelType.googlePlay:
+                        return dbData.googlePlay;
+                    case ChannelType.AppStore:
+                        return dbData.appStore;
+                    case ChannelType.AppStoreCN:
+                        return dbData.appStoreCN;
+                }
+                GameDebug.LogError("Channel 配置错误");
+                return null;
+            }
+        }
+
+        public IapState iapState
+        {
+            get
+            {
+                return (IapState) dbData.switchStation;
+            }
+        }
+
+        public virtual string OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
+        {
             this.result = result;
+            return null;
         }
         public abstract bool CanPay();
 

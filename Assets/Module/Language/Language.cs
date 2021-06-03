@@ -1,8 +1,8 @@
 ﻿using FrameWork;
 using System;
 using System.Collections.Generic;
-using Sirenix.Utilities;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Module
 {
@@ -12,7 +12,7 @@ namespace Module
         private static Dictionary<int, Dictionary<SystemLanguage,string>> language = new Dictionary<int, Dictionary<SystemLanguage,string>>();
         public static event Action<SystemLanguage> onLanguageChanged;
         private static SystemLanguage m_currLang = SystemLanguage.Unknown;
-        private static string localKey="LanguageSetting";
+        private static string localKey = "LanguageSetting";
 
         public static SystemLanguage currentLanguage
         {
@@ -26,7 +26,14 @@ namespace Module
                 {
                     if (m_currLang == SystemLanguage.Unknown)
                     {
-                        ChangeLanguage(Application.systemLanguage);
+                        if (Channel.channel == ChannelType.googlePlay || Channel.channel == ChannelType.AppStore)
+                        {
+                            ChangeLanguage(SystemLanguage.English);
+                        }
+                        else if (Channel.channel == ChannelType.AppStoreCN)
+                        {
+                            ChangeLanguage(SystemLanguage.Chinese);
+                        }
                     }
 
                     return m_currLang;
@@ -59,7 +66,7 @@ namespace Module
             }
         }
 
-        public static string GetContent(int ID)
+        public static string GetContent(int ID, LabelFlag flag = LabelFlag.None)
         {
             if (ID == 0) return "文本缺失";
             if (!isInit) Init();
@@ -67,6 +74,15 @@ namespace Module
             if (!language.TryGetValue(ID, out content)) return "文本缺失 ID:" + ID;
             string result = null;
             if (!content.TryGetValue(currentLanguage, out result)) return "缺少语言:"+currentLanguage;
+            if (flag == LabelFlag.AllLower)
+            {
+                return result.ToLower();
+            }
+            else if (flag == LabelFlag.AllUper)
+            {
+                return result.ToUpper();
+            }
+
             return result;
         }
 
