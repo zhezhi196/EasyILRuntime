@@ -87,11 +87,11 @@ namespace Module
             {
                 QueueAtrribute win = winQueue.Dequeue();
                 currentUI = UIController.Instance.Open(win.name, win.tweenType, win.args);
-                currentUI.OnCloseComplete += NextWin;
+                currentUI.onSequenceComplete += NextWin;
             }
             else
             {
-                currentUI.OnCloseComplete -= NextWin;
+                currentUI.onSequenceComplete -= NextWin;
                 onComplete?.Invoke();
                 onComplete = null;
                 if (ID != null)
@@ -112,11 +112,11 @@ namespace Module
             {
                 QueueAtrribute win = winQueue.Dequeue();
                 currentUI = UIController.Instance.Popup(win.name, win.tweenType, win.args);
-                currentUI.OnCloseComplete += NextPopupWin;
+                currentUI.onSequenceComplete += NextPopupWin;
             }
             else
             {
-                currentUI.OnCloseComplete -= NextPopupWin;
+                currentUI.onSequenceComplete -= NextPopupWin;
                 onComplete?.Invoke();
                 onComplete = null;
                 if (ID != null)
@@ -132,13 +132,13 @@ namespace Module
 
         private void NextWin(UITweenType type)
         {
-            currentUI.OnCloseComplete -= NextWin;
+            currentUI.onSequenceComplete -= NextWin;
             Open();
         }
 
         private void NextPopupWin(UITweenType type)
         {
-            currentUI.OnCloseComplete -= NextPopupWin;
+            currentUI.onSequenceComplete -= NextPopupWin;
             Popup();
         }
 
@@ -154,11 +154,11 @@ namespace Module
             {
                 if (type == 0)
                 {
-                    currentUI.OnCloseComplete -= NextWin;
+                    currentUI.onSequenceComplete -= NextWin;
                 }
                 else if (type == 1)
                 {
-                    currentUI.OnCloseComplete -= NextPopupWin;
+                    currentUI.onSequenceComplete -= NextPopupWin;
                 } 
             }
             onComplete?.Invoke();

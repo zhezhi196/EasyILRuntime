@@ -46,6 +46,8 @@ namespace Module
         public string path;
         public event Action<UITweenType> OnOpenComplete;
         public event Action<UITweenType> OnCloseComplete;
+
+        public event Action<UITweenType> onSequenceComplete;
         public event Action<UIViewBase> OnLoadView; 
 
         /// <summary>
@@ -356,6 +358,7 @@ namespace Module
                     UIController.Instance.SortUI();
                     viewBase?.OnCloseComplete();
                     OnCloseComplete?.Invoke(tweenType);
+                    onSequenceComplete?.Invoke(tweenType);
                     OnCloseComplete = null;
                     UnLoad();
                     UICommpont.UnFreezeUI(m_winName);
