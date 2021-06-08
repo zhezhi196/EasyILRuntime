@@ -39,8 +39,7 @@ namespace Module
             {
                 if (!config[i].config.channel.HasFlag(ChannelType.AppStoreCN))
                 {
-                    config[i].config.channel = ChannelType.googlePlay | ChannelType.AppStore | ChannelType.Huawei |
-                                               ChannelType.UnKnow2 | ChannelType.UnKnow3 | ChannelType.UnKnow4 |
+                    config[i].config.channel = ChannelType.googlePlay | ChannelType.AppStore | ChannelType.Huawei | ChannelType.UnKnow3 | ChannelType.UnKnow4 |
                                                ChannelType.UnKnow5 | ChannelType.UnKnow6;
                 }
                 else

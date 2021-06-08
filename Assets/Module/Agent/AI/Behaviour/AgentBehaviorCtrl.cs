@@ -31,7 +31,7 @@ namespace Module
             return SwitchBehavior(behavoior);
         }
         
-        public AgentBehaviorTree SwitchBehavior(AgentBehaviorTree behavoior, params object[] args)
+        public AgentBehaviorTree SwitchBehavior(AgentBehaviorTree behavoior, params float[] args)
         {
             AgentBehaviorTree result = AssetLoad.Instantiate(behavoior);
             result.args = args;
@@ -77,8 +77,8 @@ namespace Module
 
         public void OnBorn()
         {
+            SwitchBehavior(owner.bornBehavior, owner.bornBehaviorArg);
             this.owner.behaviourTree.enabled = true;
-            SwitchBehavior(owner.bornBehavior);
         }
 
         public void OnUpdate()

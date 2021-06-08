@@ -89,7 +89,8 @@ namespace Module
 
         public object ID { get; set; }
         public Func<bool> listener { get; set; }
-        public Func<bool> stopMonitor { get; set; }
+
+        public bool autoKill { get; set; } = true;
 
         /// <summary>
         /// 当前已经进行的时间
@@ -109,7 +110,7 @@ namespace Module
         /// 默认周期,到达这个数值会触发complete
         /// </summary>
         public float targetTime { get; set; }
-
+        public ITimeCtrl owner { get; set; }
         /// <summary>
         /// 是否忽略时间缩放影响,和dotween的SetUpdate函数传的参数一样一样的
         /// </summary>
@@ -202,16 +203,19 @@ namespace Module
             Reset();
 
             onStop?.Invoke();
-            onStart = null;
-            onRestart = null;
-            onPause = null;
-            onComplete = null;
-            onStop = null;
-            onUpdate = null;
-            onInterval = null;
-            onSecond = null;
-            onMinute = null;
-            onHour = null;
+            if (autoKill)
+            {
+                onStart = null;
+                onRestart = null;
+                onPause = null;
+                onComplete = null;
+                onStop = null;
+                onUpdate = null;
+                onInterval = null;
+                onSecond = null;
+                onMinute = null;
+                onHour = null;
+            }
         }
 
         public void Complete()
@@ -219,32 +223,60 @@ namespace Module
             SetActive(false);
             onComplete?.Invoke();
         }
-        
-        public void OnUpdate()
+
+        private float GetDelatime()
         {
-            if (stopMonitor != null)
+            float delatime = 0;
+            if (owner == null)
             {
-                if (stopMonitor.Invoke())
-                {
-                    Stop();
-                    return;
-                }
-            }
-            
-            if (!isComplete)
-            {
-                float delatime = 0;
                 if (ignorePause)
                 {
-                    delatime = (!ignoreTimescale ? TimeHelper.deltaTimeIgnorePause : TimeHelper.unscaledDeltaTimeIgnorePause);
+                    delatime = (!ignoreTimescale
+                        ? TimeHelper.deltaTimeIgnorePause
+                        : TimeHelper.unscaledDeltaTimeIgnorePause);
                 }
                 else
                 {
                     delatime = (!ignoreTimescale ? TimeHelper.deltaTime : TimeHelper.unscaledDeltaTime);
                 }
-                
+            }
+            else
+            {
+                if (ignoreTimescale)
+                {
+                    delatime = owner.GetDelatime(ignorePause);
+                }
+                else
+                {
+                    delatime = owner.GetUnscaleDelatime(ignorePause);
+                }
+            }
+
+            return delatime;
+        }
+
+        public void OnUpdate()
+        {
+            float delatime = GetDelatime();
+            DelatimeUpdate(delatime);
+        }
+
+        public void DelatimeUpdate(float delatime)
+        {
+            if (!isComplete)
+            {
+                if (listener != null)
+                {
+                    if (listener.Invoke())
+                    {
+                        Stop();
+                        return;
+                    }
+                }
+
                 currentTime += delatime;
                 if (currentTime > targetTime) currentTime = targetTime;
+
                 #region interval 秒 分 时
 
                 if (!intervalTime.IsNullOrEmpty() && currentIntervalIndex < intervalTime.Length)
@@ -255,7 +287,7 @@ namespace Module
                         currentIntervalIndex++;
                     }
                 }
-                
+
                 if (currentTime >= currentSecond + 1)
                 {
                     currentSecond = (int) currentTime;
@@ -322,14 +354,9 @@ namespace Module
             }
         }
 
-        public void SetListener(Func<bool> monitor)
+        public void SetListener(Func<bool> listen)
         {
-            this.listener = monitor;
-        }
-
-        public void SetRemoveMonitor(Func<bool> monitor)
-        {
-            this.stopMonitor = monitor;
+            this.listener = listen;
         }
 
         public override string ToString()

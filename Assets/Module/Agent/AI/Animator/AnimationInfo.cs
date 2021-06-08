@@ -14,10 +14,8 @@ namespace Module
         private float _clipLength;
         private float _animationSpeed;
         private bool _isPause;
-        public int layer { get; set; }
+        public int layer { get; set; } = -1;
         public string name { get; }
-        
-        public int nameHash { get; }
 
         public float durationTime
         {
@@ -61,7 +59,7 @@ namespace Module
         {
             this._animator = animator;
             this._fullName = clip.name;
-            this.name = name.Split('@')[1];
+            this.name = clip.name.Split('@')[1];
             this._speedParamater = this.name;
             this._clipLength = clip.length;
             this._duationTime = _clipLength;
@@ -86,6 +84,11 @@ namespace Module
         public override string ToString()
         {
             return _fullName;
+        }
+
+        public bool isSameLayer(int layer)
+        {
+            return this.layer == -1 || this.layer == layer;
         }
     }
 }

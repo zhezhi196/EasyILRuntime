@@ -2,11 +2,35 @@ using BehaviorDesigner.Runtime.Tasks;
 
 namespace Module
 {
-    public class AgentAction : Action, IAgentAction
+    public abstract class AgentAction : Action, IAgentAction
     {
-        public T GetArgs<T>(int index)
+        private IBehaviorObject owner;
+        public override void OnAwake()
         {
-            return (T) ((AgentBehaviorTree) this.Owner.ExternalBehavior).args[index];
+            this.owner = Owner.gameObject.GetComponent<IBehaviorObject>();
+        }
+
+        public float GetArgs(int index)
+        {
+            var tar = ((AgentBehaviorTree) this.Owner.ExternalBehavior).args;
+            if (tar != null)
+            {
+                if (index < tar.Length)
+                {
+                    return tar[index];
+                }
+            }
+            return default;
+        }
+
+        public T GetOwnerCtrl<T>() where T : IAgentCtrl
+        {
+            return owner.GetAgentCtrl<T>();
+        }
+
+        public T GetOwner<T>()
+        {
+            return (T)this.owner;
         }
     }
 }

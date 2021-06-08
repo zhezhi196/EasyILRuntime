@@ -144,17 +144,14 @@ namespace Module
             station = MoveStation.Moving;
         }
 
+        public void MoveToTarget(Action callback)
+        {
+            MoveTo(owner.moveTarget, callback);
+        }
+
         public void MoveTo(Vector3 position, Action callback)
         {
             PrivateMoveTo(position);
-            owner.navmesh.autoBraking = true;
-            this.callback = callback;
-        }
-
-        public void PatrolTo(Vector3 position, Action callback)
-        {
-            PrivateMoveTo(position);
-            owner.navmesh.autoBraking = false;
             this.callback = callback;
         }
         

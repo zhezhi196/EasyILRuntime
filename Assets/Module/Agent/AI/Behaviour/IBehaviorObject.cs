@@ -9,6 +9,7 @@ namespace Module
         bool isPauseBehavior { get; }
         BehaviorTree behaviourTree { get; }
         AgentBehaviorTree bornBehavior { get; }
+        float[] bornBehaviorArg { get; }
         AgentBehaviorTree GetBehaviorTree(string name);
 
     }

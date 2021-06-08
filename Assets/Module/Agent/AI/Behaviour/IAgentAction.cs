@@ -2,6 +2,6 @@ namespace Module
 {
     public interface IAgentAction
     {
-        T GetArgs<T>(int index);
+        float GetArgs(int index);
     }
 }

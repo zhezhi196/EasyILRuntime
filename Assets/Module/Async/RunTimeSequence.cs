@@ -45,9 +45,9 @@ namespace Module
             }
         }
 
-        public void SetListener(Func<bool> monitor)
+        public void SetListener(Func<bool> listen)
         {
-            this.listener = monitor;
+            this.listener = listen;
         }
 
         public int count

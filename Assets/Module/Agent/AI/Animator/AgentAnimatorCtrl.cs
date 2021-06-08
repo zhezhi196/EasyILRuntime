@@ -105,12 +105,12 @@ namespace Module
             }
         }
 
-        public AnimationPlay Play(string name, int layer)
+        public AnimationPlay Play(string name, int layer, bool autoFadeout = true)
         {
             AnimationInfo target = null;
             for (int i = 0; i < animationInfo.Length; i++)
             {
-                if (animationInfo[i].name == name)
+                if (animationInfo[i].name == name && animationInfo[i].isSameLayer(layer))
                 {
                     target = animationInfo[i];
                     break;
@@ -128,14 +128,26 @@ namespace Module
                         {
                             if (station == AnimationPlayStation.Complete)
                             {
-                                _playingLayer = null;
+                                if (autoFadeout)
+                                {
+                                    _playingLayer = null;
+                                }
                             }
-                        });
+                        }, autoFadeout);
                     }
                 }
             }
 
             return null;
+        }
+
+        public void FadeToDefaultLayer()
+        {
+            if (_playingLayer != null)
+            {
+                _playingLayer.FadeOutLayer();
+                _playingLayer = null;
+            }
         }
 
         public void Pause(object key)

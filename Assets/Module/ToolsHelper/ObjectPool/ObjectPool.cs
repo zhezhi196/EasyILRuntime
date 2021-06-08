@@ -111,9 +111,9 @@ namespace Module
             get { return prefab != null; }
         }
 
-        public void SetListener(Func<bool> monitor)
+        public void SetListener(Func<bool> listen)
         {
-            this.listener = monitor;
+            this.listener = listen;
         }
 
         public bool MoveNext()

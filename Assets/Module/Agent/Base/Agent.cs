@@ -11,7 +11,7 @@ namespace Module
         public abstract event Action<T> onAddStation;
         public abstract event Action<T> onRemoveStation;
         public abstract bool ContainStation(T station);
-        public abstract void AddStation(T station);
-        public abstract void RemoveStation(T station);
+        public abstract bool AddStation(T station);
+        public abstract bool RemoveStation(T station);
     }
 }

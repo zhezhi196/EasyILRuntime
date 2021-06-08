@@ -44,6 +44,7 @@ namespace Module
         #endregion
 
         #region Log
+
         public static bool isLog = false;
 
         private static void Log(object obj)
@@ -593,9 +594,9 @@ namespace Module
             return this;
         }
 
-        public void SetListener(Func<bool> monitor)
+        public void SetListener(Func<bool> listen)
         {
-            this.listener = monitor;
+            this.listener = listen;
         }
 
         public AudioPlay Set3D(float value = 1)

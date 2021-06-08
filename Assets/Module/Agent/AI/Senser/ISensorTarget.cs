@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public interface ISensorTarget : ISwitchStation
+    public interface ISensorTarget
     {
         Transform transform { get; }
 

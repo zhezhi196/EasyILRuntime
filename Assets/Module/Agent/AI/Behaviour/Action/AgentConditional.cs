@@ -4,9 +4,9 @@ namespace Module
 {
     public class AgentConditional : Conditional, IAgentAction
     {
-        public T GetArgs<T>(int index)
+        public float GetArgs(int index)
         {
-            return (T) ((AgentBehaviorTree) this.Owner.ExternalBehavior).args[index];
+            return ((AgentBehaviorTree) this.Owner.ExternalBehavior).args[index];
         }
     }
 }

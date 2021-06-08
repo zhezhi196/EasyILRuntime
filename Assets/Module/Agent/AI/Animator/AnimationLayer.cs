@@ -50,7 +50,7 @@ namespace Module
             fadeIn = DOTween.To(() => ctrl.animator.GetLayerWeight(layer), lay => ctrl.animator.SetLayerWeight(layer, lay), 1f, 0.2f);
         }
 
-        private void FadeOutLayer()
+        public void FadeOutLayer()
         {
             if (layer == 0) return;
             if (fadeOut != null)
@@ -73,7 +73,7 @@ namespace Module
             BreakPlay();
         }
 
-        public AnimationPlay Play(AnimationInfo animationInfo, Action<AnimationPlayStation> callback)
+        public AnimationPlay Play(AnimationInfo animationInfo, Action<AnimationPlayStation> callback,bool autoFadeOut)
         {
             FadeInLayer();
             _currentPlay = new AnimationPlay(ctrl, layer, animationInfo, station =>
@@ -81,7 +81,10 @@ namespace Module
                 if (station == AnimationPlayStation.Complete)
                 { 
                     _currentPlay = null;
-                    FadeOutLayer();
+                    if (autoFadeOut)
+                    {
+                        FadeOutLayer();
+                    }
                 }
 
                 callback?.Invoke(station);

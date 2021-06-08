@@ -8,7 +8,7 @@ namespace Module
         event Action<T> onAddStation;
         event Action<T> onRemoveStation;
         bool ContainStation(T station);
-        void AddStation(T station);
-        void RemoveStation(T station);
+        bool AddStation(T station);
+        bool RemoveStation(T station);
     }
 }

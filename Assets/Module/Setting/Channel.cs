@@ -10,7 +10,7 @@ namespace Module
         AppStore = 1 << 1,
         AppStoreCN = 1 << 2,
         Huawei = 1 << 3,
-        UnKnow2 = 1 << 4,
+        TapTap = 1 << 4,
         UnKnow3 = 1 << 5,
         UnKnow4 = 1 << 6,
         UnKnow5 = 1 << 7,

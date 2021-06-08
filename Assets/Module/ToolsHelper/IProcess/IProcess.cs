@@ -7,6 +7,6 @@ namespace Module
     {
         Func<bool> listener { get; set; }
         bool isComplete { get; }
-        void SetListener(Func<bool> monitor);
+        void SetListener(Func<bool> listen);
     }
 }
