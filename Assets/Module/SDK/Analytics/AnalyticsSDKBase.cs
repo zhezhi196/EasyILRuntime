@@ -16,7 +16,6 @@ public class AnalyticsSDKBase
     
     public virtual void OnEvent(string eventId,E_AnalyticsType e_AnalyticsType)
     {
-        GameDebug.LogFormat("尝试打点: {0},平台{1}", eventId, e_AnalyticsType);
     }
 
     /// <summary>

@@ -22,33 +22,26 @@ namespace Module
         }
 
         #region 字段属性
-
+        public string GetUIPrefabPath()
+        {
+            return string.Join("/", ConstKey.GetFolder(AssetLoad.AssetFolderType.UI), winName);
+        }
+        
         private string m_winName;
 
         private UIViewBase _mViewBase;
-        private (bool,float) setDelay;
-        private (bool,float) setInterval;
-        private ObjectPool _viewPool;
+        private (bool, float) setDelay;
+        private (bool, float) setInterval;
+        private Tweener uiTweener;
 
-        private ObjectPool viewPool
-        {
-            get
-            {
-                if (_viewPool == null || !_viewPool.isComplete)
-                {
-                    _viewPool = ObjectPool.GetPool(path, null);
-                }
-
-                return _viewPool;
-            }
-        }
-
-        public string path;
+        public bool isInit;
         public event Action<UITweenType> OnOpenComplete;
         public event Action<UITweenType> OnCloseComplete;
 
         public event Action<UITweenType> onSequenceComplete;
-        public event Action<UIViewBase> OnLoadView; 
+        public event Action<UIViewBase> OnLoadView;
+
+        public string path { get; }
 
         /// <summary>
         /// 是否可见
@@ -82,10 +75,7 @@ namespace Module
             get { return _mViewBase != null; }
         }
 
-        public bool isInit
-        {
-            get { return viewPool.isComplete; }
-        }
+
 
         /// <summary>
         /// 窗口名
@@ -115,20 +105,15 @@ namespace Module
 
         #region 初始化
 
-        private string GetUIPrefabPath(string name)
-        {
-            return string.Join("/", "UI", name) + ".prefab";
-        }
-
         public UIObject(string name)
         {
             m_winName = name;
-            path = GetUIPrefabPath(name);
+            path = $"{GetUIPrefabPath()}/{name}.prefab";
         }
 
         #endregion
 
-        public void SetDelay(float delay)
+        public void SetTweenDelay(float delay)
         {
             setDelay = (true, delay);
         }
@@ -144,7 +129,7 @@ namespace Module
             {
                 view.model.lastUI = lastUI;
             }
-            
+
             setDelay = (false, 0);
             setInterval = (false, 0);
             view.Refresh(args);
@@ -153,18 +138,18 @@ namespace Module
 
         private void RefreshSelf(UIObject lastUI)
         {
-            Refresh(lastUI,viewBase,viewBase.model.args);
+            Refresh(lastUI, viewBase, viewBase.model.args);
         }
 
         #region 窗体开关
 
         #region 开
 
-        public RunTimeSequence Open(UITweenType tweenType, OpenFlag flag, bool isPopup, object[] args)
+        public void Open(UITweenType tweenType, OpenFlag flag, bool isPopup, object[] args,Action callback)
         {
             RunTimeSequence procudle = new RunTimeSequence();
             UIObject lastUI = UIController.Instance.currentUI;
-            List<UIObject> readyClose= null;
+            List<UIObject> readyClose = null;
             if (lastUI != null) readyClose = new List<UIObject>();
             UIOpenDirection direction = UIOpenDirection.Forward;
             if (flag == OpenFlag.Insertion)
@@ -184,17 +169,17 @@ namespace Module
             }
             else
             {
-                if(lastUI!=null)
-                readyClose.Add(lastUI);
+                if (lastUI != null)
+                    readyClose.Add(lastUI);
             }
-            
+
             if (lastUI == this)
             {
                 direction = UIOpenDirection.Stay;
-                _mViewBase.model.RefreshModel(false, tweenType, flag, isPopup, args,direction);
+                _mViewBase.model.RefreshModel(false, tweenType, flag, isPopup, args, direction);
                 Refresh(null, viewBase, args);
                 procudle.NextAction();
-                return procudle;
+                return;
             }
 
             UIController.Instance.SortStack(this, flag);
@@ -202,167 +187,139 @@ namespace Module
             UICommpont.FreezeUI(m_winName);
             procudle.OnComplete(() =>
             {
-                UICommpont.UnFreezeUI(m_winName);
+                callback?.Invoke();
+                UICommpont.UnFreezeUI(m_winName); 
             });
 
             Load(winName, isPopup, () =>
             {
                 _mViewBase.model.RefreshModel(true, tweenType, flag, isPopup, args, direction);
-
-                try
-                {
-                    viewBase.OnOpenStart();
-                }
-                catch (Exception e)
-                {
-                    GameDebug.LogError(winName + "的OnOpenStart函数有错误:" + e);
-                }
-
+                viewBase.OnOpenStart();
+                EventCenter.Dispatch(ConstKey.UIOpenStart, winName);
                 if (!isPopup && !readyClose.IsNullOrEmpty())
                 {
-                    //关闭上个界面的部件
                     procudle.Add(new RunTimeAction(() =>
                     {
-                        Voter voter = new Voter(readyClose.Count, () => procudle.NextAction());
+                        Voter voter = new Voter(readyClose.Count * 2, procudle.NextAction);
                         for (int i = 0; i < readyClose.Count; i++)
                         {
                             if (readyClose[i].viewBase != null)
                             {
+                                //关闭上个界面的部件
                                 readyClose[i].viewBase.ExitAnimator(() => voter.Add());
+                                //关闭上个界面
+                                readyClose[i].uiTweener = readyClose[i].JustClose(UIModel.Invert(tweenType), complete =>
+                                {
+                                    //这里,并不是彻底关闭UI才开始打开下个界面的,而是开始播动画的时候,就开始下一段逻辑了
+                                    if (!complete) voter.Add();
+                                });
                             }
                             else
                             {
-                                voter.Add();
+                                voter.Add(2);
                             }
                         }
                     }));
-
-                    //关闭上个界面
-                    procudle.Add(new RunTimeAction(() =>
-                    {
-                        //在这里，把部件的动画和界面主动画放一起了
-
-                        for (int i = 0; i < readyClose.Count; i++)
-                        {
-                            //if (ob[i].viewBase != null)
-                            //{
-                            readyClose[i].JustClose(UIModel.Invert(tweenType));
-
-                            //}
-                            //else
-                            //{
-
-                            //}
-                        }
-
-                        procudle.NextAction();
-                    }));
                 }
 
-
-                procudle.Add(new RunTimeAction(() =>
+                Voter openVoter = new Voter(2, procudle.NextAction);
+                //打开下个界面
+                uiTweener = JustOpen(tweenType, complete =>
                 {
-                    UIController.Instance.currentUI.viewBase.EnterAnimator(() => procudle.NextAction());
-                }));
-
-            //打开下个界面
-            procudle.Add(new RunTimeAction(() =>
-            {
-                JustOpen(tweenType).onComplete += () => procudle.NextAction();
+                    if (complete) openVoter.Add();
+                });
+                //打开下个界面部件
+                UIController.Instance.currentUI.viewBase.EnterAnimator(() => openVoter.Add());
                 Refresh(lastUI, UIController.Instance.currentUI.viewBase, args);
-            }));
-
-            procudle.NextAction();
+                procudle.NextAction();
             });
-
-            return procudle;
         }
 
-        public Tweener JustOpen(UITweenType tweenType)
+        public Tweener JustOpen(UITweenType tweenType,Action<bool> callback)
         {
+            if (uiTweener.IsActive())
+            {
+                DOTween.Kill(uiTweener);
+            }
             _mViewBase.gameObject.OnActive(true);
-            try
-            {
-                viewBase.OnShowStart();
-            }
-            catch (Exception e)
-            {
-                GameDebug.LogError(winName + "的OnShowStart函数有错误:" + e);
-            }
             UIController.Instance.SortUI();
             Tweener tween = TweenUI(tweenType, OpenOrClose.Open);
-            tween.onComplete += (() =>
+            if (tween != null)
             {
-                viewBase.OnOpenComplete();
-                EventCenter.Dispatch(ConstKey.UIOpenComplete, winName);
-                OnOpenComplete?.Invoke(tweenType);
-                OnOpenComplete = null;
-                tween = null;
-            });
+                tween.onComplete += (() =>
+                {
+                    viewBase.OnOpenComplete();
+                    EventCenter.Dispatch(ConstKey.UIOpenComplete, winName);
+                    OnOpenComplete?.Invoke(tweenType);
+                    OnOpenComplete = null;                    
+					callback?.Invoke(true);
+                });
+                
+                callback?.Invoke(false);
+            }
 
             return tween;
         }
 
         #endregion
-        
+
         #region 关
 
-        public RunTimeSequence Close(UITweenType tweenType)
+        public void Close(UITweenType tweenType, Action callback)
         {
             if (UIController.Instance.currentUI == null)
             {
                 GameDebug.LogError("当前页面为空,无法关闭当前界面");
-                return null;
+                return;
             }
 
             UICommpont.FreezeUI(m_winName);
             RunTimeSequence sq = new RunTimeSequence();
-            sq.Add(new RunTimeAction(() => { viewBase.ExitAnimator(()=>sq.NextAction()); }));
+            sq.OnComplete(() =>
+            {
+                callback?.Invoke();
+                UICommpont.UnFreezeUI(m_winName);
+            });
             sq.Add(new RunTimeAction(() =>
             {
-                JustClose(tweenType).onComplete += () =>
+                Voter closeVoter = new Voter(2, sq.NextAction);
+                viewBase.ExitAnimator(() => closeVoter.Add());
+                JustClose(tweenType, complete =>
                 {
-                    sq.NextAction();
-                };
+                    if (complete) closeVoter.Add();
+                });
                 UIObject lastUi = UIController.Instance.currentUI;
                 UIController.Instance.winList.RemoveBack(this);
                 UIController.Instance.currentUI.RefreshSelf(lastUi);
             }));
-
             sq.NextAction();
-            return sq;
         }
 
-        public Tweener JustClose(UITweenType tweenType)
+        public Tweener JustClose(UITweenType tweenType, Action<bool> callback)
         {
-            try
+            if (uiTweener.IsActive())
             {
-                EventCenter.Dispatch(ConstKey.UICloseStart, winName);
-                viewBase?.OnCloseStart();
-                EventCenter.Dispatch(ConstKey.CloseUI, winName);
+                DOTween.Kill(uiTweener);
             }
-            catch (Exception e)
-            {
-                GameDebug.LogError(winName + "的OnCloseStart函数有错误:" + e);
-            }
+            EventCenter.Dispatch(ConstKey.UICloseStart, winName);
+            viewBase.OnCloseStart();
+            EventCenter.Dispatch(ConstKey.CloseUI, winName);
 
             Tweener tween = TweenUI(tweenType, OpenOrClose.Close);
-            if (tween == null)
+            if (tween != null)
             {
-                UIController.Instance.SortUI();
-            }
-            else
-            {
-                tween.OnComplete(() =>
+                tween.onComplete += () =>
                 {
                     UIController.Instance.SortUI();
-                    viewBase?.OnCloseComplete();
+                    viewBase.OnCloseComplete();
                     OnCloseComplete?.Invoke(tweenType);
                     onSequenceComplete?.Invoke(tweenType);
                     OnCloseComplete = null;
+                    onSequenceComplete = null;
                     UnLoad();
-                    UICommpont.UnFreezeUI(m_winName);
-                });
+                    callback?.Invoke(true);
+                };
+                callback?.Invoke(false);
             }
 
             return tween;
@@ -374,19 +331,22 @@ namespace Module
 
         #region 加载卸载
 
-        private void Load(string name, bool isPopup,Action callback)
+        private void Load(string name, bool isPopup, Action callback)
         {
             if (_mViewBase == null)
             {
-                viewPool.GetObject<UIViewBase>(isPopup ? UICommpont.topParent : UICommpont.winParent, ass =>
-                {
-                    _mViewBase = ass;
-                    _mViewBase.Init(name);
-                    _mViewBase.uiConfig = this;
-                    _mViewBase.transform.localPosition = Vector3.zero;
-                    OnLoadView?.Invoke(_mViewBase);
-                    callback?.Invoke();
-                });
+                AssetLoad.LoadGameObject<UIViewBase>(path, isPopup ? UICommpont.topParent : UICommpont.winParent,
+                    (ass, arg) =>
+                    {
+                        _mViewBase = ass;
+                        _mViewBase.Init(name);
+                        _mViewBase.uiConfig = this;
+                        _mViewBase.transform.localPosition = Vector3.zero;
+                        _mViewBase.gameObject.OnActive(false);
+                        OnLoadView?.Invoke(_mViewBase);
+                        callback?.Invoke();
+                        isInit = true;
+                    });
             }
             else
             {
@@ -398,7 +358,7 @@ namespace Module
 
         private void UnLoad()
         {
-            if (!viewBase.destroyViewOnClose)
+            if (viewBase != null && viewBase.gameObject != null && !viewBase.destroyViewOnClose)
             {
                 CanvasGroup canvas = viewBase.gameObject.GetComponent<CanvasGroup>();
 
@@ -406,6 +366,7 @@ namespace Module
                 {
                     canvas.alpha = 1;
                 }
+
                 viewBase.transform.localScale = Vector3.one;
                 viewBase.transform.localPosition = Vector3.zero;
                 _mViewBase?.gameObject.OnActive(false);
@@ -419,9 +380,9 @@ namespace Module
         public void Destroy()
         {
             if (_mViewBase == null) return;
+            AssetLoad.Destroy(_mViewBase.gameObject);
+            DOTween.Kill(this);
             _mViewBase = null;
-            viewPool.DisposeFromMemory();
-            _viewPool = null;
         }
 
         #endregion
@@ -435,7 +396,11 @@ namespace Module
         /// <returns></returns>
         private Tweener TweenUI(UITweenType uiTweenType, OpenOrClose state)
         {
-            if (viewBase == null) return null;
+            if (viewBase == null)
+            {
+                GameDebug.LogError("View尚未加载");
+                return null;
+            }
             switch (uiTweenType)
             {
                 case UITweenType.None:
@@ -463,8 +428,9 @@ namespace Module
             canvas.alpha = ((int) state) % 2;
             //Debug.Log(viewBase.gameObject.name);
 
-            return canvas.DOFade(((int) state - 1), setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return canvas.DOFade(((int) state - 1), setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         private Tweener DoLeft(OpenOrClose state)
@@ -482,8 +448,10 @@ namespace Module
                     break;
             }
 
-            return viewBase.transform.DOLocalMove(target, setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform
+                .DOLocalMove(target, setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
             //UIPlay tween = new UIPlay(t, TweenerType.Left);
             //return tween;
         }
@@ -504,8 +472,10 @@ namespace Module
                     break;
             }
 
-            return viewBase.transform.DOLocalMove(target, setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform
+                .DOLocalMove(target, setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         private Tweener DoUp(OpenOrClose state)
@@ -523,8 +493,10 @@ namespace Module
                     break;
             }
 
-            return viewBase.transform.DOLocalMove(target, setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform
+                .DOLocalMove(target, setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         private Tweener DoDown(OpenOrClose state)
@@ -542,8 +514,10 @@ namespace Module
                     break;
             }
 
-            return viewBase.transform.DOLocalMove(target, setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform
+                .DOLocalMove(target, setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         private Tweener DoScale(OpenOrClose state)
@@ -551,22 +525,36 @@ namespace Module
             float StartValue = ((int) state) % 2;
             viewBase.transform.localScale = new Vector3(StartValue, StartValue, StartValue);
             float scaleEnd = ((int) state - 1);
-            return viewBase.transform.DOScale(scaleEnd, setInterval.Item1? setInterval.Item2: viewBase.tweenInterval).SetEase(_mViewBase.tweenCurve)
-                .SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform.DOScale(scaleEnd, setInterval.Item1 ? setInterval.Item2 : viewBase.tweenInterval)
+                .SetEase(_mViewBase.tweenCurve)
+                .SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         private Tweener DoNone(OpenOrClose state)
         {
-            CanvasGroup canvas = viewBase.gameObject.AddOrGetComponent<CanvasGroup>();
-            canvas.alpha = ((int) state) % 2;
-            return canvas.DOFade(((int) state - 1), TimeHelper.deltaTime).SetDelay(setDelay.Item1? setDelay.Item2: viewBase.delay).SetUpdate(true);
+            return viewBase.transform.DOScale(1, 0).SetDelay(setDelay.Item1 ? setDelay.Item2 : viewBase.delay).SetUpdate(true).SetId(this);
         }
 
         #endregion
-        
+
         public override string ToString()
         {
             return winName;
+        }
+
+        public void ReloadUI(Action callback)
+        {
+            UIModel model = viewBase.model;
+            AssetLoad.DestroyImmediate(viewBase.gameObject);
+            Load(winName, model.isPopup, () =>
+            {
+                viewBase.OnOpenStart();
+                JustOpen(UITweenType.None, complete =>
+                {
+                    if (complete) callback?.Invoke();
+                });
+                Refresh(model.lastUI, UIController.Instance.currentUI.viewBase, model.args);
+            });
         }
     }
 }

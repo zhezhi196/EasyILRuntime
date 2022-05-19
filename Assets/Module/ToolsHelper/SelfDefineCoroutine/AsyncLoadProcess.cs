@@ -43,7 +43,7 @@ namespace Module
             m_IsDone = false;
         }
 
-        public void SetComplete(int p = 1)
+        public void SetComplete()
         {
             m_IsDone = true;
             process1 = Mathf.Clamp(process1 + 1, 0, maxProcess);

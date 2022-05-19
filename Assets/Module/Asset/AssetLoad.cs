@@ -19,52 +19,46 @@ namespace Module
             Scenes,
             Config,
             UI,
+            Effect,
+            DB,
+            Bundle,
+            Altas,
+            WordsCheck,
+            Analytics,
+            Material,
+            Video
         }
 
+        #region LoadAsset ReleaseAsset
+
+        private static Dictionary<string, AsyncOperationHandle> assetCache = new Dictionary<string, AsyncOperationHandle>();
+        
         public static AsyncOperationHandle<T> PreloadAsset<T>(string path, Action<AsyncOperationHandle<T>> callback)
         {
-            if (!Caching.compressionEnabled)
-            {
-                WaitLoad(path, callback);
-                return default;
-            }
             var load = Addressables.LoadAssetAsync<T>(GetAssetsPath(path));
+            assetCache.SetOrAdd(path, load);
             load.Completed += callback;
             return load;
         }
 
-        private static async void WaitLoad<T>(string path, Action<AsyncOperationHandle<T>> callback)
+        public static void Release<T>(AsyncOperationHandle<T> handle)
         {
-            await Async.WaitUntil(() => Caching.compressionEnabled);
-            Caching.compressionEnabled = true;
-            PreloadAsset(path, callback);
+            if (handle.IsValid())
+                Addressables.Release(handle);
         }
 
-        public static AsyncOperationHandle<VideoClip> LoadVideo(string path, Action<AsyncOperationHandle<VideoClip>> callback)
+        public static void Release(string path)
         {
-            Caching.compressionEnabled = false;
-            var process = Addressables.LoadAssetAsync<VideoClip>(GetAssetsPath(path));
-            process.Completed += res =>
+            AsyncOperationHandle handle;
+            if (assetCache.TryGetValue(path, out handle))
             {
-                callback?.Invoke(res);
-                Caching.compressionEnabled = true;
-            };
-            return process;
-        }
-        //同步方法现在还有问题
-        // public static T PreloadAsset<T>(string path)
-        // {
-        //     var op = Addressables.LoadAssetAsync<T>(GetAssetsPath(path));
-        //     T go = op.WaitForCompletion();
-        //     return go;
-        // }
-
-        public static void PreloadGameobject(string path, Action<ObjectPool, object[]> callback, params object[] args)
-        {
-            ObjectPool pool = ObjectPool.GetPool(path, null);
-            pool.onComplete += () => callback?.Invoke(pool, args);
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+            }
         }
 
+        #endregion
+        
         #region LoadGameObject
 
         public static ObjectPool LoadGameObject<T>(string path, Transform parent, Action<T, object[]> callback, params object[] args) where T : Object
@@ -89,76 +83,73 @@ namespace Module
             return pool;
         }
 
+        public static ObjectPool GetPool(string path, Transform parent)
+        {
+            ObjectPool pool = ObjectPool.GetPool(path, parent);
+            return pool;
+        }
+
         #endregion
 
-        public static void Release<T>(AsyncOperationHandle<T> handle)
-        {
-            Addressables.Release(handle);
-        }
-        public static void Release<T>(T handle)
-        {
-            Addressables.Release(handle);
-        }
+        #region Destroy
 
-        public static void Destroy(GameObject go)
+        /// <summary>
+        /// 销毁资源
+        /// </summary>
+        /// <param name="obj"></param>
+        public static void Destroy(Object obj)
         {
-            if(go==null) return;
-            ObjectPool.TryRemove(go);
-            Object.Destroy(go);
-        }
-
-        public static T Instantiate<T>(T prefab) where T : Object
-        {
-            return GameObject.Instantiate<T>(prefab);
-        }
-        
-        public static T Instantiate<T>(T prefab,Transform parent) where T : Object
-        {
-            return GameObject.Instantiate<T>(prefab,parent);
-        }
-
-        public static GameObject Instantiate(GameObject prefab)
-        {
-            return GameObject.Instantiate(prefab);
-        }
-
-        public static GameObject Instantiate(GameObject prefab, Transform parent)
-        {
-            return GameObject.Instantiate(prefab, parent);
-        }
-
-        public static void Destroy(Object obj, bool release = true)
-        {
-            if (release)
+            if (obj is GameObject go)
+            {
+                ObjectPool.RemoveObjectFromPool(go);
+                Addressables.ReleaseInstance(go);
+            }
+            else if (!(obj is Component))
             {
                 Addressables.Release(obj);
             }
             Object.Destroy(obj);
         }
+        
+        public static void DestroyImmediate(GameObject obj)
+        {
+            if (obj is GameObject go)
+            {
+                ObjectPool.RemoveObjectFromPool(go);
+                Addressables.ReleaseInstance(go);
+            }
+            else if (!(obj is Component))
+            {
+                Addressables.Release(obj);
+            }
+            Object.DestroyImmediate(obj);
+        }
+
+        #endregion
+
+        #region Instantiate
+
+        public static void Instantiate(string path, Transform parent, Action<AsyncOperationHandle<GameObject>> callback)
+        {
+            var temp = Addressables.InstantiateAsync(GetAssetsPath(path), parent);
+            assetCache.SetOrAdd(path, temp);
+            temp.Completed += callback;
+        }
+
+        #endregion
+
+        #region Path
 
         public static string GetAssetsPath(string path)
         {
-            return "Assets/Bundles/" + path;
+            return $"Assets/{ConstKey.GetFolder(AssetFolderType.Bundle)}/{path}";
         }
 
         public static string GetFolderFilePath(string name, AssetFolderType type)
         {
-           return string.Join("/", GetFolder(type), name);
+            return string.Join("/", ConstKey.GetFolder(type), name);
         }
 
-        public static string GetFolder(AssetFolderType type)
-        {
-            switch (type)
-            {
-                case AssetFolderType.Config:
-                    return "Config";
-                case AssetFolderType.Scenes:
-                    return "Scenes";
-                case AssetFolderType.UI:
-                    return "UI";
-            }
-
-            return string.Empty;
-        }
+        #endregion
     }
 }

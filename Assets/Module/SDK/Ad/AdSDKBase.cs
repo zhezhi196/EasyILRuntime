@@ -122,6 +122,10 @@ namespace SDK
             //        break;
             //}
         }
+
+        public void EntryRewardVideoAdScene(string empty)
+        {
+        }
     }
 }
 

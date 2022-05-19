@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Module
 {
@@ -30,6 +31,7 @@ namespace Module
         [LabelText("UI部件动画时间")] public float partAnimationTime = 0.2f;
         public event Action OnWinInitComplete;
         [LabelText("关闭时销毁")] public bool destroyViewOnClose;
+        [LabelText("动态获取子类动画")] public bool dynamicGetChildAnimation;
 #if UNITY_EDITOR
         [Button("button Channel")]
         public void SetButton()
@@ -37,15 +39,7 @@ namespace Module
             IButtonConfig[] config = transform.GetComponentsInChildren<IButtonConfig>(true);
             for (int i = 0; i < config.Length; i++)
             {
-                if (!config[i].config.channel.HasFlag(ChannelType.AppStoreCN))
-                {
-                    config[i].config.channel = ChannelType.googlePlay | ChannelType.AppStore | ChannelType.Huawei | ChannelType.UnKnow3 | ChannelType.UnKnow4 |
-                                               ChannelType.UnKnow5 | ChannelType.UnKnow6;
-                }
-                else
-                {
-                    config[i].config.channel = (ChannelType) (-1);
-                }
+                config[i].config.channel = (ChannelType) (-1);
             }
             
             UnityEditor.EditorUtility.SetDirty(gameObject);
@@ -63,12 +57,7 @@ namespace Module
         public virtual void OnOpenStart()
         {
         }
-        /// <summary>
-        /// 当当前界面开始显示的时候，会执行这个函数
-        /// </summary>
-        public virtual void OnShowStart()
-        {
-        }
+
         /// <summary>
         /// 当打开动画结束后，会执行这个函数
         /// </summary>
@@ -126,36 +115,54 @@ namespace Module
 
         public virtual void EnterAnimator(Action finish)
         {
-            if (m_partTweens.IsNullOrEmpty())
+            try
             {
-                m_partTweens = transform.GetComponentsInChildren<DOTweenAnimation>();
-            }
-
-            for (int i = 0; i < m_partTweens.Length; i++)
-            {
-                if (m_partTweens[i].loops != -1)
+                if (m_partTweens.IsNullOrEmpty() || dynamicGetChildAnimation)
                 {
-                    m_partTweens[i].DORestart();
+                    m_partTweens = transform.GetComponentsInChildren<DOTweenAnimation>();
+                }
+
+                for (int i = 0; i < m_partTweens.Length; i++)
+                {
+                    if (m_partTweens[i] != null)
+                    {
+                        if (m_partTweens[i].loops != -1)
+                        {
+                            m_partTweens[i].DORestart();
+                        }
+                    }
                 }
             }
-            finish.Invoke();
+            finally
+            {
+                finish.Invoke();
+            }
         }
-
+        
         public virtual void ExitAnimator(Action finish)
         {
-            if (m_partTweens.IsNullOrEmpty())
+            try
             {
-                m_partTweens = transform.GetComponentsInChildren<DOTweenAnimation>(false);
-            }
-
-            for (int i = 0; i < m_partTweens.Length; i++)
-            {
-                if (m_partTweens[i].loops != -1)
+                if (m_partTweens.IsNullOrEmpty() || dynamicGetChildAnimation)
                 {
-                    m_partTweens[i].DOPlayBackwards();
+                    m_partTweens = transform.GetComponentsInChildren<DOTweenAnimation>();
+                }
+        
+                for (int i = 0; i < m_partTweens.Length; i++)
+                {
+                    if (m_partTweens[i] != null)
+                    {
+                        if (m_partTweens[i].loops != -1)
+                        {
+                            m_partTweens[i].DOPlayBackwards();
+                        }
+                    }
                 }
             }
-            finish.Invoke();
+            finally
+            {
+                finish.Invoke();
+            }
         }
 
         protected virtual void Update()
@@ -164,6 +171,22 @@ namespace Module
             {
                 model.UpdateModel();
             }
+
+            if (Input.GetKeyDown(KeyCode.Minus))
+            {
+                ReloadUI(null);
+            }
+        }
+
+        public void ReloadUI(Action callback)
+        {
+            uiConfig.ReloadUI(callback);
+        }
+
+        public void LoadPrefab<T>(string name,Transform parent, Action<T> callback) where T : Object
+        {
+            string path = $"{uiConfig.GetUIPrefabPath()}/{name}.prefab";
+            AssetLoad.LoadGameObject<T>(path, parent, (go, arg) => callback?.Invoke(go));
         }
     }
 }

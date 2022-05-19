@@ -7,7 +7,6 @@ namespace Module
     {
         public string name;
         public string path;
-        public AudioPlay play;
         public AudioClip clip;
 
         public AudioInfo(string name, string path)
@@ -16,5 +15,9 @@ namespace Module
             this.path = path;
         }
 
+        public AudioInfo(AudioClip clip)
+        {
+            this.clip = clip;
+        }
     }
 }

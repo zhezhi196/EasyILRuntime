@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,8 +20,9 @@ namespace SDK
 
         public override void HideSplash()
         {
-            base.HideSplash();
-            jo.Call("HideSplash");
+            AndroidJavaClass jcc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject joo = jcc.GetStatic<AndroidJavaObject>("currentActivity");
+            joo.Call("HideSplash");
            
         }
 
@@ -56,6 +58,14 @@ namespace SDK
         public override void SetBrightness(int brightness)
         {
             jo.Call("SetBrightness", brightness);
+        }
+
+        public override void OpenInput(string text, Action<string> onValueChange, Action<bool> onKeybordShowChange)
+        {
+            base.OpenInput(text, onValueChange, onKeybordShowChange);
+            AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
+            jo.Call("OpenInput", text);
         }
     }
 }

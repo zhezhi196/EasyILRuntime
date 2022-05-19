@@ -16,7 +16,6 @@ namespace Module
         public virtual void Simulate(float time){}
         public virtual void OnGetObjectFromPool(){}
         public virtual void ReturnToPool() { }
-        public event Action<float> onTimeScale;
 
         public float timeScale { get; set; } = 1;
         public float GetUnscaleDelatime(bool ignorePause)
@@ -46,10 +45,6 @@ namespace Module
         public void SetTimescale(float timeScale)
         {
             this.timeScale = timeScale;
-            if (onTimeScale != null)
-            {
-                onTimeScale.Invoke(timeScale);
-            }
         }
 
         public Tweener SetTimescale(float timeScale, float time)
@@ -62,7 +57,7 @@ namespace Module
             if (play != null)
             {
                 play.Reset();
-                play.Stop();
+                play.Stop(false);
             }
         }
     }

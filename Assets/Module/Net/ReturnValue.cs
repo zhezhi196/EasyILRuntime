@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 namespace Module
 {
 	[DataContract]
-	public class ReturnValue<T> : ReturnValueBase<T> where T : ISqlData
+	public class ReturnValue<T> : ReturnValueBase
 	{
 		public T data { get; set; }
 	}

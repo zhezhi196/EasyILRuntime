@@ -14,20 +14,24 @@ using UnityEngine.UI;
 
 namespace Module
 {
+    public enum ButtonTriggerType
+    {
+        Disable,
+        Point,
+        Enter,
+    }
     public class UIBtnBase : Button,IPoolObject,IButtonConfig
     {
-        public static string defaultAudio = "tongyongButton";
+        private bool isPointed;
         private float m_pointTime;
         public Action click;
-        private Action onPointDown;
-        private Action onPointUp;
+        private Action<ButtonTriggerType> onPointDown;
+        private Action<ButtonTriggerType> onPointUp;
         private Action<float> onPointing;
-
         public UIBtnBase[] rejectBtn;
         public int clickCount;
-        
         [SerializeField]
-        private ButtonConfig _config;
+        public ButtonConfig _config;
 
         public ButtonConfig config
         {
@@ -38,7 +42,8 @@ namespace Module
         public bool hasInit { get; private set; }
 
         public bool isDetective { get; set; }
-        private bool isPointed;
+        public ObjectPool pool { get; set; }
+
 
         #region unity 自带事件
 
@@ -72,6 +77,16 @@ namespace Module
             base.onClick.Invoke();
         }
 
+        public void BtnDown()
+        {
+            onPointDown?.Invoke(ButtonTriggerType.Point);
+        }
+
+        public void BtnUp()
+        {
+            onPointUp?.Invoke(ButtonTriggerType.Point);
+        }
+
         public void Init()
         {
             if (base.transition == Transition.None)
@@ -79,7 +94,6 @@ namespace Module
                 Debug.LogError("按钮过渡为none", gameObject);
             }
             window = transform.GetComponentInParent<UIViewBase>();
-            click += DefaultListener;
             base.onClick.AddListener(() =>
             {
                 bool temp = false;
@@ -94,13 +108,20 @@ namespace Module
 
                 if (!temp)
                 {
+                    DefaultListener();
                     click?.Invoke();
                     clickCount++;
-                    GlobleAction.onButtonClick?.Invoke(this);
+                    if ((config.flag & UIButtonFlag.Analystics) != 0)
+                    {
+                        Analytics.SendEvent(Config.globleConfig.ButtonAnalyticsType, gameObject.name, 0);
+                    }
                     if ((config.flag & UIButtonFlag.NoAudio) == 0)
                     {
-                        if (config.audio.IsNullOrEmpty()) config.audio = defaultAudio;
-                        AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
+                        if (config.audio.IsNullOrEmpty()) config.audio = Config.globleConfig.commonButtonAudio;
+                        if (!config.audio.IsNullOrEmpty())
+                        {
+                            AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
+                        }
                     }
                 }
             });
@@ -157,13 +178,6 @@ namespace Module
             }
         }
 
-        protected override void OnDisable()
-        {
-            isPointed = false;
-            m_pointTime = 0;
-            onPointUp?.Invoke();
-        }
-
         protected virtual void OnChildDestroy()
         {
         }
@@ -187,12 +201,12 @@ namespace Module
 
         #region AddListener
 
-        public void OnActive(bool active)
+        public virtual void OnActive(bool active)
         {
             gameObject.OnActive(active && Channel.HasChannel(config.channel));
         }
 
-        public void OnActive(bool active, Func<bool> fun)
+        public virtual void OnActive(bool active, Func<bool> fun)
         {
             gameObject.OnActive(active && Channel.HasChannel(config.channel) && (fun == null || fun.Invoke()));
         }
@@ -246,7 +260,7 @@ namespace Module
 
         #region AddPointDown
 
-        public void AddPointDown(Action callBack)
+        public void AddPointDown(Action<ButtonTriggerType> callBack)
         {
             if (Application.isPlaying)
             {
@@ -261,13 +275,13 @@ namespace Module
             }
         }
 
-        public void AddPointDown<T>(Action<T> callBack, T arg)
+        public void AddPointDown<T>(Action<ButtonTriggerType,T> callBack, T arg)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointDown += () => { callBack(arg); };
+                    onPointDown += t => { callBack(t,arg); };
 
                 }
                 else
@@ -277,13 +291,13 @@ namespace Module
             }
         }
 
-        public void AddPointDown<T, K>(Action<T, K> callBack, T arg1, K arg2)
+        public void AddPointDown<T, K>(Action<ButtonTriggerType,T, K> callBack, T arg1, K arg2)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointDown += () => { callBack(arg1, arg2); };
+                    onPointDown += t => { callBack(t,arg1, arg2); };
                 }
                 else
                 {
@@ -292,13 +306,13 @@ namespace Module
             }
         }
 
-        public void AddPointDown<T, K, L>(Action<T, K, L> callBack, T arg1, K arg2, L arg3)
+        public void AddPointDown<T, K, L>(Action<ButtonTriggerType,T, K, L> callBack, T arg1, K arg2, L arg3)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointDown += () => { callBack(arg1, arg2, arg3); };
+                    onPointDown += t => { callBack(t,arg1, arg2, arg3); };
                 }
                 else
                 {
@@ -307,13 +321,13 @@ namespace Module
             }
         }
 
-        public void AddPointDown<T, K, L, M>(Action<T, K, L, M> callBack, T arg1, K arg2, L arg3, M arg4)
+        public void AddPointDown<T, K, L, M>(Action<ButtonTriggerType,T, K, L, M> callBack, T arg1, K arg2, L arg3, M arg4)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointDown += () => { callBack(arg1, arg2, arg3, arg4); };
+                    onPointDown += t => { callBack(t,arg1, arg2, arg3, arg4); };
                 }
                 else
                 {
@@ -327,7 +341,7 @@ namespace Module
 
         #region AddPointUp
 
-        public void AddPointUp(Action callBack)
+        public void AddPointUp(Action<ButtonTriggerType> callBack)
         {
             if (Application.isPlaying)
             {
@@ -342,13 +356,13 @@ namespace Module
             }
         }
 
-        public void AddPointUp<T>(Action<T> callBack, T arg)
+        public void AddPointUp<T>(Action<ButtonTriggerType, T> callBack, T arg)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointUp += () => { callBack(arg); };
+                    onPointUp += t => { callBack(t, arg); };
                 }
                 else
                 {
@@ -357,13 +371,13 @@ namespace Module
             }
         }
 
-        public void AddPointUp<T, K>(Action<T, K> callBack, T arg1, K arg2)
+        public void AddPointUp<T, K>(Action<ButtonTriggerType,T, K> callBack, T arg1, K arg2)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointUp += () => { callBack(arg1, arg2); };
+                    onPointUp += t => { callBack(t,arg1, arg2); };
                 }
                 else
                 {
@@ -372,13 +386,13 @@ namespace Module
             }
         }
 
-        public void AddPointUp<T, K, L>(Action<T, K, L> callBack, T arg1, K arg2, L arg3)
+        public void AddPointUp<T, K, L>(Action<ButtonTriggerType,T, K, L> callBack, T arg1, K arg2, L arg3)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointUp += () => { callBack(arg1, arg2, arg3); };
+                    onPointUp += t => { callBack(t,arg1, arg2, arg3); };
                 }
                 else
                 {
@@ -387,13 +401,13 @@ namespace Module
             }
         }
 
-        public void AddPointUp<T, K, L, M>(Action<T, K, L, M> callBack, T arg1, K arg2, L arg3, M arg4)
+        public void AddPointUp<T, K, L, M>(Action<ButtonTriggerType,T, K, L, M> callBack, T arg1, K arg2, L arg3, M arg4)
         {
             if (Application.isPlaying)
             {
                 if (Channel.HasChannel(config.channel))
                 {
-                    onPointUp += () => { callBack(arg1, arg2, arg3, arg4); };
+                    onPointUp += t => { callBack(t,arg1, arg2, arg3, arg4); };
                 }
                 else
                 {
@@ -485,60 +499,62 @@ namespace Module
         #endregion
 
         #region 对点击抬起的重写
-
+        
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            isPointed = false;
+            m_pointTime = 0;
+            onPointUp?.Invoke(ButtonTriggerType.Disable);
+        }
+        
         public override void OnPointerDown(PointerEventData eventData)
         {
             base.OnPointerDown(eventData);
-
             if (base.IsPressed() || isDetective)
             {
                 isPointed = true;
                 m_pointTime = 0;
-                onPointDown?.Invoke();
+                onPointDown?.Invoke(ButtonTriggerType.Point);
             }
         }
 
-        //        public override void OnPointerEnter(PointerEventData eventData)
-        //        {
-        //            base.OnPointerEnter(eventData);
-        //
-        //            if (base.IsPressed()||isDetective)
-        //            {
-        //                m_pointTime = 0;
-        //                onPointDown?.Invoke();
-        //            }
-        //        }
+        // public override void OnPointerEnter(PointerEventData eventData)
+        // {
+        //     base.OnPointerEnter(eventData);
+        //     if (base.IsPressed()||isDetective)
+        //     {
+        //         m_pointTime = 0;
+        //         onPointDown?.Invoke(ButtonTriggerType.Enter);
+        //     }
+        // }
 
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-
             if (!base.IsPressed() || isDetective)
             {
                 isPointed = false;
                 m_pointTime = 0;
 
-                onPointUp?.Invoke();
+                onPointUp?.Invoke(ButtonTriggerType.Point);
             }
         }
-        //
-        //        public override void OnPointerExit(PointerEventData eventData)
-        //        {
-        //            base.OnPointerExit(eventData);
-        //
-        //            if (!base.IsPressed()||isDetective)
-        //            {
-        //                m_pointTime = 0;
-        //                onPointUp?.Invoke();
-        //            }
-        //        }
+        
+        // public override void OnPointerExit(PointerEventData eventData)
+        // {
+        //     base.OnPointerExit(eventData);
+        //     if (!base.IsPressed()||isDetective)
+        //     {
+        //         m_pointTime = 0;
+        //         onPointUp?.Invoke(ButtonTriggerType.Enter);
+        //     }
+        // }
 
         #endregion
 
-        public ObjectPool pool { get; set; }
         public virtual void ReturnToPool()
         {
-            pool.ReturnObject(this);
             click = null;
         }
 

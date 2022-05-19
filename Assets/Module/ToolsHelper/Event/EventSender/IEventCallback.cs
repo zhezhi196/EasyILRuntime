@@ -2,6 +2,6 @@
 {
     public interface IEventCallback
     {
-        void EventCallback(uint eventID,IEventCallback receiver);
+        void EventCallback(int eventID,IEventCallback receiver);
     }
 }

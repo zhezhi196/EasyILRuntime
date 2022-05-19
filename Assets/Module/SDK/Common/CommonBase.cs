@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -64,6 +65,44 @@ namespace SDK
         public virtual void SetBrightness(int brightness)
         {
 
+        }
+
+
+        private Action<string> mActInputValueChange;
+        private Action<bool> mActInputShowChange;
+        /// <summary>
+        /// 输入框
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="onValueChange"></param>
+        /// <param name="onKeybordShowChange"></param>
+        public virtual void OpenInput(string text, Action<string> onValueChange, Action<bool> onKeybordShowChange)
+        {
+            Debug.Log("CommonClassBase OpenInput");
+            mActInputValueChange = onValueChange;
+            mActInputShowChange = onKeybordShowChange;
+        }
+
+        public void OnInputValueChange(string value)
+        {
+            if (null != mActInputValueChange)
+            {
+                mActInputValueChange(value);
+            }
+        }
+
+        public void OnInputShowChange(string strIsShow)
+        {
+            bool isShow = Convert.ToBoolean(strIsShow);
+            if (null != mActInputShowChange)
+            {
+                mActInputShowChange(isShow);
+            }
+            if (false == isShow)
+            {
+                mActInputShowChange = null;
+                mActInputValueChange = null;
+            }
         }
     }
 }

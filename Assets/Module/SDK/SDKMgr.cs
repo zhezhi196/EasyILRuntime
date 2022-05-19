@@ -35,9 +35,10 @@ namespace SDK
                 GameObject go = new GameObject("UACommunication");
                 go.AddComponent<AdUACommunication>();
                 go.AddComponent<PayUACommunication>();
+                go.AddComponent<InputUACommunication>();
             }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR|| !SDK
             MyAdSDK = new AdSDKBase();
             MyPaySDK = new PaySDKBase();
             MyAnalyticsSDK = new AnalyticsSDKBase();

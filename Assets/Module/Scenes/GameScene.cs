@@ -47,24 +47,24 @@ namespace Module
 
         #region Load
         
-        public static GameScene LoadWithLoading<T>(string name, Action callback) where T : Loading, new()
+        public static GameScene LoadWithLoading(string name, Action callback,string loadingStyle)
         {
-            Loading.Load<T>();
+            Loading.Open(loadingStyle,"Scene");
             GameScene target = Load(name, () =>
             {
                 callback?.Invoke();
-                Loading.Close<T>();
+                Loading.Close(loadingStyle,"Scene");
             });
             return target;
         }
 
-        public static GameScene LoadAdditiveWithLoading<T>(string name, bool newScene, Action callback) where T : Loading, new()
+        public static GameScene LoadAdditiveWithLoading<T>(string name, bool newScene, Action callback,string loadingStyle)
         {
-            Loading.Load<T>();
+            Loading.Open(loadingStyle,"Scene");
             GameScene target = LoadAdditive(name, () =>
             {
                 callback?.Invoke();
-                Loading.Close<T>();
+                Loading.Close(loadingStyle,"Scene");
             });
             return target;
         }
@@ -116,10 +116,12 @@ namespace Module
             return scene;
         }
 
-        private static void OnLoadComplete(GameScene scene,Action callback)
+        private static async void OnLoadComplete(GameScene scene,Action callback)
         {
-            activeScene = scene;
+            await Async.WaitUntil(() => scene.m_request.Result.Scene.IsValid());
             callback?.Invoke();
+            ObjectPool.OnSceneChanged();
+            GameDebug.LogFormat("加载{0}场景成功",scene.name);
             UICommpont.UnFreezeUI("LoadScene");
         }
 
@@ -153,10 +155,6 @@ namespace Module
             m_request = Addressables.LoadSceneAsync(AssetLoad.GetAssetsPath(path), mode);
             m_request.Completed += ass =>
             {
-                if (mode == LoadSceneMode.Single)
-                {
-                    ObjectPool.ClearNullDic();
-                }
                 isLoaded = true;
                 callback?.Invoke();
             };
@@ -171,9 +169,9 @@ namespace Module
             refCount--;
             Addressables.UnloadSceneAsync(m_request).Completed += a =>
             {
-                ObjectPool.ClearNullDic();
                 isLoaded = false;
                 callback?.Invoke();
+                ObjectPool.OnSceneChanged();
             };
         }
 

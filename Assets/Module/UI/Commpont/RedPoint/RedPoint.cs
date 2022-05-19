@@ -36,8 +36,6 @@ namespace Module
             }
         }
 
-        public event Action<bool> onSwitchRedPointStation;
-
         private void Awake()
         {
             isInit = true;
@@ -49,7 +47,7 @@ namespace Module
             {
                 for (int i = 0; i < target.Length; i++)
                 {
-                    target[i].onSwitchRedPointStation -= OnSwitch;
+                    target[i].onSwitchStation -= OnSwitch;
                 }
             }
 
@@ -61,8 +59,7 @@ namespace Module
         {
             bool temp = redPointIsOn;
             gameObject.OnActive(temp);
-
-            onSwitchRedPointStation?.Invoke(temp);
+            onSwitchStation?.Invoke();
         }
 
         private void OnEnable()
@@ -95,7 +92,7 @@ namespace Module
                 {
                     for (int i = 0; i < target.Length; i++)
                     {
-                        target[i].onSwitchRedPointStation -= OnSwitch;
+                        target[i].onSwitchStation -= OnSwitch;
                     }
                 }
 
@@ -103,19 +100,21 @@ namespace Module
 
                 for (int i = 0; i < target.Length; i++)
                 {
-                    target[i].onSwitchRedPointStation += OnSwitch;
+                    target[i].onSwitchStation += OnSwitch;
                 }
                 
                 Refresh();
             }
         }
 
-        private void OnSwitch(bool obj)
+        private void OnSwitch()
         {
             if (isActive)
             {
                 Refresh();
             }
         }
+
+        public event Action onSwitchStation;
     }
 }

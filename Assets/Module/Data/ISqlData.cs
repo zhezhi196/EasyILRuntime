@@ -6,16 +6,12 @@
  * 脚本作用：
 */
 
-using System;
-using SQLite.Attribute;
-using UnityEngine;
+using SQLite.Attributes;
 
 namespace Module
 {
     public interface ISqlData
     {
         [PrimaryKey, AutoIncrement] int ID { get; set; }
-
-
     }
 }

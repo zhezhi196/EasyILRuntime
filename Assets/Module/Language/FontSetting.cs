@@ -6,104 +6,51 @@ using Object = UnityEngine.Object;
 
 namespace Module
 {
-    [Serializable]
-    public class FontInfo
-    {
-        [HorizontalGroup,HideLabel]
-        public SystemLanguage lan;
-        [HorizontalGroup,HideLabel]
-        public UnityEngine.Font font;
-    }
-
     [RequireComponent(typeof(Text))]
     [ExecuteInEditMode]
     public class FontSetting : MonoBehaviour
     {
-#if UNITY_EDITOR
-
-        [UnityEditor.MenuItem("Tools/AddFontSetting")]
-        public static void AddFontSetting()
-        {
-            Object[] select = UnityEditor.Selection.objects;
-            
-            for (int i = 0; i < select.Length; i++)
-            {
-                GameObject go = select[i] as GameObject;
-                if (go != null)
-                {
-                    Set1(go);
-                }
-            }
-        }
-#endif
-        private static void Set1(GameObject go)
-        {
-#if UNITY_EDITOR
-            Text[] text = go.transform.GetComponentsInChildren<Text>();
-            for (int i = 0; i < text.Length; i++)
-            {
-                FontSetting setting = text[i].gameObject.AddOrGetComponent<FontSetting>();
-                setting.text = text[i];
-                setting.currLan = Language.currentLanguage;
-            }
-#endif
-        }
-
         public Text text;
+        [ReadOnly]
+        public SystemLanguage textLanguage;
 
-        public SystemLanguage currLan;
-
-        private void Awake()
+        protected virtual void Awake()
         {
-            if (text == null)
-            {
-                text = GetComponent<Text>();
-            }
-            
-            Set1(gameObject);
-        }
-
-        private void Start()
-        {
+            if (text == null) text = GetComponent<Text>();
             OnLanguageChanged(Language.currentLanguage);
         }
-
-        private void OnEnable()
+        
+        protected virtual void OnEnable()
         {
             Language.onLanguageChanged += OnLanguageChanged;
-
-            if (currLan != Language.currentLanguage)
+            if (textLanguage != Language.currentLanguage)
             {
                 OnLanguageChanged(Language.currentLanguage);
             }
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             Language.onLanguageChanged -= OnLanguageChanged;
         }
 
-        private void OnLanguageChanged(SystemLanguage obj)
+        protected virtual void OnLanguageChanged(SystemLanguage obj)
         {
-            if (Font.Instance == null) return;
-            for (int i = 0; i < Font.Instance.info.Length; i++)
+            if (FontInfo.info == null) return;
+            for (int i = 0; i < FontInfo.info.Length; i++)
             {
-                var tar = Font.Instance.info[i];
+                var tar = FontInfo.info[i];
                 if (tar.lan == obj)
                 {
                     if (tar.font != null)
                     {
                         text.font = tar.font;
                     }
-                    else
-                    {
-                        text.font = Font.arial;
-                    }
                     break;
                 }
             }
 
-            currLan = obj;
+            textLanguage = obj;
         }
     }
 }

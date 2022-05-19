@@ -25,39 +25,42 @@ namespace Module
     {
         #region IapResult
 
-        private static Dictionary<IapDataBase, Iap> IapDic = new Dictionary<IapDataBase, Iap>();
+        private static Dictionary<IapSqlData, Iap> IapDic = new Dictionary<IapSqlData, Iap>();
 
         public static Iap GetIapBySku(string sku)
         {
-            foreach (KeyValuePair<IapDataBase,Iap> keyValuePair in IapDic)
+            foreach (KeyValuePair<IapSqlData,Iap> keyValuePair in IapDic)
             {
-                if (keyValuePair.Value.sku == sku)
+                if (keyValuePair.Value is Currency currency)
                 {
-                    return keyValuePair.Value;
+                    if (currency.sku == sku)
+                    {
+                        return keyValuePair.Value;
+                    }
                 }
             }
 
             return null;
         }
 
-        public static Iap GetIap(IapDataBase sqldata)
+        public static Iap GetIap(IapSqlData sqldata)
         {
             Iap result = null;
             if (!IapDic.TryGetValue(sqldata, out result))
             {
-                if (sqldata.consume == 0)
+                if (sqldata is ICurrencyData currData)
                 {
-                    result = new Currency(sqldata);
+                    result = new Currency(currData);
                 }
-                else if (sqldata.consume == 1)
+                else if (sqldata is IAdsData ads)
                 {
-                    result = new AdsIap(sqldata, (AdsType) sqldata.adsType, E_InitializeAdType.Static);
+                    result = new AdsIap(ads, (AdsType) ads.adsType, E_InitializeAdType.Static);
                 }
-                else if (sqldata.consume == 2)
+                else if (sqldata is ISubscribeData sub)
                 {
-                    result = new Subscribe(sqldata);
+                    result = new Subscribe(sub);
                 }
-                else if (sqldata.consume == 3)
+                else
                 {
                     result = new FreeIap(sqldata);
                 }
@@ -68,7 +71,7 @@ namespace Module
             return result;
         }
 
-        protected Iap(IapDataBase data)
+        protected Iap(IapSqlData data)
         {
             this.dbData = data;
         }
@@ -78,35 +81,60 @@ namespace Module
         public static Action<IapResult> onResultIapBeforeCall; 
         public static Action<IapResult> onResultIapAfterCall;
 
-        
+        private int _getCount;
         protected IapResult result;
-        public IapDataBase dbData { get; }
-        public int getCount { get; set; }
+        public IapSqlData dbData { get; }
 
-        public string sku
+        /// <summary>
+        /// 本次打开游戏获取本礼包的数量
+        /// </summary>
+        public int getCount
         {
-            get
+            get { return _getCount; }
+            set
             {
-                switch (Channel.channel)
-                {
-                    case ChannelType.googlePlay:
-                        return dbData.googlePlay;
-                    case ChannelType.AppStore:
-                        return dbData.appStore;
-                    case ChannelType.AppStoreCN:
-                        return dbData.appStoreCN;
-                }
-                GameDebug.LogError("Channel 配置错误");
-                return null;
+                var temp = _getCount;
+                _getCount = value;
+                totalGetCount += (_getCount - temp);
+                totayGetCount += (_getCount - temp);
+                
             }
         }
 
-        public IapState iapState
+        /// <summary>
+        /// 总共获得此礼包的数量
+        /// </summary>
+        public int totalGetCount
+        {
+            get { return LocalFileMgr.GetInt($"Iap{dbData.ID}totalCount"); }
+            private set { LocalFileMgr.SetInt($"Iap{dbData.ID}totalCount", value); }
+        }
+
+        /// <summary>
+        /// 今日获得此礼包的数量
+        /// </summary>
+        public int totayGetCount
         {
             get
             {
-                return (IapState) dbData.switchStation;
+                if (TimeHelper.IsNewDay($"Iap{dbData.ID}todayCount"))
+                {
+                    totayGetCount = 0;
+                    return 0;
+                }
+                else
+                {
+                    return LocalFileMgr.GetInt($"Iap{dbData.ID}todayCount");
+                }
             }
+            private set { LocalFileMgr.SetInt($"Iap{dbData.ID}todayCount", value); }
+        }
+
+
+
+        public IapState iapState
+        {
+            get { return (IapState) dbData.switchStation; }
         }
 
         public virtual string OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
@@ -116,7 +144,7 @@ namespace Module
         }
         public abstract bool CanPay();
 
-        public T GetData<T>() where T: IapDataBase
+        public T GetData<T>() where T: IapSqlData
         {
             if (dbData != null)
             {

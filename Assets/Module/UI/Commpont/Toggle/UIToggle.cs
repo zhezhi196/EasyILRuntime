@@ -107,7 +107,7 @@ namespace Module
             {
                 if ((config.flag & UIButtonFlag.NoAudio) == 0)
                 {
-                    if (config.audio.IsNullOrEmpty()) config.audio = ButtonConfig.defaultAudio;
+                    if (config.audio.IsNullOrEmpty()) config.audio = Config.globleConfig.commonButtonAudio;
                     AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
                 }
                 
@@ -123,8 +123,10 @@ namespace Module
             {
                 onClick?.Invoke(arg0);
                 _clickCount++;
-                GlobleAction.onButtonClick?.Invoke(this);
-
+                if ((config.flag & UIButtonFlag.Analystics) != 0)
+                {
+                    Analytics.SendEvent(Config.globleConfig.ButtonAnalyticsType, gameObject.name, 0);
+                }
                 (group as UIToggleGroup).OnToggleChanged(this, arg0);
                 if (onGo != null)
                 {
@@ -167,7 +169,6 @@ namespace Module
         
         public virtual void ReturnToPool()
         {
-            pool.ReturnObject(this);
             onClick = null;
         }
 

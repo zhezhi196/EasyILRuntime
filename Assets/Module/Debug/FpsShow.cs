@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class FpsShow : MonoBehaviour
 {
+#if LOG_ENABLE
     private Text text;
 
     private void Awake()
@@ -13,39 +14,7 @@ public class FpsShow : MonoBehaviour
     
     private void Update()
     {
-        UpdateTick();
+        text.text = Setting.graphicSetting.fps.value.ToString();
     }
-
-
-#region 计算FPS
-    private long mFrameCount = 0;
-    private long mLastFrameTime = 0;
-    static long mLastFps = 0;
-
-    private void UpdateTick()
-    {
-        mFrameCount++;
-        long nCurTime = TickToMilliSec(System.DateTime.Now.Ticks);
-        if (mLastFrameTime == 0)
-        {
-            mLastFrameTime = TickToMilliSec(System.DateTime.Now.Ticks);
-        }
-
-        if ((nCurTime - mLastFrameTime) >= 1000)
-        {
-            long fps = (long) (mFrameCount * 1.0f / ((nCurTime - mLastFrameTime) / 1000.0f));
-
-            mLastFps = fps;
-
-            mFrameCount = 0;
-
-            mLastFrameTime = nCurTime;
-            text.text = fps.ToString();
-        }
-    }
-    public static long TickToMilliSec(long tick)
-    {
-        return tick / (10 * 1000);
-    }
-    #endregion
+#endif
 }

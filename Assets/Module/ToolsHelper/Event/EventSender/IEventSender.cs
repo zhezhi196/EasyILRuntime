@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Module
 {
-    public interface IEventSender<T> : IEventCallback where T : Enum
+    public interface IEventSender : IEventCallback 
     {
-        EventSender<T>[] sender { get; }
-        bool TryPredicate(T predicate, string[] sendArg, string[] args);
+        EventSender[] sender { get; }
+        bool TryPredicate(string predicate, string[] sendArg, string[] predicateArgs);
     }
 }

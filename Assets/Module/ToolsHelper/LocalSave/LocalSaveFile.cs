@@ -2,120 +2,184 @@
 using System.Collections.Generic;
 using System.IO;
 using LitJson;
+using UnityEngine;
 
 namespace Module
 {
+    public struct LocalSaveInfo
+    {
+        public string group;
+        public string key;
+        public string value;
+    }
+    
     public class LocalSaveFile
     {
-        private static List<(string, LocalSaveFile)> saveDic = new List<(string, LocalSaveFile)>();
+        private static Dictionary<string, LocalSaveFile> allFile = new Dictionary<string, LocalSaveFile>();
 
-        public static AsyncLoadProcess Init(AsyncLoadProcess process)
+        public static void InitLocalFile(string name)
         {
-            saveDic.Add(("SaveData", new LocalSaveFile().InitFile("SaveData")));
-            saveDic.Add(("LocalServerClock", new LocalSaveFile().InitFile("LocalServerClock")));
-            saveDic.Add(("LocalSave", new LocalSaveFile().InitFile("LocalSave")));
-            return process;
+            allFile.Add(name, new LocalSaveFile().InitFile(name));
         }
 
-        public static string GetString(string key, string path = "SaveData")
+        public static string GetString(string path, string key)
         {
-            for (int i = 0; i < saveDic.Count; i++)
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
             {
-                if (saveDic[i].Item1 == path)
+                if (!saveFile.info.IsNullOrEmpty())
                 {
-                    return saveDic[i].Item2.GetFileString(key);
+                    for (int i = 0; i < saveFile.info.Count; i++)
+                    {
+                        if (saveFile.info[i].key == key)
+                        {
+                            return saveFile.info[i].value;
+                        }
+                    }
                 }
             }
 
             return null;
         }
 
-        public static void SetString(string key, string value, string path = "SaveData")
+        public static string[] GetGroup(string path, string group)
         {
-            for (int i = 0; i < saveDic.Count; i++)
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
             {
-                if (saveDic[i].Item1 == path)
+                if (!saveFile.info.IsNullOrEmpty())
                 {
-                    saveDic[i].Item2.SetFileString(key, value);
+                    List<string> resu = new List<string>();
+                
+                    for (int i = 0; i < saveFile.info.Count; i++)
+                    {
+                        if (saveFile.info[i].@group == group)
+                        {
+                            resu.Add(saveFile.info[i].value);
+                        }
+                    }
+
+                    return resu.ToArray();
                 }
+            }
+
+            return null;
+        }
+
+        public static void SetString(string path, LocalSaveInfo value)
+        {
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
+            {
+                if(saveFile.info==null) saveFile.info = new List<LocalSaveInfo>();
+                for (int i = 0; i < saveFile.info.Count; i++)
+                {
+                    if (saveFile.info[i].key == value.key)
+                    {
+                        saveFile.info[i] = new LocalSaveInfo()
+                            {@group = value.@group, key = value.key, value = value.value};
+                        saveFile.isChanged = true;
+                        return;
+                    }
+                }
+
+                saveFile.info.Add(new LocalSaveInfo() {@group = value.@group, key = value.key, value = value.value});
+                saveFile.isChanged = true;
+            }
+        }
+
+        public static void DeleteFile(string path)
+        {
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
+            {
+                if (saveFile != null)
+                {
+                    File.Delete(saveFile.filePath);
+                    saveFile.info?.Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// GM调用：删除所有的存档
+        /// </summary>
+        public static void GmDeleteAllFile(bool deleteDB)
+        {
+            var pathSave = $"{Application.persistentDataPath}/SaveData";
+            if (File.Exists(pathSave))
+            {
+                File.Delete(pathSave);
+                GameDebug.Log("删除所有本地存档文件成功!");
+            }
+
+            if (deleteDB)
+            {
+                //删除数据库
+                pathSave = $"{Application.persistentDataPath}/{ConstKey.Player_data}";
+                if (File.Exists(pathSave))
+                {
+                    File.Delete(pathSave);
+                    GameDebug.Log("删除数据库成功!");
+                }
+            }
+        }
+
+        public static void DeleteKey(string path, string key)
+        {
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
+            {
+                if (!saveFile.info.IsNullOrEmpty())
+                {
+                    for (int i = 0; i < saveFile.info.Count; i++)
+                    {
+                        if (saveFile.info[i].key == key)
+                        {
+                            saveFile.info.RemoveAt(i);
+                            saveFile.isChanged = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void DeleteGroup(string path, string group)
+        {
+            LocalSaveFile saveFile = null;
+            if (allFile.TryGetValue(path, out saveFile))
+            {
+                if (!saveFile.info.IsNullOrEmpty())
+                {
+                    for (int i = saveFile.info.Count - 1; i >= 0; i--)
+                    {
+                        if (saveFile.info[i].@group == group)
+                        {
+                            saveFile.info.RemoveAt(i);
+                            saveFile.isChanged = true;
+                        }
+                    }
+                }
+
             }
         }
 
         public static void Update()
         {
-            for (int i = 0; i < saveDic.Count; i++)
+            foreach (KeyValuePair<string,LocalSaveFile> localSaveFile in allFile)
             {
-                saveDic[i].Item2.UpdateFile();
+                localSaveFile.Value.UpdateFile();
             }
         }
-
-        public static void RemoveKey(string getKey, string path = "SaveData")
-        {
-            for (int i = 0; i < saveDic.Count; i++)
-            {
-                if (saveDic[i].Item1 == path)
-                {
-                    saveDic[i].Item2.RemoveFileKey(getKey);
-                }
-            }
-        }
-
-        public static void SetDateTime(string key, DateTime value, string path = "SaveData")
-        {
-            for (int i = 0; i < saveDic.Count; i++)
-            {
-                if (saveDic[i].Item1 == path)
-                {
-                    saveDic[i].Item2.SetFileDateTime(key, value);
-                }
-            }
-        }
-
-        public static DateTime GetDateTime(string key, string path = "SaveData")
-        {
-            for (int i = 0; i < saveDic.Count; i++)
-            {
-                if (saveDic[i].Item1 == path)
-                {
-                    return saveDic[i].Item2.GetFileDateTime(key);
-                }
-            }
-
-            return default;
-        }
-
-        public static void DeleteAll(string path = "SaveData")
-        {
-            for (int i = 0; i < saveDic.Count; i++)
-            {
-                if (saveDic[i].Item1 == path)
-                {
-                    saveDic[i].Item2.DeleteFileAll();
-                }
-            }
-
-        }
-
-        public static bool ContainKey(string key,string path = "SaveData")
-        {
-            for (int i = 0; i < saveDic.Count; i++)
-            {
-                if (saveDic[i].Item1 == path)
-                {
-                    return saveDic[i].Item2.ContainFileKey(key);
-                }
-            }
-
-            return false;
-        }
-
 
         #region File
 
-        private Dictionary<string, string> saveFileDic = new Dictionary<string, string>();
+        public List<LocalSaveInfo> info;
+        
         private bool isChanged;
         private string filePath;
-        private string subPath;
+        
         private LocalSaveFile InitFile(string subPath)
         {
             filePath = Pathelper.PersistentDataPath() + "/" + subPath;
@@ -124,37 +188,16 @@ namespace Module
                 using (StreamReader reader = new StreamReader(filePath))
                 {
                     string text = reader.ReadToEnd();
-                    saveFileDic = JsonMapper.ToObject<Dictionary<string, string>>(text);
+#if LOG_ENABLE
+                    string aesDecrypt = text;
+#else
+                    string aesDecrypt = EncryptionHelper.AesDecrypt(text, EncryptionHelper.MD5Encrypt(PlayerInfo.pid + "LocalSave"));
+#endif
+                    info = JsonMapper.ToObject<List<LocalSaveInfo>>(aesDecrypt);
                 }
             }
 
             return this;
-        }
-
-        private string GetFileString(string key)
-        {
-            string result = null;
-            if (saveFileDic.TryGetValue(key, out result))
-            {
-                return result;
-            }
-
-            return null;
-        }
-
-        private void SetFileString(string key, string value)
-        {
-            string result = null;
-            if (saveFileDic.TryGetValue(key, out result))
-            {
-                saveFileDic[key] = value;
-            }
-            else
-            {
-                saveFileDic.Add(key, value);
-            }
-
-            isChanged = true;
         }
 
         private void UpdateFile()
@@ -165,54 +208,32 @@ namespace Module
             }
         }
 
+
         private void WriteFileJson()
         {
+            string json = JsonMapper.ToJson(info);
+#if LOG_ENABLE
+            string data = json;
+#else
+            string data = EncryptionHelper.AesEncrypt(json, EncryptionHelper.MD5Encrypt(PlayerInfo.pid + "LocalSave"));
+
+#endif
             if (!File.Exists(filePath))
             {
                 using (var temp = File.CreateText(filePath))
                 {
-                    temp.Write(JsonMapper.ToJson(saveFileDic));
+                    temp.Write(data);
                 }
             }
             else
             {
                 using (StreamWriter writer = new StreamWriter(filePath))
                 {
-                    writer.Write(JsonMapper.ToJson(saveFileDic));
+                    writer.Write(data);
                 }
             }
 
             isChanged = false;
-        }
-
-        private void RemoveFileKey(string getKey)
-        {
-            if (saveFileDic.ContainsKey(getKey))
-            {
-                saveFileDic.Remove(getKey);
-                isChanged = true;
-            }
-        }
-
-        private void SetFileDateTime(string key, DateTime value)
-        {
-            SetFileString(key, value.ToString());
-        }
-
-        private DateTime GetFileDateTime(string key)
-        {
-            return GetFileString(key).ToDateTime();
-        }
-
-        private void DeleteFileAll()
-        {
-            saveFileDic.Clear();
-            File.Delete(filePath);
-        }
-
-        private bool ContainFileKey(string key)
-        {
-            return saveFileDic.ContainsKey(key);
         }
 
         #endregion

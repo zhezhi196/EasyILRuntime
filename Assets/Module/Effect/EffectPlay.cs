@@ -5,17 +5,16 @@ using UnityEngine;
 
 namespace Module
 {
-    public class EffectPlay : IProcess, IDMark<object, EffectPlay>
+    public class EffectPlay : IProcess, Identify
     {
         #region Static
 
-        private const string effectPath = "Effect/Prefabs/{0}.prefab";
         private static Dictionary<object, List<EffectPlay>> effPlayList = new Dictionary<object, List<EffectPlay>>();
         private Coroutine playCoroutine;
 
         public static string GetPath(string path)
         {
-            return string.Format(effectPath, path);
+            return $"{ConstKey.GetFolder(AssetLoad.AssetFolderType.Effect)}/{path}.prefab";
         }
 
         public static EffectPlay Play(string name, Transform parent, Action<EffectBase> callback = null)
@@ -45,7 +44,7 @@ namespace Module
         {
             EffectPlay play = new EffectPlay();
             if (parent != null && !parent.gameObject.activeInHierarchy) return play;
-            play.pool = AssetLoad.LoadGameObject<EffectBase>(string.Format(effectPath, name), parent, (effect, args) =>
+            play.pool = AssetLoad.LoadGameObject<EffectBase>(GetPath(name), parent, (effect, args) =>
             {
                 if (effect.gameObject.activeInHierarchy)
                 {
@@ -123,7 +122,7 @@ namespace Module
             effect.Restart();
             yield return this;
             Reset();
-            Stop();
+            Stop(true);
         }
 
         public EffectPlay OnStart(Action action)
@@ -195,12 +194,15 @@ namespace Module
             get { return effect; }
         }
 
-        public void Stop()
+        public void Stop(bool returnToPool=true)
         {
             if (m_isComplete) return;
             m_isComplete = true;
             onComplete?.Invoke();
-            effect.ReturnToPool();
+            if (returnToPool)
+            {
+                ObjectPool.ReturnToPool(effect);
+            }
             onStart = null;
             onComplete = null;
             if (playCoroutine != null)

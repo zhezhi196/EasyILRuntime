@@ -1,32 +1,45 @@
 ﻿namespace Module
 {
-    public class LocalClock: Clock, ILocalSave
+    public class LocalClock: Clock
     {
         public bool autoSave = true;
-        private string subPath = "LocalSave";
 
         public string localUid
         {
             get { return ID.ToString(); }
         }
-
-        public void SetSavePath(string path)
+        
+        public string localKey
         {
-            this.subPath = path;
+            get { return "LocalClock" + ID; }
         }
 
         public LocalClock(string uid, float time)
         {
             this.ID = uid;
-            targetTime = time;
-            LocalSave.Read(this,subPath);
+            string key = localKey;
+            if (LocalFileMgr.ContainKey(key))
+            {
+                targetTime = LocalFileMgr.GetFloat(key);
+            }
+            else
+            {
+                targetTime = time;
+            }
         }
 
         public LocalClock(string uid)
         {
             this.ID = uid;
-            targetTime = float.MaxValue;
-            LocalSave.Read(this,subPath);
+            string key = localKey;
+            if (LocalFileMgr.ContainKey(key))
+            {
+                targetTime = LocalFileMgr.GetFloat(key);
+            }
+            else
+            {
+                targetTime = float.MaxValue;
+            }
         }
         
         public void ReadData(string data)
@@ -42,7 +55,7 @@
 
         private void LocalComplete()
         {
-            LocalSave.Delete(this,subPath);
+            LocalFileMgr.RemoveKey(localKey);
         }
 
         private void LocalSecond(int obj)
@@ -55,18 +68,7 @@
 
         public void Save()
         {
-            LocalSave.Write(this, false,subPath);
-        }
-
-        public override void Stop()
-        {
-            base.Stop();
-            LocalSave.Delete(this,subPath);
-        }
-
-        public string GetWriteDate()
-        {
-            return currentTime.ToString();
+            LocalFileMgr.SetFloat(localKey, currentTime);
         }
     }
 }

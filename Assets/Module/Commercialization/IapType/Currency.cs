@@ -9,6 +9,8 @@ namespace Module
     public class Currency : Iap, ICurrency
     {
         private string _price;
+        private DateTime startTime;
+        private bool fromSdk;
 
         public string price
         {
@@ -18,26 +20,12 @@ namespace Module
                 if (_price.IsNullOrEmpty())
                 {
                     GameDebug.Log("价格没有初始化,走表价格");
-                    if (Language.currentLanguage == SystemLanguage.Chinese ||Language.currentLanguage == SystemLanguage.ChineseSimplified)
-                    {
-                        return "￥" + dbData.rmb;
-                    }
-                    else
-                    {
-                        return "$" + dbData.usd;
-                    }
+                    return "￥" + ((ICurrencyData)dbData).showPrice;
                 }
 
                 return _price;
 #else
-                if (Language.currentLanguage == SystemLanguage.Chinese || Language.currentLanguage == SystemLanguage.ChineseSimplified)
-                {
-                    return "￥" + dbData.rmb;
-                }
-                else
-                {
-                    return "$" + dbData.usd;
-                }
+                return ((ICurrencyData)dbData).showPrice;
 #endif
             }
             set { _price = value; }
@@ -45,28 +33,34 @@ namespace Module
 
         protected Action<IapResult> onRewardCallback;
 
-        public Currency(IapDataBase data) : base(data)
+        public Currency(ICurrencyData data) : base(data)
         {
+        }
+        
+        public string sku
+        {
+            get { return ((ICurrencyData)dbData).sku; }
         }
 
         public override string OnTryGetReward(Action<IapResult> callback, IapResult result, bool skipConsume)
         {
+            fromSdk = false;
             base.OnTryGetReward(callback, result, skipConsume);
-            string key = EncryptionHelper.MD5Encrypt(sku + TimeHelper.GetNow());
+            string key = EncryptionHelper.MD5Encrypt(sku + TimeHelper.now);
             onRewardCallback = callback;
             result.skipConsume = skipConsume;
+            AudioListener.pause = true;
             if (iapState == IapState.Normal)
             {
-#if UNITY_EDITOR
-                TimeHelper.isPause = true;
-                AudioListener.pause = true;
+#if UNITY_EDITOR|| !SDK
                 OnSuccsee(null);
 #else
                 if (!skipConsume)
                 {
                     AudioListener.pause = true;
-                    TimeHelper.Pause(this);
                     GameDebug.LogFormat("调用支付窗口");
+                    fromSdk = true;
+                    startTime = TimeHelper.now;
                     SDKMgr.GetInstance().MyPaySDK.Buy(sku, key, "inApp", OnSuccsee, OnFail);
                 }
                 else
@@ -94,13 +88,19 @@ namespace Module
 
         private void OnSuccsee(string obj)
         {
+            if (fromSdk && (TimeHelper.now - startTime).TotalSeconds <= 1f)
+            {
+                return;
+            }
             getCount++;
             OnStateChanged(true, obj);
+            AudioListener.pause = false;
         }
 
         private void OnFail(string obj)
         {
             OnStateChanged(false, obj);
+            AudioListener.pause = false;
         }
 
         protected void OnStateChanged(bool success, string plantResult)
@@ -116,9 +116,6 @@ namespace Module
                     string[] tempStr = plantResult.Split('|');
                     result.plantOrder = tempStr[5];
                 }
-
-                AudioListener.pause = false;
-                TimeHelper.Continue(this);
 
                 onResultIapBeforeCall?.Invoke(result);
                 this.onRewardCallback?.Invoke(result);

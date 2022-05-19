@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public class Clock : IProcess, IDMark<object,Clock>
+    public class Clock : IProcess, Identify
     {
         #region Static
 
@@ -73,10 +73,14 @@ namespace Module
 
         #region PrivateIndex
 
+        private bool _isEncryption;
         private int currentIntervalIndex;
         private int currentSecond;
         private int currentMinute;
         private int currentHour;
+        
+        private FloatField _currentTimeEncryption;
+        private float _currentTime; 
 
         #endregion
 
@@ -87,19 +91,58 @@ namespace Module
             get { return currentTime; }
         }
 
+        public bool isStop = true;
+
         public object ID { get; set; }
         public Func<bool> listener { get; set; }
 
         public bool autoKill { get; set; } = true;
 
+        public bool encryption
+        {
+            get
+            {
+                return _isEncryption;
+            }
+            set
+            {
+                if (_isEncryption != value)
+                {
+                    if (value)
+                    {
+                        _currentTimeEncryption = new FloatField(currentTime);
+                    }
+                    else
+                    {
+                        currentTime = _currentTimeEncryption.value;
+                    }
+                    _isEncryption = value;
+                }
+            }
+        }
+
         /// <summary>
         /// 当前已经进行的时间
         /// </summary>
-        public float currentTime { get; set; }
+        public float currentTime
+        {
+            get { return encryption ? _currentTimeEncryption : _currentTime; }
+            set
+            {
+                if (encryption)
+                {
+                    _currentTimeEncryption = new FloatField(value);
+                }
+                else
+                {
+                    _currentTime = value;
+                }
+            }
+        }
 
         public float percent
         {
-            get { return Mathf.Clamp01(remainTime / targetTime); }
+            get { return Mathf.Clamp01(currentTime / targetTime); }
         }
 
         public float remainTime
@@ -120,12 +163,14 @@ namespace Module
 
         public bool isActive
         {
-            get { return clockList.Contains(this); }
+            get { return !isStop && !isComplete; }
         }
         /// <summary>
         /// 间隔时间
         /// </summary>
         public float[] intervalTime { get; set; }
+
+        public DateTime timeStamp;
 
         #endregion
 
@@ -147,11 +192,13 @@ namespace Module
         public Clock(float time)
         {
             targetTime = time;
+            timeStamp = TimeHelper.now;
         }
         
         public Clock()
         {
             targetTime = float.MaxValue;
+            timeStamp = TimeHelper.now;
         }
 
         public void SetInterval(float time)
@@ -169,12 +216,19 @@ namespace Module
             if (active)
             {
                 if (!isActive)
+                {
+                    isStop = false;
                     clockList.Add(this);
+                }
             }
             else
             {
                 if (isActive)
+                {
+                    isStop = true;
                     clockList.Remove(this);
+                }
+
             }
         }
         
@@ -218,7 +272,7 @@ namespace Module
             }
         }
 
-        public void Complete()
+        private void Complete()
         {
             SetActive(false);
             onComplete?.Invoke();
@@ -255,73 +309,74 @@ namespace Module
             return delatime;
         }
 
-        public void OnUpdate()
+        private void OnUpdate()
         {
-            float delatime = GetDelatime();
-            DelatimeUpdate(delatime);
+            if (isActive)
+            {
+                float delatime = GetDelatime();
+                DelatimeUpdate(delatime);
+            }
         }
 
-        public void DelatimeUpdate(float delatime)
+        private void DelatimeUpdate(float delatime)
         {
-            if (!isComplete)
-            {
-                if (listener != null)
-                {
-                    if (listener.Invoke())
-                    {
-                        Stop();
-                        return;
-                    }
-                }
+            var tempCurr = currentTime;
 
-                currentTime += delatime;
-                if (currentTime > targetTime) currentTime = targetTime;
+            if (tempCurr < targetTime)
+            {
+                tempCurr += delatime;
+                currentTime = tempCurr;
+                if (tempCurr > targetTime)
+                {
+                    currentTime = targetTime;
+                    tempCurr = targetTime;
+                }
 
                 #region interval 秒 分 时
 
                 if (!intervalTime.IsNullOrEmpty() && currentIntervalIndex < intervalTime.Length)
                 {
-                    if (currentTime >= intervalTime[currentIntervalIndex])
+                    if (tempCurr >= intervalTime[currentIntervalIndex])
                     {
                         onInterval?.Invoke(currentIntervalIndex);
                         currentIntervalIndex++;
                     }
                 }
 
-                if (currentTime >= currentSecond + 1)
+                if (tempCurr >= currentSecond + 1)
                 {
-                    currentSecond = (int) currentTime;
+                    currentSecond = (int) tempCurr;
                     onSecond?.Invoke(currentSecond);
                 }
 
-                if (currentTime / 60 >= currentMinute + 1)
+                if (tempCurr / 60 >= currentMinute + 1)
                 {
-                    currentMinute = (int) (currentTime / 60);
+                    currentMinute = (int) (tempCurr / 60);
                     onMinute?.Invoke(currentMinute);
                 }
 
-                if (currentTime / 3600 >= currentHour + 1)
+                if (tempCurr / 3600 >= currentHour + 1)
                 {
-                    currentHour = (int) (currentTime / 3600);
+                    currentHour = (int) (tempCurr / 3600);
                     onHour?.Invoke(currentHour);
                 }
 
                 #endregion
 
-                if (isComplete)
+                if (tempCurr >= targetTime || (listener != null && listener.Invoke()))
                 {
                     Complete();
                 }
                 else
                 {
-                    onUpdate?.Invoke(currentTime);
+                    onUpdate?.Invoke(tempCurr);
                 }
             }
         }
 
         public bool MoveNext()
         {
-            return !isComplete;
+            return isActive;
         }
 
         public void Reset()
@@ -343,14 +398,7 @@ namespace Module
         {
             get
             {
-                if (listener == null)
-                {
-                    return currentTime >= targetTime;
-                }
-                else
-                {
-                    return currentTime >= targetTime || listener();
-                }
+                return currentTime >= targetTime;
             }
         }
 
@@ -361,7 +409,7 @@ namespace Module
 
         public override string ToString()
         {
-            return currentTime.ToString();
+            return timeStamp.ToString();
         }
     }
 } 

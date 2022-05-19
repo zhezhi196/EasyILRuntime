@@ -8,9 +8,6 @@
 
 using System;
 using System.Collections.Generic;
-using FrameWork;
-using Module;
-using UnityEngine;
 
 namespace Module
 {

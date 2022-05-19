@@ -13,7 +13,6 @@ namespace Module
         {
             if (pool != null)
             {
-                pool.ReturnObject(this);
                 transform.localScale = Vector3.one;
             }
         }

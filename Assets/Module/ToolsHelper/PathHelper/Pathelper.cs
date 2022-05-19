@@ -1,9 +1,26 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Module
 {
     public static class Pathelper
     {
+#if UNITY_EDITOR
+        public static string FullAssetPath(Object tar)
+        {
+            return FullAssetPath(AssetDatabase.GetAssetPath(tar));
+        }
+        public static string FullAssetPath(string path)
+        {
+            path = path.Substring(7, path.Length - 7);
+            return $"{Application.dataPath}/{path}";
+        }
+
+        public static string GetReleativePath(string path)
+        {
+            return "Assets/" + path.Substring(Application.dataPath.Length + 1, path.Length - Application.dataPath.Length - 1).Replace("\\", "/");
+        }
+#endif
         public static string PersistentDataPath()
         {
             return Application.persistentDataPath;

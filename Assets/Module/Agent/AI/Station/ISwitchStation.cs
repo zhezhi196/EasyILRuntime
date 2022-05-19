@@ -2,8 +2,8 @@ using System;
 
 namespace Module
 {
-    public interface ISwitchStation
+    public interface ISwitchStation<T> : ISwitchEventObject
     {
-        event Action onSwitchStation;
+        bool SwitchStation(T station);
     }
 }

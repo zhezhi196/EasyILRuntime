@@ -12,7 +12,7 @@ using System.Runtime.Serialization;
 namespace Module
 {
     [DataContract]
-    public class ReturnValueArray<T> : ReturnValueBase<T> where T : ISqlData
+    public class ReturnValueArray<T> : ReturnValueBase
     {
         public T[] data { get; set; }
     }

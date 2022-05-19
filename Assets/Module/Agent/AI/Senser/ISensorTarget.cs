@@ -3,12 +3,9 @@ using UnityEngine;
 
 namespace Module
 {
-    public interface ISensorTarget
+    public interface ISensorTarget : ITarget
     {
-        Transform transform { get; }
-
         bool isSenserable { get; }
-
         event Action<ISensorTarget> onDisable;
     }
 }

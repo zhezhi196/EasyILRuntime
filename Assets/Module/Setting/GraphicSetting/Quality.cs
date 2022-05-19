@@ -37,7 +37,7 @@ namespace Module.Set
                     float f = 1280f / scWidth;
                     Screen.SetResolution(1280, (int)(scHeight*f), true);
                 }
-                Setting.graphicSetting.fps.WriteData(30);
+                Setting.graphicSetting.fps.WriteData(60);
             }
             else
             {

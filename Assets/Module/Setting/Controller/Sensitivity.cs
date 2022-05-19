@@ -2,7 +2,7 @@
 {
     public class Sensitivity: ISettingData<float>
     {
-        public string key
+        public virtual string key
         {
             get { return "SensitivitySetting"; }
         }
@@ -21,7 +21,7 @@
             }
             else
             {
-                return 0.5f;
+                return 1f;
             }
         }
 

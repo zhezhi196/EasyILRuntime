@@ -50,19 +50,21 @@ namespace Module
         #endregion
         
         #region 字段，属性
+        private bool _canPhysiceBack = true;
         private bool isBusy;
         private List<UIObject> m_winPool = new List<UIObject>();
         private Queue<OpenInfo> readyOpenWindow = new Queue<OpenInfo>();
         private Queue<CloseInfo> readyCloseWin = new Queue<CloseInfo>();
         
         private Dictionary<string, UIObject> m_windows = new Dictionary<string, UIObject>();
-        
-        //-----------------------------------------------------------------------------------------------------
-        public bool isLoading
-        {
-            get { return UICommpont.UiLoading.gameObject.activeInHierarchy; }
-        }
 
+        //-----------------------------------------------------------------------------------------------------
+
+        public bool canPhysiceback
+        {
+            get { return _canPhysiceBack && !UICommpont.isFreezed; }
+            set { _canPhysiceBack = value; }
+        }
         /// <summary>
         /// 窗口列表
         /// </summary>
@@ -244,6 +246,16 @@ namespace Module
 
             return pos1;
         }
+
+        public Vector2 Convert3DToUIWorld(Camera camera, Vector3 pos)
+        {
+            Vector3 pos1;
+            if (camera == null) return Vector2.zero;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(UICommpont.UICanvas.transform as RectTransform,
+                camera.WorldToScreenPoint(pos), UICommpont.UICanvas.worldCamera, out pos1);
+
+            return pos1;
+        }
         /// <summary>
         /// UI坐标转换
         /// 计算一个ui元素在新的节点下的坐标
@@ -308,30 +320,38 @@ namespace Module
             if (readyCloseWin.Count > 0 && !isBusy) 
             {
                 var closeQueue = readyCloseWin.Dequeue();
+                GameDebug.Log($"关闭界面{closeQueue.ui.winName}");
                 isBusy = true;
-                closeQueue.ui.Close(closeQueue.tween).OnComplete(() => isBusy = false);
+                closeQueue.ui.Close(closeQueue.tween, () =>
+                {
+                    isBusy = false;
+                    GameDebug.Log($"关闭界面{closeQueue.ui.winName}结束");
+                });
                 return;
             }
             
             if (readyOpenWindow.Count > 0)
             {
                 var openQueue = readyOpenWindow.Peek();
-                if (openQueue.ui.isInit && !isBusy)
+                if (!isBusy)
                 {
                     isBusy = true;
+                    GameDebug.Log($"打开界面{openQueue.ui.winName}");
                     openQueue = readyOpenWindow.Dequeue();
                     if (currentUI == openQueue.ui)
                     {
                         isBusy = false;
+                        GameDebug.Log($"打开界面{openQueue.ui.winName}结束");
                     }
-                    
-                    openQueue.ui.Open(openQueue.tween, openQueue.flag, openQueue.isPopup, openQueue.args).OnComplete(() => isBusy = false);
+
+                    openQueue.ui.Open(openQueue.tween, openQueue.flag, openQueue.isPopup, openQueue.args, () =>
+                    {
+                        isBusy = false;
+                        GameDebug.Log($"打开界面{openQueue.ui.winName}结束");
+                    });
                 }
             }
         }
         #endregion
-
-        public bool canPhysiceback = true;
-
     }
 }

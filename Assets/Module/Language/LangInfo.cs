@@ -1,12 +1,21 @@
-﻿namespace Module
+﻿using System;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using UnityEngine;
+
+namespace Module
 {
+    [Serializable]
     public struct LangInfo
     {
-        public int ID;
-        public string CN;
-        public string EN;
-        public string Ru;
-        public string Sp;
-        public string Po;
+        [HorizontalGroup(),HideLabel]
+        public SystemLanguage l;
+        [HorizontalGroup(),HideLabel]
+        public string c;
+
+        public override string ToString()
+        {
+            return c;
+        }
     }
 }

@@ -59,7 +59,6 @@ namespace Module
         {
             if (!ContainKey(key))
             {
-                GameDebug.LogError(string.Format("本地不存在{0}的值", key));
                 return 0;
             }
             int temp = PlayerPrefs.GetInt(key);
@@ -119,7 +118,6 @@ namespace Module
         {
             if (!ContainKey(key))
             {
-                GameDebug.LogError(string.Format("本地不存在{0}的值", key));
                 return false;
             }
             string temp = PlayerPrefs.GetString(key);
@@ -223,6 +221,7 @@ namespace Module
         public static void RemoveAllKey()
         {
             PlayerPrefs.DeleteAll();
+            GameDebug.Log("清除所有PlayerPrefs成功！");
         }
 
         public static Vector2 GetVector2(string key,char spite)

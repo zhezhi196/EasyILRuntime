@@ -1,38 +1,35 @@
-﻿using FrameWork;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using LitJson;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Module
 {
     public static class Language
     {
-        private static bool isInit;
-        private static Dictionary<int, Dictionary<SystemLanguage,string>> language = new Dictionary<int, Dictionary<SystemLanguage,string>>();
-        public static event Action<SystemLanguage> onLanguageChanged;
+        public static Dictionary<string, LangInfo[]> info;
+        public const string useKey = "langguage";
         private static SystemLanguage m_currLang = SystemLanguage.Unknown;
-        private static string localKey = "LanguageSetting";
 
         public static SystemLanguage currentLanguage
         {
             get
             {
-                if (LocalFileMgr.ContainKey(localKey))
+                if (LocalFileMgr.ContainKey(ConstKey.languageLocalKey))
                 {
-                    return (SystemLanguage) LocalFileMgr.GetInt(localKey);
+                    return (SystemLanguage) LocalFileMgr.GetInt(ConstKey.languageLocalKey);
                 }
                 else
                 {
                     if (m_currLang == SystemLanguage.Unknown)
                     {
-                        if (Channel.channel == ChannelType.googlePlay || Channel.channel == ChannelType.AppStore)
-                        {
-                            ChangeLanguage(SystemLanguage.English);
-                        }
-                        else if (Channel.channel == ChannelType.AppStoreCN)
+                        if (Channel.isChina)
                         {
                             ChangeLanguage(SystemLanguage.Chinese);
+                        }
+                        else
+                        {
+                            ChangeLanguage(SystemLanguage.English);
                         }
                     }
 
@@ -40,56 +37,104 @@ namespace Module
                 }
             }
         }
-
-        private static void Init()
+        
+        public static string AssetOutPutPath
         {
-            LangInfo[] lang = DataMgr.Instance.GetDataArray<LangInfo>(false);
-            if (!lang.IsNullOrEmpty())
-            {
-                for (int i = 0; i < lang.Length; i++)
-                {
-                    LangInfo temp = lang[i];
-                    if (temp.ID != -1 && !language.ContainsKey(temp.ID))
-                    {
-                        Dictionary<SystemLanguage, string> lanContent = new Dictionary<SystemLanguage, string>();
-                        lanContent.Add(SystemLanguage.ChineseSimplified, temp.CN);
-                        lanContent.Add(SystemLanguage.Chinese, temp.CN);
-                        lanContent.Add(SystemLanguage.English, temp.EN);
-                        lanContent.Add(SystemLanguage.Russian, temp.Ru); 
-                        lanContent.Add(SystemLanguage.Spanish, temp.Sp);
-                        lanContent.Add(SystemLanguage.Portuguese, temp.Po);
-                        language.Add(temp.ID, lanContent);
-                    }
-                }
-
-                isInit = true;
-            }
+            get { return $"{ConstKey.GetFolder(AssetLoad.AssetFolderType.Config)}/lang.txt"; }
         }
 
-        public static string GetContent(int ID, LabelFlag flag = LabelFlag.None)
+        public static event Action<SystemLanguage> onLanguageChanged;
+
+        public static AsyncLoadProcess Init(AsyncLoadProcess process)
         {
-            if (ID == 0) return "文本缺失";
-            if (!isInit) Init();
-            Dictionary<SystemLanguage, string> content;
-            if (!language.TryGetValue(ID, out content)) return "文本缺失 ID:" + ID;
-            string result = null;
-            if (!content.TryGetValue(currentLanguage, out result)) return "缺少语言:"+currentLanguage;
-            if (flag == LabelFlag.AllLower)
+            process.IsDone = false;
+            InitAction(() => process.SetComplete());
+            return process;
+        }
+
+        public static void InitAction(Action callback)
+        {
+            if (info != null) return;
+#if UNITY_EDITOR
+            var json = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/{ConstKey.GetFolder(AssetLoad.AssetFolderType.Bundle)}/{AssetOutPutPath}").text;
+            info = JsonMapper.ToObject<Dictionary<string, LangInfo[]>>(EncryptionHelper.Xor(json,useKey));
+            callback?.Invoke();
+#else
+            AssetLoad.PreloadAsset<TextAsset>(AssetOutPutPath, handle =>
             {
-                return result.ToLower();
+                info = JsonMapper.ToObject<Dictionary<string, LangInfo[]>>(EncryptionHelper.Xor(handle.Result.text, useKey));
+                callback?.Invoke();
+            });
+#endif
+        }
+
+        public static string GetID(string content,SystemLanguage language)
+        {
+            if (info == null)
+            {
+                InitAction(null);
             }
-            else if (flag == LabelFlag.AllUper)
+            int index = -1;
+
+            foreach (KeyValuePair<string,LangInfo[]> keyValuePair in info)
             {
-                return result.ToUpper();
+                if (index == -1)
+                {
+                    for (int i = 0; i < keyValuePair.Value.Length; i++)
+                    {
+                        if (keyValuePair.Value[i].l == language)
+                        {
+                            index = i;
+                            if (keyValuePair.Value[i].c == content) return keyValuePair.Key;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (keyValuePair.Value[index].c == content) return keyValuePair.Key;
+                }
             }
 
-            return result;
+            return null;
+        }
+
+
+        public static string GetContent(string ID, LabelFlag flag = LabelFlag.None)
+        {
+            if (info == null)
+            {
+                InitAction(null);
+            }
+            if (ID.IsNullOrEmpty()) return "文本缺失";
+            LangInfo[] content = null;
+            string idString = ID;
+            if (!info.TryGetValue(idString, out content)) return "文本缺失 ID:" + ID;
+            for (int i = 0; i < content.Length; i++)
+            {
+                if (content[i].l == currentLanguage)
+                {
+                    if (flag == LabelFlag.AllLower)
+                    {
+                        return content[i].c.ToLower();
+                    }
+                    else if (flag == LabelFlag.AllUper)
+                    {
+                        return content[i].c.ToUpper();
+                    }
+                    else if (flag == LabelFlag.None)
+                    {
+                        return content[i].c;
+                    }
+                }
+            }
+            return "文本缺失 ID:" + ID;
         }
 
         public static void ChangeLanguage(SystemLanguage lang)
         {
             m_currLang = lang;
-            LocalFileMgr.SetInt(localKey, (int) lang);
+            LocalFileMgr.SetInt(ConstKey.languageLocalKey, (int) lang);
             onLanguageChanged?.Invoke(lang);
         }
     }

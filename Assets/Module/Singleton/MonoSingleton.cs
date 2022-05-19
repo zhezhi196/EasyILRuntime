@@ -6,11 +6,13 @@
  * 脚本作用：
 */
 
+using System;
+
 namespace Module
 {
     using UnityEngine;
 
-    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
+    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         private static T instance = null;
 
@@ -39,19 +41,11 @@ namespace Module
             }
         }
 
-        protected virtual void OnDestory()
+        protected virtual void OnDestroy()
         {
-            DeInitialize();
+            
         }
-
-        public virtual void Initialize()
-        {
-        }
-
-        public virtual void DeInitialize()
-        {
-        }
-
+        
         private void OnApplicationQuit()
         {
             instance = null;

@@ -7,50 +7,27 @@ namespace Module
 {
     public class Loading : IProcess
     {
-        private static Dictionary<Type, Loading> loadingStyle = new Dictionary<Type, Loading>();
+        public static event Action<string,object[]> openCallback;
+        public static event Action<string> closeCallback;
 
-        public static T Load<T>() where T : Loading, new()
+        public static void Open(string style, string key, params object[] args)
         {
-            return Load<T>(null);
-        }
-        
-        public static T Load<T>(Func<bool> predicate) where T : Loading, new()
-        {
-            Loading result = default;
-            if (!loadingStyle.TryGetValue(typeof(T), out result))
-            {
-                result = new T();
-                loadingStyle.Add(typeof(T), result);
-            }
-            
-            if (result.station != 0) return result as T;
-            result.OpenLoading();
-            if (predicate != null)
-            {
-                WaitClose<T>(predicate);
-            }
-            return result as T;
+            UICommpont.FreezeUI(style);
+            openCallback?.Invoke(style, args);
         }
 
-        private static async void WaitClose<T>(Func<bool> predicate)
+        public static void Close(string style,string key)
         {
-            await Async.WaitUntil(predicate);
-            Close<T>();
-        }
-
-        public static void Close<T>()
-        {
-            loadingStyle[typeof(T)].Reset();
-        }
-
-        public bool MoveNext()
-        {
-            return !isComplete;
+            UICommpont.UnFreezeUI(style);
+            closeCallback?.Invoke(style);
         }
 
         private bool _isComplete;
-        public object Current { get; }
-        public int station { get; set; }
+
+        public object Current
+        {
+            get { return this; }
+        }
 
         public Func<bool> listener { get; set; }
 
@@ -68,20 +45,19 @@ namespace Module
                 }
             }
         }
-
+        
         public void SetListener(Func<bool> listen)
         {
             this.listener = listen;
         }
 
-        public Action onComplete;
-
-        public virtual void OpenLoading()
+        public virtual void Reset()
         {
         }
 
-        public virtual void Reset()
+        public bool MoveNext()
         {
+            return !isComplete;
         }
     }
 }

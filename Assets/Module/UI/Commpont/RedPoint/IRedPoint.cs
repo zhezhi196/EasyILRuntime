@@ -2,9 +2,8 @@
 
 namespace Module
 {
-    public interface IRedPoint
+    public interface IRedPoint: ISwitchEventObject
     {
         bool redPointIsOn { get; }
-        event Action<bool> onSwitchRedPointStation;
     }
 }

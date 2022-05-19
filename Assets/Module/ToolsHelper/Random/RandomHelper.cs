@@ -6,6 +6,22 @@ namespace Module
 {
     public static class RandomHelper
     {
+        /// <summary>
+        /// 洗牌算法
+        /// </summary>
+        /// <param name="list"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                int random = UnityEngine.Random.Range(0, i);
+                T t = list[i];
+                list[i] = list[random];
+                list[random] = t;
+            }
+        }
+        
         public static List<T> Random<T>(this IList<T> array, int count, Predicate<T> predicate)
         {
             List<T> temp = new List<T>();
@@ -39,32 +55,34 @@ namespace Module
 
         public static T Random<T>(this IList<T> array, Predicate<T> predicate)
         {
+            IList<T> TAR = new List<T>();
             for (int i = 0; i < array.Count; i++)
             {
-                int index = UnityEngine.Random.Range(0, array.Count);
-                if (predicate.Invoke(array[index]))
+                if (predicate.Invoke(array[i]))
                 {
-                    return array[index];
+                    TAR.Add(array[i]);
                 }
             }
-            return default(T);
+
+            return TAR.Random();
         }
 
         public static T Random<T>(this IList<T> array)
         {
+            if (array.IsNullOrEmpty()) return default;
             int index = UnityEngine.Random.Range(0, array.Count);
             return array[index];
         }
         
         public static bool RandomBool()
         {
-            int temp = UnityEngine.Random.Range(0, 1);
+            int temp = UnityEngine.Random.Range(0, 2);
             return temp == 0;
         }
         
         public static int RandomSymbol()
         {
-            int temp = UnityEngine.Random.Range(0, 1);
+            int temp = UnityEngine.Random.Range(0, 2);
             if (temp == 0) return -1;
             return temp;
         }

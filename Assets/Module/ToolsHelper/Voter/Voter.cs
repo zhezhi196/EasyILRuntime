@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Module
 {
-    public class Voter : IDMark<object, Voter>
+    public class Voter : Identify
     {
         public static Dictionary<object, List<Voter>> voterDic = new Dictionary<object, List<Voter>>();
         public object ID { get; set; }
@@ -27,11 +27,11 @@ namespace Module
 
         public event Action onComplete;
 
-        public Voter Add()
+        public void Add(int addCount)
         {
             if (isActive)
             {
-                count++;
+                count += addCount;
                 if (count == maxCount)
                 {
                     onComplete?.Invoke();
@@ -41,8 +41,21 @@ namespace Module
                     GameDebug.LogError("voter 越界");
                 }
             }
-
-            return this;
+        }
+        public void Add()
+        {
+            if (isActive)
+            {
+                count ++;
+                if (count == maxCount)
+                {
+                    onComplete?.Invoke();
+                }
+                else if (count>maxCount)
+                {
+                    GameDebug.LogError("voter 越界");
+                }
+            }
         }
 
         public Voter OnComplete(Action callback)

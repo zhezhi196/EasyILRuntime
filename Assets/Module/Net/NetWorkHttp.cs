@@ -77,8 +77,27 @@ namespace Module
 
         #region Get请求
 
-        public UnityWebRequest Get(string url, Action<string> callBack, int timeOut = 0, Dictionary<string, string> header = null)
+        public UnityWebRequest Get(string url, HttpArgs args, Action<string> callBack, int timeOut = 0, Dictionary<string, string> header = null)
         {
+            int length = 0;
+            string allParameter = string.Empty;
+            if (args != null)
+            {
+                if (args.Length > 0)
+                {
+                    url = url + "?";
+                    List<string> temp = new List<string>();
+
+                    foreach (KeyValuePair<string, object> keyValuePair in args.Paramaters)
+                    {
+                        temp.Add(string.Format("{0}={1}", keyValuePair.Key, keyValuePair.Value));
+                    }
+
+                    allParameter = string.Join("&", temp);
+                }
+            }
+
+            url = url + allParameter;
             UnityWebRequest data = UnityWebRequest.Get(url);
             if (timeOut > 0)
             {
@@ -263,7 +282,7 @@ namespace Module
         {
             if (!RunInBackGround)
             {
-                UICommpont.UiLoading.Open();
+                Loading.Open("","Http");
             }
 
             List<string> st = new List<string>(filesPath);
@@ -351,6 +370,7 @@ namespace Module
 
         private string GetJson(object args)
         {
+            if (args == null) return string.Empty;
             if (args.GetType() == typeof(string) || args.GetType() == typeof(int) || args.GetType() == typeof(long) ||
                 args.GetType() == typeof(uint) || args.GetType() == typeof(ulong) || args.GetType() == typeof(short) ||
                 args.GetType() == typeof(ushort) || args.GetType() == typeof(double) ||

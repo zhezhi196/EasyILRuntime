@@ -26,6 +26,7 @@ namespace Module
         public struct PopupCollect
         {
             public Button button;
+            public Text noIconContent;
             public Text content;
             public Image subIcon;
         }
@@ -56,14 +57,20 @@ namespace Module
         #endregion
 
         public static bool isPopup;
+        public static Action<bool> onPopup;
+        
+        public static void RefreshContent(string s)
+        {
+            Instance.content.text = s;
+        }
         public static void Popup(string title, string content, Sprite icon, params PupupOption[] option)
         {
             if (option.Length < 1)
             {
                 option = new PupupOption[1];
-                option[0] = new PupupOption(() => Close(), Language.GetContent(407));
+                option[0] = new PupupOption(null, Language.GetContent("702"));
             }
-
+            onPopup?.Invoke(true);
             Instance.gameObject.OnActive(true);
             Instance.title.text = title;
             Instance.content.text = content;
@@ -71,13 +78,26 @@ namespace Module
             {
                 if (i < option.Length)
                 {
-                    ;
                     Instance.buttons[i].button.gameObject.OnActive(true);
-                    Instance.buttons[i].button.onClick.AddListener(option[i].action);
-                    Instance.buttons[i].button.onClick.AddListener(()=>AudioPlay.PlayOneShot("tongyongButton").SetIgnorePause(true));
-                    Instance.buttons[i].content.text = option[i].title;
-                    Instance.buttons[i].subIcon.gameObject.OnActive(option[i].subIcon != null);
-                    Instance.buttons[i].subIcon.sprite = option[i].subIcon;
+                    var callback = option[i].action;
+                    Instance.buttons[i].button.onClick.AddListener(() =>
+                    {
+                        Close();
+                        callback?.Invoke();
+                    });
+                    Instance.buttons[i].button.onClick.AddListener(()=>AudioPlay.PlayOneShot(Config.globleConfig.commonButtonAudio).SetIgnorePause(true));
+                    if (option[i].subIcon != null)
+                    {
+                        Instance.buttons[i].content.transform.parent.gameObject.OnActive(true);
+                        Instance.buttons[i].noIconContent.gameObject.OnActive(false);
+                        Instance.buttons[i].content.text = option[i].title;
+                    }
+                    else
+                    {
+                        Instance.buttons[i].content.transform.parent.gameObject.OnActive(false);
+                        Instance.buttons[i].noIconContent.gameObject.OnActive(true);
+                        Instance.buttons[i].noIconContent.text = option[i].title;
+                    }
                 }
                 else
                 {
@@ -87,6 +107,7 @@ namespace Module
 
             Instance.icon.gameObject.OnActive(icon != null);
             Instance.icon.sprite = icon;
+            Instance.icon.SetNativeSize();
             if (icon != null)
             {
                 Instance.content.alignment = TextAnchor.UpperCenter;
@@ -96,40 +117,12 @@ namespace Module
                 Instance.content.alignment = TextAnchor.MiddleCenter;
             }
             
-            Instance.Sort();
             isPopup = true;
-        }
-
-        private void Sort()
-        {
-            StartCoroutine(SortEn());
-        }
-
-        private IEnumerator SortEn()
-        {
-            yield return new WaitForSecondsRealtime(0.2f);
-            for (int i = 0; i < buttons.Length; i++)
-            {
-                LayoutGroup lay = buttons[i].button.GetComponent<LayoutGroup>();
-                if (lay != null)
-                {
-                    lay.enabled = true;
-                }
-            }
-            
-            yield return new WaitForSecondsRealtime(0.2f);
-            for (int i = 0; i < buttons.Length; i++)
-            {
-                LayoutGroup lay = buttons[i].button.GetComponent<LayoutGroup>();
-                if (lay != null)
-                {
-                    lay.enabled = false;
-                }
-            }
         }
 
         public static void Close()
         {
+            onPopup?.Invoke(false);
             Instance.gameObject.OnActive(false);
             for (int i = 0; i < Instance.buttons.Length; i++)
             {

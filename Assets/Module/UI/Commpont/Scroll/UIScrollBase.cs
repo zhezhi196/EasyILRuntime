@@ -46,6 +46,13 @@ namespace Module
         private Dictionary<PointerEventData, PointInfo> pointInfo = new Dictionary<PointerEventData, PointInfo>();
         private bool disableClear = false;
         private bool isDrag = false;//是否开始拖动了
+        [SerializeField]
+        public ButtonConfig _config;
+
+        public ButtonConfig config
+        {
+            get { return _config; }
+        }
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -157,7 +164,10 @@ namespace Module
             onDragUp = null;
             onDrag = null;
         }
-
+        public virtual void OnActive(bool active)
+        {
+            gameObject.OnActive(active && Channel.HasChannel(config.channel));
+        }
 
         #region AddDragPrepare
 

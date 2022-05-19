@@ -1,9 +1,9 @@
 ﻿namespace Module
 {
-    public interface IAgentAudioObject : ITimeCtrl, ISwitchStation, IAgentObject
+    public interface IAgentAudioObject : IAgentObject, ITarget
     {
-        AgentAudio[] allAudio { get; }
         AgentAudio GetAudio(string name);
-        bool AudioIsMute(AgentAudio tar);
+        float GetAudioVolume(AgentAudio tar);
+        bool GetAudioActive(AgentAudio tar);
     }
 }

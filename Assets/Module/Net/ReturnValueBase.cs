@@ -8,10 +8,10 @@
 
 namespace Module
 {
-    public abstract class ReturnValueBase<T> where T : ISqlData
+    public abstract class ReturnValueBase
     {
-        public int result { get; set; }
-        public int msgCode { get; set; }
+        public int code { get; set; }
+        public string msg { get; set; }
 
         /// <summary>
         /// 判断是否成功
@@ -19,7 +19,8 @@ namespace Module
         /// <returns></returns>
         public bool GetState()
         {
-            return result.ToBool();
+            if (code == 200) return true;
+            return false;
         }
     }
 }

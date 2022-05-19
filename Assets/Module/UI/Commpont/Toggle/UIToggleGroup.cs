@@ -137,7 +137,6 @@ namespace Module
 
         public virtual void ReturnToPool()
         {
-            pool.ReturnObject(this);
             for (int i = 0; i < m_Toggles.Count; i++)
             {
                 m_Toggles[i].group = null;

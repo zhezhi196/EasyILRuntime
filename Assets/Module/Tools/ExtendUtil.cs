@@ -16,8 +16,11 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using LitJson;
 using Module;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 using Object = System.Object;
 
@@ -27,6 +30,22 @@ namespace Module
     {
         #region Type
 
+        public static List<Type> GetChild(this Type type)
+        {
+            List<Type> resyul = new List<Type>();
+            
+            Assembly ass = Assembly.GetAssembly(type);
+            var temp = ass.GetTypes();
+            for (int i = 0; i < temp.Length; i++)
+            {
+                if (temp[i].IsChild(type))
+                {
+                    resyul.Add(temp[i]);
+                }
+            }
+
+            return resyul;
+        }
         public static Type GetRoot(this Type type)
         {
             Type t = type;
@@ -63,15 +82,15 @@ namespace Module
         #endregion
 
         #region Object
-        
+
         public static Sprite ToSprite(this Object obj)
         {
             Texture2D tex = (Texture2D) obj;
             Sprite sp = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             return sp;
         }
-        
-        public static List<int> ToIntList(this IList array)
+
+        public static int[] ToIntList<T>(this IList<T> array)
         {
             List<int> temp = new List<int>();
 
@@ -80,7 +99,7 @@ namespace Module
                 temp.Add(array[i].ToInt());
             }
 
-            return temp;
+            return temp.ToArray();
         }
 
         public static float[] ToFloatArray(this IList array)
@@ -116,7 +135,7 @@ namespace Module
                 }
             }
 
-            return (T)obj;
+            return (T) obj;
         }
 
         /// <summary>
@@ -131,6 +150,7 @@ namespace Module
             {
                 return (float) value;
             }
+
             float temp = 0;
             float.TryParse(value.ToString(), out temp);
             return temp;
@@ -163,6 +183,7 @@ namespace Module
             {
                 return Convert.ToDouble(obj);
             }
+
             double temp = 0;
             Double.TryParse(obj.ToString(), out temp);
             return temp;
@@ -175,6 +196,7 @@ namespace Module
             {
                 return Convert.ToInt64(obj);
             }
+
             long temp = 0;
             Int64.TryParse(obj.ToString(), out temp);
             return temp;
@@ -193,29 +215,89 @@ namespace Module
         {
             if (obj is long || obj is int)
             {
-                return Convert.ToBoolean((int)obj);
+                return Convert.ToBoolean((int) obj);
             }
+
             bool temp;
             if (obj == null) return false;
             Boolean.TryParse(obj.ToString(), out temp);
             return temp;
         }
 
-        public static T DeepCopy<T>(this T obj)
+        public static IntField ToIntField(this int value)
         {
-            object retval;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                //序列化成流
-                bf.Serialize(ms, obj);
-                ms.Seek(0, SeekOrigin.Begin);
-                //反序列化成对象
-                retval = bf.Deserialize(ms);
-                ms.Close();
-            }
+            return new IntField(value);
+        }
 
-            return (T) retval;
+        public static LongField ToLongField(this long value)
+        {
+            return new LongField(value);
+        }
+
+        public static FloatField ToFloatField(this float value)
+        {
+            return new FloatField(value);
+        }
+
+        public static DoubleField ToDoubleField(this double value)
+        {
+            return new DoubleField(value);
+        }
+
+        public static BoolField ToBoolField(this bool value)
+        {
+            return new BoolField(value);
+        }
+
+        public static IntField ToIntField(this object value)
+        {
+            return new IntField(value.ToInt());
+        }
+
+        public static LongField ToLongField(this object value)
+        {
+            return new LongField(value.ToLong());
+        }
+
+        public static FloatField ToFloatField(this object value)
+        {
+            return new FloatField(value.ToFloat());
+        }
+
+        public static DoubleField ToDoubleField(this object value)
+        {
+            return new DoubleField(value.ToDouble());
+        }
+
+        public static BoolField ToBoolField(this object value)
+        {
+            return new BoolField(value.ToBool());
+        }
+
+        public static T DeepCopy<T>(this T obj,int type)
+        {
+            if (type == 0)
+            {
+                object retval;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    //序列化成流
+                    bf.Serialize(ms, obj);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    //反序列化成对象
+                    retval = bf.Deserialize(ms);
+                    ms.Close();
+                }
+
+                return (T) retval;
+            }
+            else if (type == 1)
+            {
+                string json = JsonMapper.ToJson(obj);
+                return JsonMapper.ToObject<T>(json);
+            }
+            return default;
         }
 
         public static byte[] ToBuffer(this object obj)
@@ -249,53 +331,135 @@ namespace Module
         #endregion
 
         #region Vector3
+        
+        public static float HorizonDistance(this Vector3 point, Vector3 tar)
+        {
+            return Vector3.Distance(point, new Vector3(tar.x, point.y, tar.z));
+        }
+
+        public static Vector3 ClampVector(this Vector3 v, Vector3 from, Vector3 to)
+        {
+            float x = Mathf.Clamp(v.x, from.x, to.x);
+            float y = Mathf.Clamp(v.y, from.y, to.y);
+            float z = Mathf.Clamp(v.z, from.z, to.z);
+
+            return new Vector3(x, y, z);
+        }
+
+        public static Vector2 ClampVector(this Vector2 v, Vector2 from, Vector2 to)
+        {
+            float x = Mathf.Clamp(v.x, from.x, to.x);
+            float y = Mathf.Clamp(v.y, from.y, to.y);
+            return new Vector2(x, y);
+        }
+
+        public static Vector3 ToVector3(this Vector2 v)
+        {
+            return new Vector3(v.x, v.y, 0);
+        }
+
+        public static Vector2 ToVector2(this Vector3 v)
+        {
+            return new Vector2(v.x, v.y);
+        }
 
         public static float Distance(this Vector3 v1, Vector3 target)
         {
             return Vector3.Distance(v1, target);
         }
+
         public static float Distance(this Vector3 v1)
         {
             return Vector3.Distance(v1, Vector3.zero);
         }
+
+        public static float Angle(this Vector3 v1, Vector3 v2)
+        {
+            return Vector3.Angle(v1, v2);
+        }
+
+        public static float Angle(this Vector3 v1)
+        {
+            return Vector3.Angle(v1, Vector3.zero);
+        }
+
         public static Vector3 Clamp(this Vector3 v, Vector3 from, Vector3 to)
         {
-            float x = Mathf.Clamp(v.x + from.x, from.x, to.x);
-            float y = Mathf.Clamp(v.y + from.y, from.y, to.y);
-            float z = Mathf.Clamp(v.z + from.z, from.z, to.z);
-
-            if (x > 180)
-            {
-                x -= 360;
-            }
-
-            if (y > 180)
-            {
-                y -= 360;
-            }
-
-            if (z > 180)
-            {
-                z -= 360;
-            }
+            float x = Mathf.Clamp(v.x, from.x, to.x);
+            float y = Mathf.Clamp(v.y, from.y, to.y);
+            float z = Mathf.Clamp(v.z, from.z, to.z);
 
             return new Vector3(x, y, z);
+        }
+
+        public static Vector2 Clamps(this Vector2 v, Vector2 from, Vector2 to)
+        {
+            float x = Mathf.Clamp(v.x, from.x, to.x);
+            float y = Mathf.Clamp(v.y, from.y, to.y);
+            return new Vector2(x, y);
+        }
+
+        public static bool Intersect(this Rect rect, Vector2 from, Vector2 to, Direction2D dir, out Vector2 forcus)
+        {
+            Line line1 = new Line(from, to);
+            Line line2 = rect.GetBounds(dir);
+            return Line.IsForcus(line1, line2, out forcus);
+        }
+
+        public static Line GetBounds(this Rect rect, Direction2D dir)
+        {
+            Debug.Log(rect.center);
+
+            switch (dir)
+            {
+                case Direction2D.Up:
+                {
+                    Vector2 x = rect.position + new Vector2(0, rect.height);
+                    Vector2 y = x + new Vector2(rect.width, 0);
+                    return new Line(x, y);
+                }
+
+                case Direction2D.Down:
+                {
+                    Vector2 x = rect.position;
+                    Vector2 y = x + new Vector2(rect.width, 0);
+                    return new Line(x, y);
+                }
+                case Direction2D.Left:
+                {
+                    Vector2 x = rect.position;
+                    Vector2 y = x + new Vector2(0, rect.height);
+                    return new Line(x, y);
+                }
+                case Direction2D.Right:
+                {
+                    Vector2 x = rect.position + new Vector2(rect.width, 0);
+                    Vector2 y = x + new Vector2(rect.width, rect.height);
+                    return new Line(x, y);
+                }
+            }
+
+            return default;
         }
 
         #endregion
 
         #region Transform
 
-        public static void Sort<T>(this Transform layout, Comparison<T> compare, T[] children = null) where T: Component
+        public static void Sort<T>(this Transform layout, Comparison<T> compare, IList<T> children = null)
+            where T : Component
         {
             if (children == null)
             {
-                children = layout.transform.GetComponentsInChildren<T>(true);
+                children = layout.GetComponentsInChildren<T>(true);
             }
 
-            children.Sort(compare);
+            if (compare != null)
+            {
+                children.Sort(compare);
+            }
 
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < children.Count; i++)
             {
                 children[i].transform.SetSiblingIndex(i);
             }
@@ -314,6 +478,7 @@ namespace Module
                 children[i].transform.SetSiblingIndex(i);
             }
         }
+
         public static bool IsForward2Target(this Transform player, Vector3 target)
         {
             Vector3 playerDir = player.transform.forward;
@@ -344,10 +509,9 @@ namespace Module
 
             return result.ToArray();
         }
-        
-        public static Transform GetNameChild(this Transform transform, string name,bool includeUnactive=true)
+
+        public static Transform GetNameChild(this Transform transform, string name, bool includeUnactive = true)
         {
-            
             Transform[] all = transform.GetComponentsInChildren<Transform>(includeUnactive);
             for (int i = 0; i < all.Length; i++)
             {
@@ -359,16 +523,7 @@ namespace Module
 
             return null;
         }
-        public static FollowTween DoFollow(this Transform tra, Transform target, float speed)
-        {
-            return new FollowTween(tra, target, speed);
-        }
-        
-        public static FollowTween DoFollow(this Transform tra, Transform target, float speed,Vector3 offset)
-        {
-            return new FollowTween(tra, target, speed,offset);
-        }
-        
+
         public static Tweener DOLookAt(this Transform target, Vector3 toward, Vector3 direction, float distance,
             float duation)
         {
@@ -402,6 +557,31 @@ namespace Module
             return path.Substring(0, path.Length - 1);
         }
 
+        /// <summary>
+        ///     得到物体的路径
+        /// </summary>
+        /// <param id="tra"></param>
+        /// <returns></returns>
+        public static string GetPathInScene(this Transform tra, Transform duan)
+        {
+            string path = string.Empty;
+            Transform parent = tra;
+            while (true)
+            {
+                if (parent != null && parent != duan)
+                {
+                    path = parent.name + "/" + path;
+                    parent = parent.parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return path.Substring(0, path.Length - 1);
+        }
+
         public static Transform AddEmptyChild(this Transform tra, string name)
         {
             GameObject obj = new GameObject(name);
@@ -411,10 +591,11 @@ namespace Module
 
         public static void SetParentZero(this Transform tra, Transform parent)
         {
-            if (parent == null || parent.gameObject == null|| tra==null|| tra.gameObject==null)
+            if (parent == null || parent.gameObject.IsNullOrDestroyed() || tra == null || tra.gameObject.IsNullOrDestroyed())
             {
                 return;
             }
+
             tra.SetParent(parent);
             if (parent != null)
             {
@@ -480,8 +661,8 @@ namespace Module
             go.transform.eulerAngles = tra.eulerAngles;
             return go.transform;
         }
-        
-#endregion
+
+        #endregion
 
         #region Component
 
@@ -535,7 +716,7 @@ namespace Module
 
         #region Image
 
-        public static void SetAlpha(this Image alpha, float value)
+        public static void SetAlpha(this Graphic alpha, float value)
         {
             alpha.color = new Color(alpha.color.r, alpha.color.g, alpha.color.b, value);
         }
@@ -543,7 +724,20 @@ namespace Module
         #endregion
 
         #region GameObject
+        /// <summary>
+        /// Checks if a GameObject has been destroyed.
+        /// </summary>
+        /// <param name="gameObject">GameObject reference to check for destructedness</param>
+        /// <returns>If the game object has been marked as destroyed by UnityEngine</returns>
+        public static bool IsDestroyed(this GameObject gameObject)
+        {
+            return gameObject == null && !ReferenceEquals(gameObject, null);
+        }
 
+        public static bool IsNullOrDestroyed(this GameObject go)
+        {
+            return go == null || IsDestroyed(go);
+        }
         /// <summary>
         /// 获取或创建组建
         /// </summary>
@@ -593,6 +787,12 @@ namespace Module
 
         #region int
 
+        public static string ToTimeShow(this int second, string timeFormat)
+        {
+            TimeSpan timeSpan = TimeSpan.FromSeconds(second);
+            return string.Format(timeFormat, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+
         public static string SpiteDot(this int value)
         {
             string result = Math.Abs(value).ToString();
@@ -638,6 +838,12 @@ namespace Module
 
         #region float
 
+        public static string ToTimeShow(this float second, string timeFormat)
+        {
+            TimeSpan timeSpan = TimeSpan.FromSeconds(second);
+            return string.Format(timeFormat, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+
         public static string ToPrice(this float value)
         {
             string priceStr = value.ToString();
@@ -650,7 +856,8 @@ namespace Module
                 int dot = priceStr.IndexOf('.');
                 return value.ToString("C" + (priceStr.Length - dot - 1));
             }
-        } 
+        }
+
         public static float Clamp(this float value, float from, float to)
         {
             if (from > to)
@@ -698,7 +905,7 @@ namespace Module
             if (str == null || str == String.Empty) return true;
             return false;
         }
-        
+
         public static float[] ToFloatArray(this string str, char spite)
         {
             string[] tar = str.Split(spite);
@@ -792,7 +999,83 @@ namespace Module
 
         #region List
 
-        public static void Sort<T>(this IList<T> list,Comparison<T> compare)
+        public static int Index<T>(this IList<T> list, T value)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(value))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public static int Index<T>(this IList<T> list, T value, Func<T, T, bool> predicate)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (predicate.Invoke(list[i], value))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+        
+        public static T First<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            foreach (T source1 in source)
+            {
+                if (predicate.Invoke(source1))
+                    return source1;
+            }
+
+            return default;
+        }
+
+        public static void ClearSame<T>(this IList<T> list)
+        {
+            if (!list.IsNullOrEmpty() && list.Count > 1)
+            {
+                for (int i = 0; i < list.Count - 1; i++)
+                {
+                    for (int j = i + 1; j < list.Count; j++)
+                    {
+                        if (list[i].Equals(list[j]))
+                        {
+                            list.RemoveAt(j);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static bool IsSame<T>(this IList<T> ori, IList<T> result)
+        {
+            if (ori.Count != result.Count) return false;
+            for (int i = 0; i < ori.Count; i++)
+            {
+                if (!ori[i].Equals(result[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
+        public static void ToLower(this IList<string> ori)
+        {
+            for (int i = 0; i < ori.Count; i++)
+            {
+                ori[i] = ori[i].ToLower();
+            }
+        }
+
+        public static void Sort<T>(this IList<T> list, Comparison<T> compare)
         {
             if (list is List<T>)
             {
@@ -806,7 +1089,8 @@ namespace Module
                     list[index] = objList[index];
             }
         }
-        public static void ClearNull<T>(this List<T> lst)
+
+        public static void ClearNull<T>(this IList<T> lst)
         {
             for (int i = lst.Count - 1; i >= 0; i--)
             {
@@ -817,7 +1101,7 @@ namespace Module
             }
         }
 
-        public static bool Contains<T>(this List<T> list, Predicate<T> target)
+        public static bool Contains<T>(this IList<T> list, Predicate<T> target)
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -830,15 +1114,29 @@ namespace Module
             return false;
         }
 
-        public static T GetLast<T>(this List<T> array)
+        public static bool Contains<T>(this IList<T> list, T tar)
         {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(tar))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static T Last<T>(this IList<T> array)
+        {
+            if (array.IsNullOrEmpty()) return default;
             return array[array.Count - 1];
         }
 
-        public static void MoveLastOrAdd<T>(this List<T> array, T value)
+        public static void MoveLastOrAdd<T>(this IList<T> array, T value)
         {
             if (array == null) return;
-            if (array.Count > 0 && array.GetLast().Equals(value)) return;
+            if (array.Count > 0 && array.Last().Equals(value)) return;
             for (int i = 0; i < array.Count; i++)
             {
                 if (array[i].Equals(value))
@@ -851,25 +1149,15 @@ namespace Module
             array.Add(value);
         }
 
-        public static bool IsNullOrEmpty(this IList lst)
+        public static bool IsNullOrEmpty<T>(this IList<T> lst)
         {
             if (lst == null) return true;
             if (lst.Count == 0) return true;
             return false;
         }
 
-        public static void Shuffle<T>(this List<T> list)
-        {
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                int random = UnityEngine.Random.Range(0, i);
-                T t = list[i];
-                list[i] = list[random];
-                list[random] = t;
-            }
-        }
 
-        public static T GetNext<T>(this List<T> array, T value, bool loop)
+        public static T Next<T>(this IList<T> array, T value, bool loop)
         {
             int index = 0;
             for (index = 0; index < array.Count; index++)
@@ -892,7 +1180,7 @@ namespace Module
             }
         }
 
-        public static T GetPrevious<T>(this List<T> array, T value, bool loop)
+        public static T Previous<T>(this IList<T> array, T value, bool loop)
         {
             int index = 0;
             for (index = 0; index < array.Count; index++)
@@ -915,7 +1203,7 @@ namespace Module
             }
         }
 
-        public static void RemoveBack<T>(this List<T> array, T value)
+        public static void RemoveBack<T>(this IList<T> array, T value)
         {
             for (int i = array.Count - 1; i >= 0; i--)
             {
@@ -927,11 +1215,7 @@ namespace Module
             }
         }
 
-        #endregion
-
-        #region Array
-
-        public static List<T> Copy<T>(this List<T> obj)
+        public static IList<T> Copy<T>(this IList<T> obj)
         {
             List<T> list = new List<T>();
             foreach (var item in obj)
@@ -969,6 +1253,24 @@ namespace Module
             return temp.ToArray();
         }
 
+        public static T[] Add<T>(this T[] obj, params T[] tar)
+        {
+            T[] copy = new T[obj.Length + tar.Length];
+            for (int i = 0; i < copy.Length; i++)
+            {
+                if (i < obj.Length)
+                {
+                    copy[i] = obj[i];
+                }
+                else
+                {
+                    copy[i] = tar[i - obj.Length];
+                }
+            }
+
+            return copy;
+        }
+
         public static void ForEach<T>(this T[] obj, Action<T> action)
         {
             for (int i = 0; i < obj.Length; i++)
@@ -977,29 +1279,80 @@ namespace Module
             }
         }
 
-        public static void Clear<T>(this T[] lst)
+        public static T Max<T>(this IList<T> list, Predicate<T> predicate, Comparison<T> comparison)
+        {
+            T curr = default;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var t = list[i];
+                if (predicate.Invoke(t) && (curr == null || comparison.Invoke(t, curr) > 0))
+                {
+                    curr = t;
+                }
+            }
+
+            return curr;
+        }
+
+        public static T Max<T>(this IList<T> list, Comparison<T> comparison)
+        {
+            if (list.IsNullOrEmpty()) return default;
+            if (list.Count == 1) return list[0];
+            T curr = list[0];
+            for (int i = 1; i < list.Count; i++)
+            {
+                var t = list[i];
+                if (comparison.Invoke(t, curr) > 0)
+                {
+                    curr = t;
+                }
+            }
+
+            return curr;
+        }
+
+        public static T Min<T>(this IList<T> list, Predicate<T> predicate, Comparison<T> comparison)
+        {
+            T curr = default;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var t = list[i];
+                if (predicate.Invoke(t) && (curr == null || comparison.Invoke(t, curr) < 0))
+                {
+                    curr = t;
+                }
+            }
+
+            return curr;
+        }
+
+        public static T Min<T>(this IList<T> list, Comparison<T> comparison)
+        {
+            if (list.IsNullOrEmpty()) return default;
+            if (list.Count == 1) return list[0];
+            T curr = list[0];
+            for (int i = 1; i < list.Count; i++)
+            {
+                var t = list[i];
+                if (comparison.Invoke(t, curr) < 0)
+                {
+                    curr = t;
+                }
+            }
+
+            return curr;
+        }
+
+        public static void Clear<T>(this IList<T> lst)
         {
             if (lst == null) return;
-            for (int i = 0; i < lst.Length; i++)
+            for (int i = 0; i < lst.Count; i++)
             {
                 lst[i] = default(T);
             }
         }
 
-        public static int GetCount<T>(this T[] array,Predicate<T> predicate)
-        {
-            int count = 0;
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (predicate.Invoke(array[i]))
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-        public static int GetCount<T>(this List<T> array,Predicate<T> predicate)
+        public static int GetCount<T>(this IList<T> array, Predicate<T> predicate)
         {
             int count = 0;
             for (int i = 0; i < array.Count; i++)
@@ -1013,89 +1366,12 @@ namespace Module
             return count;
         }
 
-        public static T GetNext<T>(this T[] array, T value, bool loop)
-        {
-            int index = 0;
-            for (index = 0; index < array.Length; index++)
-            {
-                if (array[index].Equals(value))
-                {
-                    break;
-                }
-            }
-
-            if (loop)
-            {
-                return array[index + 1 % array.Length];
-            }
-            else
-            {
-                index++;
-                index = Mathf.Clamp(index, index, array.Length);
-                return array[index];
-            }
-        }
-
-        public static T GetPrevious<T>(this T[] array, T value, bool loop)
-        {
-            int index = 0;
-            for (index = 0; index < array.Length; index++)
-            {
-                if (array[index].Equals(value))
-                {
-                    break;
-                }
-            }
-
-            if (loop)
-            {
-                return array[index - 1 % array.Length];
-            }
-            else
-            {
-                index--;
-                index = Mathf.Clamp(index, index, array.Length);
-                return array[index];
-            }
-        }
-
-        public static T GetLast<T>(this T[] array)
-        {
-            return array[array.Length - 1];
-        }
-
-        public static bool Contains<T>(this T[] array,T value)
-        {
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i].Equals(value))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static bool Contains<T>(this T[] array, Predicate<T> predicate)
-        {
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (predicate.Invoke(array[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static (List<T>, List<T>, List<T>) Comparision<T>(this List<T> resource, List<T> target)
+        public static (List<T>, List<T>, List<T>) Comparision<T>(this IList<T> resource, IList<T> target)
         {
             List<T> result1 = new List<T>(resource);
             List<T> result2 = new List<T>();
             List<T> result3 = new List<T>(target);
-            
+
             for (int i = 0; i < resource.Count; i++)
             {
                 for (int j = 0; j < target.Count; j++)
@@ -1111,9 +1387,6 @@ namespace Module
 
             return (result1, result2, result3);
         }
-        #endregion
-
-        #region Dic
 
         public static void SetOrAdd<T, K>(this Dictionary<T, K> dic, T key, K value)
         {
@@ -1126,7 +1399,6 @@ namespace Module
                 dic.Add(key, value);
             }
         }
-        
 
         #endregion
 
@@ -1150,6 +1422,25 @@ namespace Module
                 return newDay.Year > last.Year;
             }
         }
+        
+        public static bool IsNewHour(this DateTime newDay, DateTime last)
+        {
+            if (newDay.IsNewDay(last))
+            {
+                return true;
+            }
+            else
+            {
+                if (newDay.Day == last.Day)
+                {
+                    return newDay.Hour > last.Hour;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         #endregion
 
@@ -1157,11 +1448,11 @@ namespace Module
 
         public static Quaternion GetRotation(this Matrix4x4 matrix4X4)
         {
-            float qw = Mathf.Sqrt(1f + matrix4X4.m00 + matrix4X4.m11 + matrix4X4.m22)/2;
-            float w = 4*qw;
-            float qx = (matrix4X4.m21 - matrix4X4.m12)/w;
-            float qy = (matrix4X4.m02 - matrix4X4.m20)/w;
-            float qz = (matrix4X4.m10 - matrix4X4.m01)/w;
+            float qw = Mathf.Sqrt(1f + matrix4X4.m00 + matrix4X4.m11 + matrix4X4.m22) / 2;
+            float w = 4 * qw;
+            float qx = (matrix4X4.m21 - matrix4X4.m12) / w;
+            float qy = (matrix4X4.m02 - matrix4X4.m20) / w;
+            float qz = (matrix4X4.m10 - matrix4X4.m01) / w;
             return new Quaternion(qx, qy, qz, qw);
         }
 
@@ -1170,18 +1461,73 @@ namespace Module
             var x = matrix4X4.m03;
             var y = matrix4X4.m13;
             var z = matrix4X4.m23;
-            return new Vector3(x,y,z);
+            return new Vector3(x, y, z);
         }
 
         public static Vector3 GetScale(this Matrix4x4 m)
         {
-            var x = Mathf.Sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
-            var y = Mathf.Sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
-            var z = Mathf.Sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
-            return new Vector3(x,y,z);
+            var x = Mathf.Sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+            var y = Mathf.Sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+            var z = Mathf.Sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+            return new Vector3(x, y, z);
         }
 
         #endregion
 
+        #region Audio
+
+        public static void CopyFrom(this AudioSource source , AudioSource from)
+        {
+            source.loop = from.loop;
+            source.pitch = from.pitch;
+            source.priority = from.priority;
+            source.volume = from.volume;
+            source.panStereo = from.panStereo;
+            source.spatialBlend = from.spatialBlend;
+            source.reverbZoneMix = from.spatialBlend;
+            source.bypassEffects = from.bypassEffects;
+            source.bypassListenerEffects = from.bypassListenerEffects;
+            source.bypassReverbZones = from.bypassReverbZones;
+            source.dopplerLevel = from.dopplerLevel;
+            source.rolloffMode = from.rolloffMode;
+            source.minDistance = from.minDistance;
+            source.maxDistance = from.maxDistance;
+            source.outputAudioMixerGroup = from.outputAudioMixerGroup;
+            source.SetCustomCurve(AudioSourceCurveType.CustomRolloff, from.GetCustomCurve(AudioSourceCurveType.CustomRolloff));
+            source.SetCustomCurve(AudioSourceCurveType.Spread, from.GetCustomCurve(AudioSourceCurveType.Spread));
+            source.SetCustomCurve(AudioSourceCurveType.SpatialBlend, from.GetCustomCurve(AudioSourceCurveType.SpatialBlend));
+            source.SetCustomCurve(AudioSourceCurveType.ReverbZoneMix, from.GetCustomCurve(AudioSourceCurveType.ReverbZoneMix));
+        }
+
+        #endregion
+
+        public static bool ContainPoint(this Bounds absBounds, Vector3 point, Quaternion rotation)
+        {
+            point = point - absBounds.center;
+            Vector3 convertPoint = Quaternion.Inverse(rotation) * point;
+            return new Bounds(Vector3.zero, absBounds.size).Contains(convertPoint);
+        }
+
+        // public static void SetTimeLineValue<T,K>(this PlayableDirector timeLine,string exposedName, Object value) where T:TrackAsset where K:PlayableBehaviour
+        // {
+        //     if (timeLine != null)
+        //     {
+        //         foreach (PlayableBinding bindings in timeLine.playableAsset.outputs)
+        //         {
+        //             if (bindings.sourceObject.GetType() == typeof(T))
+        //             {
+        //                 T track = (T) bindings.sourceObject;
+        //                 foreach (TimelineClip clip in track.GetClips())
+        //                 {
+        //                     object clipAsset = clip.asset;
+        //                     if (clipAsset is K)
+        //                     {
+        //                         timeLine.SetReferenceValue(exposedName, value);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

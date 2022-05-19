@@ -27,6 +27,16 @@ namespace Module
                 Time.timeScale = result;
             }
         }
+        
+        public static DateTime now
+        {
+            get { return DateTime.Now; }
+        }
+        
+        public static DateTime today
+        {
+            get { return DateTime.Today; }
+        }
 
         public static float deltaTime
         {
@@ -104,6 +114,17 @@ namespace Module
                 }
             }
         }
+        /// <summary>
+        /// 距明天还有多长时间
+        /// </summary>
+        public static TimeSpan remainTomorrow
+        {
+            get
+            {
+                DateTime nextDay = DateTime.Today.AddDays(1);
+                return nextDay - now;
+            }
+        }
         
         public static Tweener SetTimeScale(float target, float time)
         {
@@ -121,18 +142,12 @@ namespace Module
             return time / gameSpeed;
         }
 
-        private static float lastTimeScale = Time.timeScale;
+        private static float lastTimeScale = 1f;
 
-        private static List<object> pauseFlag = new List<object>();
         
         //private static float lastGameSpeed = 0;
-        public static void Pause(object key)
+        public static void Pause()
         {
-            if (!pauseFlag.Contains(key))
-            {
-                pauseFlag.Add(key);
-            }
-
             if (!isPause)
             {
                 isPause = true;
@@ -140,45 +155,72 @@ namespace Module
                 timeTween.Pause();
                 timeScale = 0;
                 AudioPlay.PauseAudio(st => !st.ignorePause);
-                GameDebug.LogFormat("TimeHelper Pause: ", string.Join(",", pauseFlag));
             }
         }
 
-        public static void Continue(object key)
+        public static void Continue()
         {
-            if (pauseFlag.Contains(key))
-            {
-                pauseFlag.Remove(key);
-            }
-
-            if (pauseFlag.Count == 0 && isPause)
+            if (isPause)
             {
                 isPause = false;
                 timeScale = lastTimeScale;
                 timeTween.Play();
                 AudioPlay.ContinueAudio(st => !st.ignorePause);
-                GameDebug.LogFormat("TimeHelper Continue: " , string.Join(",", pauseFlag));
             }
         }
 
-        public static void Exit()
+        public static void ResetTimeScale()
+        {
+            isPause = false;
+            timeScale = 1;
+            AudioPlay.ContinueAudio(st => !st.ignorePause);
+        }
+
+        public static void ChangeBattleScene()
         {
             if (timeTween != null)
                 timeTween.Kill();
             timeScale = 1;
+            isPause = false;
         }
 
-        public static DateTime GetNow()
+        public static async void Frame(int count)
         {
-            return DateTime.Now;
+            if (timeScale == 1)
+            {
+                timeScale = 0;
+                int index = 0;
+                while (index <= count)
+                {
+                    await Async.WaitForEndOfFrame();
+                    index++;
+                }
+                timeScale = 1;
+            }
         }
+
+
 
         public static bool IsNewDay(string key)
         {
+            key = "newDay" + key;
             DateTime res = LocalFileMgr.GetDateTime(key);
-            if (GetNow().IsNewDay(res))
+            if (now.IsNewDay(res))
             {
-                LocalFileMgr.SetDateTime(key, GetNow());
+                LocalFileMgr.SetDateTime(key, now);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsNewHour(string key)
+        {
+            key = "newHour" + key;
+            DateTime res = LocalFileMgr.GetDateTime(key);
+            if (now.IsNewHour(res))
+            {
+                LocalFileMgr.SetDateTime(key, now);
                 return true;
             }
 
@@ -189,14 +231,16 @@ namespace Module
 
         public static void Update()
         {
-            if (GetNow().IsNewDay(lastTime))
+            if (now.IsNewDay(lastTime))
             {
                 GameDebug.Log("新的一天");
                 onNewDay?.Invoke();
             }
 
-            lastTime = GetNow();
+            lastTime = now;
         }
-    
+
+
+
     }
 }

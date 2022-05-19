@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Module
 {
@@ -17,33 +18,99 @@ namespace Module
     {
         NotFromPool = 1 << 0,
         NotAutoActive = 1 << 1,
+        NotSetParent=1<<2
     }
 
-    public class ObjectPool : IProcess
+    public class ObjectPool
     {
-        public static readonly Dictionary<string, ObjectPool> poolDic = new Dictionary<string, ObjectPool>();
+        private static readonly Dictionary<string, ObjectPool> poolDic = new Dictionary<string, ObjectPool>();
 
-        /// <summary>
-        /// 所有动态生成的物品都在这里
-        /// </summary>
-        private static Dictionary<GameObject, string> instateObject = new Dictionary<GameObject, string>();
-
-        public static void ClearNullDic()
+        public static void OnSceneChanged()
         {
-            Dictionary<GameObject, string> mirror = new Dictionary<GameObject, string>(instateObject);
-            foreach (KeyValuePair<GameObject,string> keyValuePair in instateObject)
+            var newOne = new Dictionary<string, ObjectPool>(poolDic);
+            foreach (KeyValuePair<string,ObjectPool> keyValuePair in newOne)
             {
-                if (keyValuePair.Key == null)
+                keyValuePair.Value.ClearNull();
+            }
+        }
+
+        #region Get & Return
+
+        public static ObjectPool GetPool(string path, Transform root)
+        {
+            ObjectPool pool = null;
+            if (!poolDic.TryGetValue(path, out pool))
+            {
+                pool = new ObjectPool(path, root);
+                poolDic.Add(path, pool);
+            }
+
+            return pool;
+        }
+
+        public static void ReturnToPool(GameObject go)
+        {
+            foreach (KeyValuePair<string, ObjectPool> keyValuePair in poolDic)
+            {
+                for (int i = 0; i < keyValuePair.Value.poolObject.Count; i++)
                 {
-                    mirror.Remove(keyValuePair.Key);
+                    if (keyValuePair.Value.poolObject[i].gameObject == go)
+                    {
+                        keyValuePair.Value.ReturnObject(keyValuePair.Value.poolObject[i]);
+                    }
+                }
+            }
+        }
+
+        public static void ReturnToPool(IPoolObject go)
+        {
+            if (go.pool != null)
+            {
+                go.pool.ReturnObject(go);
+            }
+            else
+            {
+                ReturnToPool(go.gameObject);
+            }
+        }
+        
+        public static void RemoveObjectFromPool(GameObject go)
+        {
+            ObjectPool tar = null;
+            foreach (KeyValuePair<string,ObjectPool> keyValuePair in poolDic)
+            {
+                if (keyValuePair.Value.RemoveFromPool(go))
+                {
+                    if (keyValuePair.Value.poolObject.Count == 0)
+                    {
+                        tar = keyValuePair.Value;
+                    }
+                    break;
                 }
             }
 
-            instateObject = mirror;
+            if (tar != null)
+            {
+                tar.Destroy();
+            }
         }
+
+        public static ObjectPool Cache(string path, int count)
+        {
+            ObjectPool pool = GetPool(path, poolRoot);
+            pool.SetDefaultCount(count);
+            return pool;
+        }
+
+        #endregion
         
         #region PoolData
-
+        private enum ObjectType
+        {
+            UnKnow,
+            GameObject,
+            IPoolObject
+        }
         private class PoolData
         {
             public GameObject gameObject;
@@ -91,40 +158,18 @@ namespace Module
 
         #region Private
 
-        private Queue<(Action<GameObject>, Transform, PoolFlag)> cacheAction =
-            new Queue<(Action<GameObject>, Transform, PoolFlag)>();
+        private Queue<(Action<GameObject>, Transform, PoolFlag)> cacheAction = new Queue<(Action<GameObject>, Transform, PoolFlag)>();
 
-        public GameObject prefab;
         private Transform _parentRoot;
-        private bool isIPoolObject;
+        private ObjectType objectType;
+        public bool isLoading;
         private List<PoolData> poolObject = new List<PoolData>();
+        private AsyncOperationHandle<GameObject> handles;
         public event Action onComplete;
 
         #endregion
 
-        #region public
-
-        public Func<bool> listener { get; set; }
-
-        public bool isComplete
-        {
-            get { return prefab != null; }
-        }
-
-        public void SetListener(Func<bool> listen)
-        {
-            this.listener = listen;
-        }
-
-        public bool MoveNext()
-        {
-            return !isComplete;
-        }
-
-        public object Current
-        {
-            get { return prefab; }
-        }
+        #region Property
 
         public string path { get; }
 
@@ -132,63 +177,8 @@ namespace Module
         {
             get
             {
-                if (_parentRoot == null || _parentRoot.gameObject == null) return poolRoot;
+                if (_parentRoot == null || _parentRoot.gameObject.IsNullOrDestroyed()) return poolRoot;
                 return _parentRoot;
-            }
-        }
-
-        #endregion
-
-        #region 构造函数
-
-        public static ObjectPool GetPool(string path, Transform root)
-        {
-            ObjectPool pool = null;
-            if (!poolDic.TryGetValue(path, out pool))
-            {
-                pool = new ObjectPool(path, root);
-                pool.InitPrefab(null);
-                poolDic.Add(path, pool);
-            }
-
-            return pool;
-        }
-
-        public static ObjectPool GetPool(string path, Transform root, GameObject prefab)
-        {
-            ObjectPool pool = null;
-            if (!poolDic.TryGetValue(prefab.name, out pool))
-            {
-                pool = new ObjectPool(path, root);
-                pool.InitPrefab(prefab);
-                poolDic.Add(path, pool);
-            }
-
-            return pool;
-        }
-
-        public static void ReturnToPool(GameObject go)
-        {
-            string path = null;
-            if (instateObject.TryGetValue(go, out path))
-            {
-                ObjectPool pool = null;
-                if (poolDic.TryGetValue(path, out pool))
-                {
-                    pool.ReturnObject(go);
-                }
-            }
-        }
-
-        public static void ReturnToPool(IPoolObject go)
-        {
-            if (go.pool != null)
-            {
-                go.pool.ReturnObject(go);
-            }
-            else
-            {
-                ReturnToPool(go.gameObject);
             }
         }
 
@@ -198,151 +188,62 @@ namespace Module
             _parentRoot = root;
         }
 
-        private void InitPrefab(GameObject p)
-        {
-            if (p == null)
-            {
-                AssetLoad.PreloadAsset<GameObject>(path, pre =>
-                {
-                    if (pre.Result == null)
-                    {
-                        GameDebug.LogError(path);
-                        return;
-                    }
-
-                    prefab = pre.Result;
-                    isIPoolObject = prefab.GetComponent<IPoolObject>() != null;
-                    int index = cacheAction.Count;
-                    for (int i = 0; i < index; i++)
-                    {
-                        var temp = (cacheAction.Dequeue());
-                        GetObjectInternal(temp.Item1, temp.Item2, temp.Item3);
-                    }
-
-                    onComplete?.Invoke();
-                    onComplete = null;
-                });
-            }
-            else
-            {
-                prefab = p;
-                isIPoolObject = prefab.GetComponent<IPoolObject>() != null;
-                onComplete?.Invoke();
-                onComplete = null;
-            }
-        }
-
         #endregion
-
-        #region Set
-
-        public static void TryRemove(GameObject go)
+        
+        private void ClearNull()
         {
-            ObjectPool pool = null;
-            string path = TryGetPathRemove(go);
-            if (path != null && poolDic.TryGetValue(path, out pool))
+            for (int i = poolObject.Count - 1; i >= 0; i--)
             {
-                pool.RemoveFromPool(go);
-            }
-        }
-        public static string TryGetPathRemove(GameObject go)
-        {
-            string path = null;
-            if (instateObject.TryGetValue(go, out path))
-            {
-                instateObject.Remove(go);
-                return path;
-            }
-
-            return path;
-        }
-        public void Reset()
-        {
-            prefab = null;
-        }
-
-        private GameObject AddNewToPool(string path, bool active, Transform parent)
-        {
-            GameObject go = AssetLoad.Instantiate(prefab, parent);
-            instateObject.Add(go, path);
-            poolObject.Add(new PoolData(go, path).SetActive(active));
-            return go;
-        }
-
-        public void RemoveFromPool(GameObject go)
-        {
-            for (int i = 0; i < poolObject.Count; i++)
-            {
-                PoolData temp = poolObject[i];
-                if (temp.gameObject == go)
-                {
-                    poolObject.RemoveAt(i);
-                    break;
-                }
+                CheckNull(poolObject[i], i);
             }
 
             if (poolObject.Count == 0)
             {
-                DestroyPool();
+                Destroy();
             }
         }
 
-        public void DestroyPool()
+        public void SetDefaultCount(int count, Transform parent)
         {
-            poolDic.Remove(path);
-            AssetLoad.Release(prefab);
-        }
-
-        public void SetDefaultCount(int count, Transform parent, bool autoActive = true)
-        {
-            if (!isComplete) return;
             for (int i = 0; i < count; i++)
             {
                 if (path != null)
                 {
-                    GameObject go = AddNewToPool(path, true, parent);
-                    if (autoActive && go.activeInHierarchy) go.OnActive(false);
+                    AddNewToPool(path, true, parent, go =>
+                    {
+                        go.OnActive(false);
+                    });
                 }
             }
         }
 
-        public void SetDefaultCount(int count, bool autoActive = true)
+        public void SetDefaultCount(int count)
         {
-            SetDefaultCount(count, parentRoot, autoActive);
+            SetDefaultCount(count, parentRoot);
         }
 
-        #endregion
+        public bool RemoveFromPool(GameObject go)
+        {
+            for (int i = poolObject.Count - 1; i >= 0; i--)
+            {
+                if (poolObject[i].gameObject == go)
+                {
+                    poolObject.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void Destroy()
+        {
+            poolDic.Remove(path);
+            AssetLoad.Release(handles);
+        }
 
         #region GetObject
 
-        public T GetObject<T>(PoolFlag flag = 0)
-        {
-            return GetObject(parentRoot, flag).GetComponent<T>();
-        }
-
-        public GameObject GetObject(PoolFlag flag = 0)
-        {
-            return GetObject(parentRoot, flag);
-        }
-
-        public T GetObject<T>(Transform parent, PoolFlag flag = 0)
-        {
-            return GetObject(parent, flag).GetComponent<T>();
-        }
-
-        public GameObject GetObject(Transform parent, PoolFlag flag = 0)
-        {
-            if (!isComplete)
-            {
-                GameDebug.LogError("ObjectPool is invaid");
-                return default;
-            }
-
-            GameObject result = default;
-            GetObjectInternal(go => result = go, parent, flag);
-            return result;
-        }
-        
         public void GetObject<T>(Transform parent, Action<T> callBack, PoolFlag flag = 0)
         {
             GetObjectInternal(go => callBack?.Invoke(go.GetComponent<T>()), parent, flag);
@@ -363,49 +264,87 @@ namespace Module
             GetObjectInternal(go => callBack?.Invoke(go.GetComponent<T>()), parentRoot, flag);
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         private void GetObjectInternal(Action<GameObject> callBack, Transform parent, PoolFlag flag)
         {
-            if (!isComplete)
+            if (isLoading)
             {
                 cacheAction.Enqueue((callBack, parent, flag));
                 return;
             }
 
             PoolData data = FindActive();
-            GameObject returnValue = null;
 
             if (data != null && !flag.HasFlag(PoolFlag.NotFromPool))
             {
-                returnValue = data.SetActive(false).gameObject;
+                GameObject returnValue = data.SetActive(false).gameObject;
+                OnGetGo(callBack, parent, flag, returnValue);
             }
             else
             {
-                returnValue = AddNewToPool(path, false, parent);
+                isLoading = true;
+                AddNewToPool(path, false, parent, go =>
+                {
+                    isLoading = false;
+                    int count = cacheAction.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var itm = cacheAction.Dequeue();
+                        GetObject(itm.Item2, itm.Item1, itm.Item3);
+                    }
+                    
+                    OnGetGo(callBack, parent, flag, go);
+                });
             }
+        }
 
+        private void OnGetGo(Action<GameObject> callBack, Transform parent, PoolFlag flag,GameObject returnValue)
+        {
             if (!flag.HasFlag(PoolFlag.NotAutoActive) && !returnValue.activeInHierarchy)
             {
                 returnValue.OnActive(true);
             }
 
-            returnValue.transform.SetParentZero(parent);
+            if ((flag & PoolFlag.NotSetParent) == 0)
+            {
+                returnValue.transform.SetParentZero(parent);
+            }
 
             callBack?.Invoke(returnValue);
-            if (isIPoolObject)
+            if (objectType == ObjectType.UnKnow)
             {
                 IPoolObject target = returnValue.GetComponent<IPoolObject>();
                 if (target != null)
                 {
+                    objectType = ObjectType.IPoolObject;
                     target.pool = this;
                     target.OnGetObjectFromPool();
                 }
+                else
+                {
+                    objectType = ObjectType.GameObject;
+                }
+            }
+            else if (objectType == ObjectType.IPoolObject)
+            {
+                IPoolObject target = returnValue.GetComponent<IPoolObject>();
+                target.pool = this;
+                target.OnGetObjectFromPool();
             }
         }
-
+        
         #endregion
 
         #region ReturnObject
+
+        private void ReturnObject(PoolData data)
+        {
+            data.SetActive(true);
+            data.gameObject.OnActive(false);
+            if (data.gameObject != null)
+            {
+                data.gameObject.transform.SetParentZero(parentRoot);
+            }
+        }
 
         /// <summary>
         /// 归还对象
@@ -429,6 +368,7 @@ namespace Module
             if (obj != null)
             {
                 ReturnObject(obj.gameObject, autoActive);
+                obj.ReturnToPool();
             }
         }
 
@@ -441,9 +381,6 @@ namespace Module
                     AssetLoad.Destroy(poolObject[i].gameObject);
                 }
             }
-
-            prefab = null;
-            poolDic.Remove(path);
         }
 
         #region Find
@@ -474,7 +411,7 @@ namespace Module
 
         private bool CheckNull(PoolData temp, int index)
         {
-            if (temp.gameObject == null)
+            if (temp.gameObject.IsNullOrDestroyed())
             {
                 poolObject.RemoveAt(index);
                 return true;
@@ -482,7 +419,42 @@ namespace Module
 
             return false;
         }
+        
+        private void AddNewToPool(string path, bool active, Transform parent, Action<GameObject> callback)
+        {
+            AssetLoad.Instantiate(path, parent, handle =>
+            {
+                this.handles = handle;
+                poolObject.Add(new PoolData(handle.Result, path).SetActive(active));
+                callback?.Invoke(handle.Result);
+            });
+        }
 
+        /// <summary>
+        /// 从外界添加物体到对象池
+        /// </summary>
+        /// <param name="go"></param>
+        public void AddNewToPoolFromOutside(GameObject go)
+        {
+            PoolData d = new PoolData(go,null).SetActive(true);
+            go.transform.SetParentZero(parentRoot);
+            go.OnActive(false);
+            poolObject.Add(d);
+        }
+
+        public int GetActivePoolCount()
+        {
+            int ret = 0;
+            for (int i = poolObject.Count - 1; i >= 0; i--)
+            {
+                PoolData temp = poolObject[i];
+                if (CheckNull(temp, i)) continue;
+                if (temp.active)
+                    ret++;
+            }
+            return ret;
+        }
+        
         #endregion
 
         #endregion

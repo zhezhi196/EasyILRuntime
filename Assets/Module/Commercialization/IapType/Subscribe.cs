@@ -4,7 +4,7 @@ namespace Module
     {
         public string price { get; set; }
 
-        public Subscribe(IapDataBase data) : base(data)
+        public Subscribe(ISubscribeData data) : base(data)
         {
         }
 

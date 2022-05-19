@@ -7,6 +7,7 @@
 */
 
 using System;
+using UnityEngine;
 
 namespace Module
 {
@@ -23,31 +24,90 @@ namespace Module
         //---------------------分隔符-----------------
         public const char Spite0 = '_';
         public const char Spite1 = '|';
-
         public const char Spite2 = '^';
+        public const string Cheng = "×";
 
         //---------------------路径-------------------
-        public const string JsonConfigPath = "Config/{0}";
-
-        public const string bundlePoint = "GamePlay/BundleUpdate";
 
         //系统事件
         public const string OpenUI = "Event_OpenUI";
         public const string CloseUI = "Event_CloseUI";
-
         public const string EventKey = "EventSender_key";
+        public const string UIOpenStart = "UIOpenStart";
+        public const string UIOpenComplete = "UIOpenComplete";
+        public const string UICloseStart = "UICloseStart";
+        public const string Back = "Back";
+        public const string languageLocalKey = "LanguageSetting";
         
-        public const string SqlPassword = "";
+        #endregion
+
+        #region 项目设置
+        
+        /// <summary>
+        /// 数据库等信息
+        /// </summary>
+        public const string SqlPassword = "qwerasdf";
         public const string Config_data = "Config.db";
         public const string Player_data = "Data.db";
 
-        public const string UIOpenComplete = "UIOpenComplete";
-        public const string UICloseStart = "UICloseStart";
+        public static string GetChannelConfig(ChannelType channel)
+        {
+            return GetChannelConfig(channel.ToString());
+        }
+        
+        public static string GetChannelConfig(string channel)
+        {
+            return $"Config/{channel}";
+        }
+        
+        /// <summary>
+        /// 根据类型得到对应的文件夹名
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetFolder(AssetLoad.AssetFolderType type)
+        {
+            switch (type)
+            {
+                case AssetLoad.AssetFolderType.Config:
+                    return GetChannelConfig(Config.globleConfig.channel);
+                case AssetLoad.AssetFolderType.Scenes:
+                    return "Scenes";
+                case AssetLoad.AssetFolderType.UI:
+                    return "UI";
+                case AssetLoad.AssetFolderType.Effect:
+                    return "Effect";
+                case AssetLoad.AssetFolderType.DB:
+                    return "DbData/";
+                case AssetLoad.AssetFolderType.Bundle:
+                    return "Bundles";
+                case AssetLoad.AssetFolderType.Altas:
+                    return "Altas";
+                case AssetLoad.AssetFolderType.WordsCheck:
+                    return "chinese_dictionary.txt";
+                case AssetLoad.AssetFolderType.Analytics:
+                    return "Analytics";
+                case AssetLoad.AssetFolderType.Material:
+                    return "Mat";
+                case AssetLoad.AssetFolderType.Video:
+                    return "Video";
+            }
 
-        public const string playerTag = "Player";
-        public const string AnimatorAudioKey = "AnimatorAudioKey";
+            return string.Empty;
+        }
+
         #endregion
-
-        public const string Back = "Back";
+    }
+    
+    /// <summary>
+    /// 渠道类型
+    /// </summary>
+    [Flags]
+    public enum ChannelType
+    {
+        googlePlay = 1 << 0,
+        AppStore = 1 << 1,
+        AppStoreCN = 1 << 2,
+        TapTap = 1 << 3,
     }
 }

@@ -17,7 +17,6 @@ namespace Module
     {
         private static Transform m_UIRoot;
         private static UIMask m_Mask;
-        private static UILoading _mUiLoading;
         private static Transform m_WinParent;
         private static Transform m_topParent;
         private static PopupWin m_popup;
@@ -43,7 +42,7 @@ namespace Module
             {
                 if (_2DCamera == null)
                 {
-                    _2DCamera = GameObject.Find("UIRoot/Camera/2D").GetComponent<Camera>();
+                    _2DCamera = GameObject.Find("UIRoot/UICamera").GetComponent<Camera>();
                 }
 
                 return _2DCamera;
@@ -56,7 +55,7 @@ namespace Module
             {
                 if (_3DCreatPoint == null)
                 {
-                    return GameObject.Find("UIRoot/3DParent/CreatPoint").transform;
+                    return GameObject.Find("UIRoot/3DParent/prefab").transform;
                 }
 
                 return _3DCreatPoint;
@@ -130,19 +129,6 @@ namespace Module
                 }
 
                 return m_Mask;
-            }
-        }
-
-        public static UILoading UiLoading
-        {
-            get
-            {
-                if (_mUiLoading == null)
-                {
-                    _mUiLoading = UIRoot.Find("Canvas/PrefabUI/Loading").GetComponent<UILoading>();
-                }
-
-                return _mUiLoading;
             }
         }
 
@@ -264,17 +250,13 @@ namespace Module
         
         private static List<object> m_freezeList = new List<object>();
 
-        public static bool isLoading
-        {
-            get { return UiLoading.gameObject.activeInHierarchy; }
-        }
 
         /// <summary>
         /// 窗口是否可点击
         /// </summary>
         public static bool isFreezed
         {
-            get { return m_freezeList.Count == 0 ? false : true; }
+            get { return m_freezeList.Count != 0; }
         }
         /// <summary>
         /// 冻结窗口
@@ -311,16 +293,6 @@ namespace Module
             UnFreezeUI(key);
         }
 
-        public static void CloseLoading()
-        {
-            UiLoading.Close();
-        }
-
-        public static void OpenLoading()
-        {
-            UiLoading.Open();
-        }
-
         public static List<object> GetFreezeList()
         {
             return m_freezeList;
@@ -330,6 +302,11 @@ namespace Module
         {
             Mask.gameObject.OnActive(false);
             Mask.HideMask();
+            m_freezeList.Clear();
+        }
+
+        public static void ClearList()
+        {
             m_freezeList.Clear();
         }
     }

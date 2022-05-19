@@ -61,7 +61,7 @@ namespace Module
         
         public IEnumerator<KeyValuePair<string, Tree<T>>> GetEnumerator()
         {
-            return (IEnumerator<KeyValuePair<string, Tree<T>>>)m_nodeTree;
+            return default;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

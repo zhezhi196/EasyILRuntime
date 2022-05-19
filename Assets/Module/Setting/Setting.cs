@@ -10,16 +10,15 @@ namespace Module
         public static AudioSetting audioSetting = new AudioSetting();
         public static GraphicSetting graphicSetting = new GraphicSetting();
         public static ControllerSetting controllerSetting = new ControllerSetting();
-        public static CultureInfo globleCulture;
+        public static UILocationSetting uiLocationSetting = new UILocationSetting();
         
         public static AsyncLoadProcess Init(AsyncLoadProcess process)
         {
             process.Reset();
-            globleCulture = Thread.CurrentThread.CurrentCulture;
             audioSetting.Init();
             graphicSetting.Init();
             controllerSetting.Init();
-            
+            uiLocationSetting.Init();
             process.SetComplete();
             return process;
         }

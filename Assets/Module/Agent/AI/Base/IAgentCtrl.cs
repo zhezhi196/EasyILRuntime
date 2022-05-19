@@ -1,13 +1,16 @@
 ﻿namespace Module
 {
-    public interface IAgentCtrl : IAgentObject
+    public interface IAgentCtrl
     {
-        void OnCreat();
-        void OnBorn();
+        bool isPause { get; }
         void OnUpdate();
-        void Pause(object key);
-        void Continue(object key);
+        void Pause();
+        void Continue();
         void OnAgentDead();
         void OnDestroy();
+        T GetAgentCtrl<T>() where T : IAgentCtrl;
+
+        void EditorInit();
+        void OnDrawGizmos();
     }
 }

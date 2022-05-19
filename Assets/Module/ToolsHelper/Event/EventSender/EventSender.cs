@@ -7,7 +7,7 @@ namespace Module
 {
     public struct EventID
     {
-        public uint eventKey;
+        public int eventKey;
         public string eventArgs;
         public override string ToString()
         {
@@ -15,14 +15,14 @@ namespace Module
         }
     }
     [Serializable, HideReferenceObjectPicker]
-    public class EventSender<T> where T : Enum
+    public class EventSender
     {
-        private IEventSender<T> sender;
-        [HorizontalGroup("条件"), HideLabel] public T predicate;
+        private IEventSender sender;
+        [HorizontalGroup("条件"), HideLabel] public string predicate;
         [HorizontalGroup("条件"), LabelText("参数"),HideReferenceObjectPicker] public string[] predicateArgs;
         [HorizontalGroup("事件"), LabelText("事件ID"),HideReferenceObjectPicker] public EventID[] eventKey;
 
-        public void InitSender(IEventSender<T> sender)
+        public void InitSender(IEventSender sender)
         {
             this.sender = sender;
         }
@@ -40,8 +40,7 @@ namespace Module
         {
             for (int i = 0; i < eventKey.Length; i++)
             {
-                EventCenter.Dispatch<uint, string, IEventCallback>(ConstKey.EventKey, eventKey[i].eventKey, eventKey[i].eventArgs, sender);
-                GameDebug.LogFormat("发送事件ID: {0}" , eventKey[i]);
+                EventTools.SendEvent(eventKey[i].eventKey, eventKey[i].eventArgs, sender);
             }
         }
     }

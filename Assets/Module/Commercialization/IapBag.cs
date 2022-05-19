@@ -3,68 +3,107 @@ using UnityEngine;
 
 namespace Module
 {
-    /// <summary>
-    /// 礼包,其中commodity是获得的物品.iap对象是消耗端的逻辑
-    /// </summary>
-    public abstract class IapBag : IapBagBase
+    [Flags]
+    public enum IapRewardFlag
     {
-        protected Commodity _commodity;
+        NoAudio = 1,
+        NoLoading = 2,
+        NoAnalysis = 4,
+        Free = 8,
+        NoUpdateDB = 16,
+        NoPause = 32
+    }
 
-        public override bool canBeShow
+    public abstract class IapBag : IRewardBag
+    {
+        #region 属性字段
+
+        protected RewardContent[] _content;
+        private Iap _iap;
+        private FloatField _product = new FloatField(1);
+
+        public RewardContent[] content
+        {
+            get { return _content; }
+        }
+
+        public virtual int stationCode
         {
             get
             {
-                if (iapState == IapState.Normal)
+                for (int i = 0; i < content.Length; i++)
                 {
-                    if (commodity == null) return false;
-                    return commodity.canBeShow;
-                }
-                else if (iapState == IapState.Invalid)
-                {
-                    return false;
-                }
-                else if (iapState == IapState.Skip)
-                {
-                    return true;
+                    if (content[i].stationCode != 0) return content[i].stationCode;
                 }
 
-                return false;
+                return iapState == IapState.Normal ? 0 : -1;
             }
         }
 
-        public Commodity commodity
+        public virtual IapState iapState
         {
-            get { return _commodity; }
+            get { return iap.iapState; }
         }
 
-        public IapBag(IapDataBase sqlData, long count)
+        public virtual float product
+        {
+            get { return _product.value; }
+            set { _product = new FloatField(value); }
+        }
+
+        public Iap iap
+        {
+            get { return _iap; }
+        }
+
+        #endregion
+
+        #region 构造函数
+
+        public IapBag(IapSqlData sqlData)
         {
             this._iap = Iap.GetIap(sqlData);
         }
 
-        public IapBag(Iap iap, long count)
+        public IapBag(Iap iap)
         {
             this._iap = iap;
         }
 
-        /// <summary>
-        /// 获得的物品奖励数量,不计算像广告双倍的那些,如若要得到包括广告后的那些,请到iapresult里面获取
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public override float GetCommodityCount(int index = 0)
+        #endregion
+        
+        public override string ToString()
         {
-            return (_commodity.count * product).ToFloat();
+            return iap.dbData.ID.ToString();
+        }
+
+        public virtual void GetIcon(string type, Action<Sprite> callback)
+        {
+            SpriteLoader.LoadIcon(type, callback);
         }
         
         /// <summary>
-        /// 获取商品
+        /// 直接获取物品
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="rewardCount"></param>
+        /// <param name="flag"></param>
         /// <returns></returns>
-        public override Commodity GetCommodity(int index = 0)
+        public virtual float GetReward(float rewardCount, RewardFlag flag)
         {
-            return commodity;
+            if (content != null)
+            {
+                for (int i = 0; i < content.Length; i++)
+                {
+                    content[i].GetReward(rewardCount, flag);
+                }
+            }
+
+            return rewardCount;
         }
+        
+        public abstract int index { get; }
+        
+        public abstract void GetReward(Action<IapResult> callback, IapRewardFlag flag = 0);
+        public abstract string GetText(string type);
     }
 }

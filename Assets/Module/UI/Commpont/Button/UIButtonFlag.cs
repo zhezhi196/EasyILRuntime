@@ -17,10 +17,9 @@ namespace Module
         Uninteractive
     }
 
-    [Serializable]
+    [Serializable,HideLabel]
     public class ButtonConfig
     {
-        public static string defaultAudio = "tongyongButton";
         public UIButtonFlag flag;
         public string audio;
         public int analysticsKey;

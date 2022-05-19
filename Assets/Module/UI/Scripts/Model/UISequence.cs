@@ -32,6 +32,11 @@ namespace Module
 
         private Queue<QueueAtrribute> winQueue = new Queue<QueueAtrribute>();
         private int type;
+
+        public int count
+        {
+            get { return winQueue.Count; }
+        }
         public string ID { get; private set; }
         public UIObject currentUI { get; private set; }
 
@@ -66,9 +71,9 @@ namespace Module
         /// </summary>
         /// <param name="name"></param>
         /// <param name="args"></param>
-        public void Add(string name, UITweenType tweenType, params object[] args)
+        public void Add(string name, UITweenType tweenType, OpenFlag flag,params object[] args)
         {
-            QueueAtrribute queue = new QueueAtrribute(name, tweenType, args);
+            QueueAtrribute queue = new QueueAtrribute(name, tweenType, flag, args);
             winQueue.Enqueue(queue);
         }
 
@@ -86,12 +91,15 @@ namespace Module
             if (winQueue.Count > 0)
             {
                 QueueAtrribute win = winQueue.Dequeue();
-                currentUI = UIController.Instance.Open(win.name, win.tweenType, win.args);
+                currentUI = UIController.Instance.Open(win.name, win.tweenType, win.flag,win.args);
                 currentUI.onSequenceComplete += NextWin;
             }
             else
             {
-                currentUI.onSequenceComplete -= NextWin;
+                if (currentUI != null)
+                {
+                    currentUI.onSequenceComplete -= NextWin;
+                }
                 onComplete?.Invoke();
                 onComplete = null;
                 if (ID != null)
@@ -111,7 +119,7 @@ namespace Module
             if (winQueue.Count > 0)
             {
                 QueueAtrribute win = winQueue.Dequeue();
-                currentUI = UIController.Instance.Popup(win.name, win.tweenType, win.args);
+                currentUI = UIController.Instance.Popup(win.name, win.tweenType,win.flag, win.args);
                 currentUI.onSequenceComplete += NextPopupWin;
             }
             else
@@ -179,12 +187,14 @@ namespace Module
             public float delay;
             public object[] args;
             public UITweenType tweenType;
-            public QueueAtrribute(string name,UITweenType tweenType, object[] args)
+            public OpenFlag flag;
+            public QueueAtrribute(string name,UITweenType tweenType,OpenFlag flag, object[] args)
             {
                 this.name = name;
                 this.delay = 0;
                 this.tweenType = tweenType;
                 this.args = args;
+                this.flag = flag;
             }
         }
 

@@ -2,8 +2,8 @@
 {
     public interface ILocalSave
     {
+        string localGroup { get; }
         string localUid { get; }
-        void ReadData(string data);
         string GetWriteDate();
     }
 }

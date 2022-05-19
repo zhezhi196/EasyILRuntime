@@ -123,11 +123,12 @@ namespace Module
             }
         }
 
-        public void Insert(T value)
+        public T Insert(T value)
         {
-            if (string.IsNullOrEmpty(DbName)) return;
-            connection.Insert(value);
+            if (string.IsNullOrEmpty(DbName)) return default;
             tableList.Add(value);
+            connection.Insert(value);
+            return value;
         }
 
         public void Delete(Func<T, bool> predicata)
@@ -262,5 +263,19 @@ namespace Module
         }
         
         #endregion
+
+        public void UpdateOrAdd(T value)
+        {
+            for (int i = 0; i < tableList.Count; i++)
+            {
+                if (tableList[i].ID == value.ID)
+                {
+                    Update(value);
+                    return;
+                }
+            }
+            
+            Insert(value);
+        }
     }
 }

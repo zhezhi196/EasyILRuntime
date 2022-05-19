@@ -4,7 +4,7 @@ namespace Module
 {
     public class FreeIap: Iap
     {
-        public FreeIap(IapDataBase data) : base(data)
+        public FreeIap(IapSqlData data) : base(data)
         {
         }
 

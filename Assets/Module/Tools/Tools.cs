@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -167,7 +168,7 @@ namespace Module
 
         #endregion
 
-        #region 随机一个概率是否中奖
+        #region 其他
 
         public static string ToHash(byte[] data)
         {
@@ -191,50 +192,32 @@ namespace Module
             return ToHash(data);
         }
 
-        #endregion
+        /// <summary>
+        /// 判断字符串中是否包含中文
+        /// </summary>
+        /// <param name="str">需要判断的字符串</param>
+        /// <returns>判断结果</returns>
+        public static bool HasChinese(string str)
+        {
+            return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
+        }
 
+        public static bool IsNumber(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) return false;
+            const string pattern = "^[0-9]*$";
+            Regex rx = new Regex(pattern);
+            return rx.IsMatch(str);
+        }
+        
         public static int Get2Power(int index)
         {
             return (int)Mathf.Pow(2, index);
         }
 
-        public static float GetScreenScale()
+        public static Vector3 GetScreenScale()
         {
-            return ((float)(1920 * Screen.height) / (1080 * Screen.width));
-        }
-        
-        public static long MinLong(params long[] arg)
-        {
-            long temp = long.MaxValue;
-            for (int i = 0; i < arg.Length; i++)
-            {
-                if (temp > arg[i])
-                {
-                    temp = arg[i];
-                }
-            }
-
-            return temp;
-        }
-
-        public static long MaxLong(params long[] arg)
-        {
-            long temp = long.MinValue;
-            for (int i = 0; i < arg.Length; i++)
-            {
-                if (temp < arg[i])
-                {
-                    temp = arg[i];
-                }
-            }
-
-            return temp;
-        }
-        public static void ClearLog()
-        {
-            // var logEntries = System.Type.GetType("UnityEditorInternal.LogEntries,UnityEditor.dll");
-            // var clearMethod = logEntries.GetMethod("Clear", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
-            // clearMethod.Invoke(null, null);
+            return Mathf.Clamp01((float) (1920 * Screen.height) / (1080 * Screen.width)) * Vector3.one;
         }
         
         public static Material GenerateMaterial(Shader shader)
@@ -389,6 +372,66 @@ namespace Module
             else
             {
                 s =(int)t;
+            }
+        }
+        
+        public static int SpiteID(int id, int pos, int offset)
+        {
+            return (id / Pow(pos - offset)) % Pow(offset);
+        }
+
+        private static int Pow(int count)
+        {
+            int temp = 1;
+            for (int i = 0; i < count; i++)
+            {
+                temp = temp * 10;
+            }
+
+            return temp;
+        }
+
+        public static float GetPercent(int index, params float[] weight)
+        {
+            if (weight.IsNullOrEmpty()) return 0;
+            float sum = weight.Sum();
+            return weight[index] / sum;
+        }
+
+        #endregion
+
+        public static bool ContainRotateBounds(Bounds bounds, Transform boundsPoint, Vector3 point)
+        {
+            return ContainRotateBounds(bounds, boundsPoint.transform.position, boundsPoint.rotation, point);
+        }
+
+        public static bool ContainRotateBounds(Bounds bounds, Vector3 boundsPoint, Quaternion rotation, Vector3 point)
+        {
+            Bounds tempBounds = new Bounds(boundsPoint + bounds.center, bounds.size);
+            DrawTools.DrawBounds(tempBounds, rotation, Color.green, 0.1f);
+            return tempBounds.ContainPoint(point, rotation);
+        }
+        
+        public static void RemoveClone(GameObject go)
+        {
+            string name = go.name;
+            go.name = name.Substring(0, name.Length - 7);
+        }
+
+        public static int GetID<T>(T[] exit) where T : Identify<int>
+        {
+            int resuitId = 0;
+            while (true)
+            {
+                if (!exit.Contains(fd => fd.ID == resuitId))
+                {
+                    return resuitId;
+                    return resuitId;
+                }
+                else
+                {
+                    resuitId++;
+                }
             }
         }
     }

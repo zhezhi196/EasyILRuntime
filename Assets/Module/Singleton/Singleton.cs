@@ -34,29 +34,5 @@ namespace Module
                 return instance;
             }
         }
-
-        // #region 开启协程
-        //
-        // public HotUpdate.Coroutine StartCoroutine(IEnumerator routine)
-        // {
-        //     return GamePlay.Instance.StartCoroutine(routine);
-        // }
-        //
-        // public Coroutine StartCoroutine(string routine)
-        // {
-        //     return GamePlay.Instance.StartCoroutine(routine);
-        // }
-        //
-        // public void StopCoroutine(Coroutine coroutine)
-        // {
-        //     GamePlay.Instance.StopCoroutine(coroutine);
-        // }
-        //
-        // public void StopCoroutine(IEnumerator ie)
-        // {
-        //     GamePlay.Instance.StopCoroutine(ie);
-        // }
-        //
-        // #endregion
     }
 }

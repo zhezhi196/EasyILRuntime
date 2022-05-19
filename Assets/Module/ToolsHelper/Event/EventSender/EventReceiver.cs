@@ -6,60 +6,73 @@ using UnityEngine;
 namespace Module
 {
     [Serializable,HideReferenceObjectPicker]
-    public class EventReceiverArgs<T> where T : Enum
+    public class EventReceiverArgs
     {
+        public bool save;
         [HorizontalGroup,HideLabel]
-        public bool record = true;
-        [HorizontalGroup,HideLabel]
-        public T logical;
+        public string logical;
         [HorizontalGroup,LabelText("逻辑参数")]
         public string[] args;
     }
     
     [Serializable,HideReferenceObjectPicker]
-    public class EventReceiver<T> where T : Enum
+    public class EventReceiver
     {
-        private IEventReceiver<T> receiver;
+        private IEventReceiver receiver;
         [LabelText("事件ID")]
-        public uint eventKey;
+        public int eventKey;
         [LabelText("接受次数")]
         public int receiveCount;
         [LabelText("执行逻辑")]
-        public EventReceiverArgs<T>[] logical;
+        public List<EventReceiverArgs> logical;
 
-        public void InitReceiver(IEventReceiver<T> eventReceiver)
+        public int currReceiveCount;
+        public bool isActive;
+
+        public void InitReceiver(IEventReceiver eventReceiver)
         {
             this.receiver = eventReceiver;
-            EventCenter.Register<uint, string, IEventCallback>(ConstKey.EventKey, OnGetEvent);
+            ResetValue();
         }
 
-        private void OnGetEvent(uint eventKey, string eventArgs, IEventCallback sender)
+        private void OnGetEvent(string eventArgs, IEventCallback sender)
         {
-            if (eventKey == this.eventKey)
+            if (receiveCount != -1)
             {
-                if (receiveCount != -1)
-                {
-                    receiveCount--;
-                }
-
-                for (int i = 0; i < logical.Length; i++)
-                {
-                    EventReceiverArgs<T> log = logical[i];
-                    GameDebug.LogFormat("{0}接受到{1}事件,执行{2}逻辑", receiver.key, eventKey, log.logical);
-                    receiver.RunLogical(log.logical, sender, true, log.record, log.args);
-                    sender?.EventCallback(eventKey, receiver);
-                }
-
-                if (receiveCount != -1 && receiveCount <= 0)
-                {
-                    Dispose();
-                }
+                currReceiveCount++;
             }
+
+            for (int i = 0; i < logical.Count; i++)
+            {
+                EventReceiverArgs log = logical[i];
+                GameDebug.LogFormat("{0}接受到{1}事件,执行{2}逻辑", receiver.key, eventKey, log.logical);
+                if (!log.save)
+                {
+                    receiver.RunLogical(log.logical, sender, RunLogicalFlag.WithPerformance, eventArgs, log.args);
+                }
+                else
+                {
+                    receiver.RunLogical(log.logical, sender, RunLogicalFlag.WithPerformance | RunLogicalFlag.Save, eventArgs, log.args);
+                }
+                sender?.EventCallback(eventKey, receiver);
+            }
+
+            if (receiveCount != -1 && currReceiveCount >= receiveCount)
+            {
+                Dispose();
+            }
+        }
+
+        public void ResetValue()
+        {
+            currReceiveCount = 0;
+            EventTools.ReceiveEvent(eventKey, OnGetEvent);
         }
 
         public void Dispose()
         {
-            EventCenter.UnRegister<uint, string, IEventCallback>(ConstKey.EventKey, OnGetEvent);
+            EventTools.UnReceiveEvent(eventKey, OnGetEvent);
         }
+
     }
 }
