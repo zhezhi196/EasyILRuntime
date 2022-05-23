@@ -108,7 +108,8 @@ namespace Module
                 if ((config.flag & UIButtonFlag.NoAudio) == 0)
                 {
                     if (config.audio.IsNullOrEmpty()) config.audio = Config.globleConfig.commonButtonAudio;
-                    AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
+                    AudioManager.PlayUI(config.audio);
+                    // AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
                 }
                 
                 OnPoint(eventData);

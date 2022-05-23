@@ -18,7 +18,7 @@ namespace Module
     public class EventSender
     {
         private IEventSender sender;
-        [HorizontalGroup("条件"), HideLabel] public string predicate;
+        [HorizontalGroup("条件"), HideLabel] public SendEventCondition predicate;
         [HorizontalGroup("条件"), LabelText("参数"),HideReferenceObjectPicker] public string[] predicateArgs;
         [HorizontalGroup("事件"), LabelText("事件ID"),HideReferenceObjectPicker] public EventID[] eventKey;
 

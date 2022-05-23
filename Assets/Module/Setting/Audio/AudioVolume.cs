@@ -14,7 +14,8 @@ namespace Module.Set
         public void Init()
         {
             value = ReadData();
-            AudioPlay.SetAudioVolume(value);
+            AudioManager.SetAudioVolume(value);
+            // AudioPlay.SetAudioVolume(value);
         }
         
         public float ReadData()
@@ -36,7 +37,8 @@ namespace Module.Set
                 GameDebug.LogFormat("Setting Audio:{0}",value);
                 this.value = value;
                 LocalFileMgr.SetFloat(key, value);
-                AudioPlay.SetAudioVolume(value);
+                AudioManager.SetAudioVolume(value);
+                // AudioPlay.SetAudioVolume(value);
             }
         }
 

@@ -10,7 +10,7 @@ namespace Module
     {
         public bool save;
         [HorizontalGroup,HideLabel]
-        public string logical;
+        public RunLogicalName logical;
         [HorizontalGroup,LabelText("逻辑参数")]
         public string[] args;
     }

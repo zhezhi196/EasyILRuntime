@@ -154,7 +154,8 @@ namespace Module
                 lastTimeScale = timeScale;
                 timeTween.Pause();
                 timeScale = 0;
-                AudioPlay.PauseAudio(st => !st.ignorePause);
+                AudioManager.PauseAll();
+                // AudioPlay.PauseAudio(st => !st.ignorePause);
             }
         }
 
@@ -165,7 +166,8 @@ namespace Module
                 isPause = false;
                 timeScale = lastTimeScale;
                 timeTween.Play();
-                AudioPlay.ContinueAudio(st => !st.ignorePause);
+                AudioManager.ResumeAll();
+                // AudioPlay.ContinueAudio(st => !st.ignorePause);
             }
         }
 
@@ -173,7 +175,8 @@ namespace Module
         {
             isPause = false;
             timeScale = 1;
-            AudioPlay.ContinueAudio(st => !st.ignorePause);
+            AudioManager.ResumeAll();
+            // AudioPlay.ContinueAudio(st => !st.ignorePause);
         }
 
         public static void ChangeBattleScene()

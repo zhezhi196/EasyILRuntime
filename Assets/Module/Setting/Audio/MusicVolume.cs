@@ -14,7 +14,7 @@ namespace Module.Set
         public void Init()
         {
             value = ReadData();
-            AudioPlay.SetMusicVolume(value);
+            AudioManager.SetMusicVolume(value);
         }
 
         public float ReadData()
@@ -36,7 +36,7 @@ namespace Module.Set
                 GameDebug.LogFormat("Setting MusicVolume:{0}",value1);
                 value = value1;
                 LocalFileMgr.SetFloat(key, value1);
-                AudioPlay.SetMusicVolume(value);
+                AudioManager.SetMusicVolume(value);
             }
         }
         public bool HasSetting()

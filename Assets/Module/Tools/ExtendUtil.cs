@@ -482,9 +482,15 @@ namespace Module
         public static bool IsForward2Target(this Transform player, Vector3 target)
         {
             Vector3 playerDir = player.transform.forward;
-            Vector3 jiaoPoint = Tools.GetIntersectWithLineAndPlane(target, Vector3.down,
-                player.transform.up, player.transform.position);
+            Vector3 jiaoPoint = Tools.GetIntersectWithLineAndPlane(target, Vector3.down, player.transform.up, player.transform.position);
             return Vector3.Dot(jiaoPoint - player.transform.position, playerDir) >= 0;
+        }
+
+        public static bool IsForward(this Transform transform, Vector3 target)
+        {
+            Quaternion rotation = Quaternion.Inverse(transform.rotation);
+            Vector3 inversePos = rotation * target - transform.position;
+            return inversePos.z > 0;
         }
 
         public static float DistanceToTarget(this Transform player, Vector3 target)

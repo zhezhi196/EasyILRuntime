@@ -42,7 +42,7 @@ namespace Module
             {
                 if (_2DCamera == null)
                 {
-                    _2DCamera = GameObject.Find("UIRoot/UICamera").GetComponent<Camera>();
+                    _2DCamera = GameObject.Find("UIRoot/Camera/2D").GetComponent<Camera>();
                 }
 
                 return _2DCamera;

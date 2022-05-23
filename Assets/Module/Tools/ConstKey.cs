@@ -108,6 +108,11 @@ namespace Module
         googlePlay = 1 << 0,
         AppStore = 1 << 1,
         AppStoreCN = 1 << 2,
-        TapTap = 1 << 3,
+        Huawei = 1 << 3,
+        TapTap = 1 << 4,
+        TikTok = 1 << 5,
+        TapTapHarmony = 1 << 6,
+        AppStoreCNHarmony = 1 << 7,
+        TikTokHarmony = 1 << 8,
     }
 }

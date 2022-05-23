@@ -67,6 +67,11 @@ namespace SDK
 
         }
 
+        /// <summary>
+        /// 复制数据
+        /// </summary>
+        /// <param name="state"></param>
+        public virtual void CopyData(string state) { }
 
         private Action<string> mActInputValueChange;
         private Action<bool> mActInputShowChange;
@@ -103,6 +108,17 @@ namespace SDK
                 mActInputShowChange = null;
                 mActInputValueChange = null;
             }
+        }
+
+        
+        public virtual void OpenWeb(string url)
+        {
+
+        }
+
+        public virtual void ExitGame()
+        {
+
         }
     }
 }

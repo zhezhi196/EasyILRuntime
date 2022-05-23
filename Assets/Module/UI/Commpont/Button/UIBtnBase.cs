@@ -91,7 +91,7 @@ namespace Module
         {
             if (base.transition == Transition.None)
             {
-                Debug.LogError("按钮过渡为none", gameObject);
+                Debug.LogWarning("按钮过渡为none", gameObject);
             }
             window = transform.GetComponentInParent<UIViewBase>();
             base.onClick.AddListener(() =>
@@ -120,7 +120,8 @@ namespace Module
                         if (config.audio.IsNullOrEmpty()) config.audio = Config.globleConfig.commonButtonAudio;
                         if (!config.audio.IsNullOrEmpty())
                         {
-                            AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
+                            AudioManager.PlayUI(config.audio);
+                            // AudioPlay.PlayOneShot(config.audio).SetIgnorePause(true);
                         }
                     }
                 }

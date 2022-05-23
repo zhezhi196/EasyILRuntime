@@ -67,5 +67,11 @@ namespace SDK
             AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity");
             jo.Call("OpenInput", text);
         }
+
+        public override void CopyData(string state)
+        {
+            jo.Call("CopyData",state);
+
+        }
     }
 }

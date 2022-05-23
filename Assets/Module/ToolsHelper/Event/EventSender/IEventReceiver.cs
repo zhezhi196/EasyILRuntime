@@ -9,6 +9,7 @@ namespace Module
     [Flags]
     public enum RunLogicalFlag
     {
+        [LabelText("无")]None = 0,
         [LabelText("动画")] WithPerformance = 1,
         [LabelText("不存档")] Save = 2
     }
@@ -16,7 +17,7 @@ namespace Module
     {
         int key { get; }
         EventReceiver[] receiver { get; }
-        void RunLogical(string logical, IEventCallback sender, RunLogicalFlag flag,string senderArg, params string[] args);
+        void RunLogical(RunLogicalName logical, IEventCallback sender, RunLogicalFlag flag,string senderArg, params string[] args);
     }
 }
 

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd910561cb5e42229664d6e330f17a08, type: 3}
+  m_Name: Config
+  m_EditorClassIdentifier: 
+  channel: 16
+  commonButtonAudio: 
+  ButtonAnalyticsType: 0
+  analystic:
+  - channel: 16
+    analystic: 0000000002000000
+  font:
+  - lan: 6
+    font: {fileID: 12800000, guid: 4b4eab526ac5c0e42a04dc1157c34607, type: 3}
+  - lan: 40
+    font: {fileID: 12800000, guid: 4b4eab526ac5c0e42a04dc1157c34607, type: 3}
+  - lan: 10
+    font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}

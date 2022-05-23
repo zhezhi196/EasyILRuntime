@@ -14,7 +14,9 @@ namespace Module.Set
         public void Init()
         {
             value = ReadData();
-            AudioPlay.SetMute(value);
+            // AudioPlay.SetMute(value);
+            AudioManager.MuteAudio(value);
+            AudioManager.MuteMusic(value);
         }
 
         public bool ReadData()
@@ -36,7 +38,8 @@ namespace Module.Set
                 GameDebug.LogFormat("Setting Mute:{0}", value1);
                 this.value = value1;
                 LocalFileMgr.SetBool(key, value1);
-                AudioPlay.SetMute(value);
+                AudioManager.MuteAudio(value);
+                AudioManager.MuteMusic(value);
             }
         }
         public bool HasSetting()

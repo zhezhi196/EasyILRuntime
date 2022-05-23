@@ -6,6 +6,6 @@ namespace Module
     public interface IEventSender : IEventCallback 
     {
         EventSender[] sender { get; }
-        bool TryPredicate(string predicate, string[] sendArg, string[] predicateArgs);
+        bool TryPredicate(SendEventCondition predicate, string[] sendArg, string[] predicateArgs);
     }
 }

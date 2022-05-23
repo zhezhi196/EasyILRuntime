@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
 namespace Module
 {
@@ -203,8 +204,9 @@ namespace Module
             }
         }
 
-        public void SetDefaultCount(int count, Transform parent)
+        public void SetDefaultCount(int count, Transform parent , Action cb)
         {
+            Voter v = new Voter(count , cb);
             for (int i = 0; i < count; i++)
             {
                 if (path != null)
@@ -212,6 +214,7 @@ namespace Module
                     AddNewToPool(path, true, parent, go =>
                     {
                         go.OnActive(false);
+                        v.Add();
                     });
                 }
             }
@@ -219,7 +222,12 @@ namespace Module
 
         public void SetDefaultCount(int count)
         {
-            SetDefaultCount(count, parentRoot);
+            SetDefaultCount(count, parentRoot ,null);
+        }
+        
+        public void SetDefaultCountCallBack(int count , Action cb)
+        {
+            SetDefaultCount(count, parentRoot , cb);
         }
 
         public bool RemoveFromPool(GameObject go)
@@ -264,6 +272,24 @@ namespace Module
             GetObjectInternal(go => callBack?.Invoke(go.GetComponent<T>()), parentRoot, flag);
         }
 
+        
+        /// <summary>
+        /// 外界调用 同步从对象池中获取对象，但是有可能获取不到，对象池必须得有空闲对象（慎用！）
+        /// </summary>
+        public T GetObjectSync<T>(PoolFlag flag = 0) where T : Object
+        {
+            PoolData data = FindActive();
+
+            if (data != null)
+            {
+                GameObject returnValue = data.SetActive(false).gameObject;
+                OnGetGo(null, null, flag, returnValue);
+                return returnValue.GetComponent<T>();
+            }
+            return null;
+        }
+
+        
         private void GetObjectInternal(Action<GameObject> callBack, Transform parent, PoolFlag flag)
         {
             if (isLoading)
