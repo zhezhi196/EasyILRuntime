@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SelectSkillUI
+  serializedVersion: 2
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 0
+      compressionQuality: 0
+      maxTextureSize: 0
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 1024
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: 7ca875d025db6584da2466e9c41ca055, type: 3}
+    - {fileID: 21300000, guid: 32a92b23deb7abd4a99df55488994dcf, type: 3}
+    - {fileID: 21300000, guid: 7b7ae3991487afd4883c656dbc5d72a1, type: 3}
+    - {fileID: 21300000, guid: e3adaaf0b1b6ae4448c00e0875f96a37, type: 3}
+    - {fileID: 21300000, guid: a486057e1b01d6741b1f1cce27ecd7bc, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 7ca875d025db6584da2466e9c41ca055, type: 3}
+  - {fileID: 21300000, guid: e3adaaf0b1b6ae4448c00e0875f96a37, type: 3}
+  - {fileID: 21300000, guid: 32a92b23deb7abd4a99df55488994dcf, type: 3}
+  - {fileID: 21300000, guid: 7b7ae3991487afd4883c656dbc5d72a1, type: 3}
+  - {fileID: 21300000, guid: a486057e1b01d6741b1f1cce27ecd7bc, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - switcher_2
+  - replay_but_1
+  - switcher_1
+  - slider_bg
+  - potion_but
+  m_RenderDataMap: {}
+  m_Tag: SelectSkillUI
+  m_IsVariant: 0
+  m_IsPlaceholder: 0

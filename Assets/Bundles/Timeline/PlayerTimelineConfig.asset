@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09a8de02b01b89644ae94d99ba8a0657, type: 3}
+  m_Name: PlayerTimelineConfig
+  m_EditorClassIdentifier: 
+  assMonsterConfigs:
+  - monster: 0
+    killTimeline: Timeline/PlayerTimelineConfig.asset
+    noKillTimeline: 
+    killAndAbsorb: 
+  - monster: 2
+    killTimeline: Timeline/PlayerTimelineConfig.asset
+    noKillTimeline: 
+    killAndAbsorb: 
+  - monster: 3
+    killTimeline: 
+    noKillTimeline: 
+    killAndAbsorb: Timeline/PlayerTimelineConfig.asset
+  excuteMonsterConfigs:
+  - monster: 0
+    timeline: 
+  - monster: 2
+    timeline: 
+  - monster: 3
+    timeline: 
+  deathConfigs:
+  - monster: 0
+    someSkill: 0
+    skillName: 0
+    timeline: 
+  - monster: 2
+    someSkill: 0
+    skillName: 0
+    timeline: 
+  - monster: 3
+    someSkill: 1
+    skillName: 21
+    timeline: 

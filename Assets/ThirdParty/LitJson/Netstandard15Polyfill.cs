@@ -5,9 +5,9 @@ namespace LitJson
 {
     internal static class Netstandard15Polyfill
     {
-        internal static Type GetInterface(this Type type, string id)
+        internal static Type GetInterface(this Type type, string name)
         {
-            return type.GetTypeInfo().GetInterface(id); 
+            return type.GetTypeInfo().GetInterface(name); 
         }
 
         internal static bool IsClass(this Type type)
