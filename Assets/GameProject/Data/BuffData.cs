@@ -9,7 +9,7 @@ namespace Project.Data
         /// <summary>
         public int ID { get; set; }
         /// <summary>
-        /// 名称
+        /// buff名称
         /// <summary>
         public string name { get; set; }
         /// <summary>
@@ -24,5 +24,17 @@ namespace Project.Data
         /// 间隔
         /// <summary>
         public float interval { get; set; }
+        /// <summary>
+        /// 参数1
+        /// <summary>
+        public string buffArg1 { get; set; }
+        /// <summary>
+        /// 参数2
+        /// <summary>
+        public string buffArg2 { get; set; }
+        /// <summary>
+        /// 参数3
+        /// <summary>
+        public string buffArg3 { get; set; }
     }
 }

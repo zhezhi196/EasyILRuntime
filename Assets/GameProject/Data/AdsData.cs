@@ -2,16 +2,20 @@ using Module;
 
 namespace Project.Data
 {
-    public class AdsData : IAdsData
+    public class AdsData : IRwardData,IAdsData
     {
         /// <summary>
         /// AdsData
         /// <summary>
         public int ID { get; set; }
         /// <summary>
+        /// 显示位置
+        /// <summary>
+        public int showPosition { get; set; }
+        /// <summary>
         /// 类型
         /// <summary>
-        public int adsType { get; set; }
+        public int type { get; set; }
         /// <summary>
         /// 同类型排序
         /// <summary>
@@ -25,6 +29,14 @@ namespace Project.Data
         /// <summary>
         public string rewardCount { get; set; }
         /// <summary>
+        /// 参数1
+        /// <summary>
+        public string adsArg1 { get; set; }
+        /// <summary>
+        /// 参数2
+        /// <summary>
+        public string adsArg2 { get; set; }
+        /// <summary>
         /// 礼包名称
         /// <summary>
         public string title { get; set; }
@@ -37,7 +49,7 @@ namespace Project.Data
         /// <summary>
         public string des { get; set; }
         /// <summary>
-        /// 礼包描述
+        /// 获取描述
         /// <summary>
         public string getDes { get; set; }
         /// <summary>
@@ -48,5 +60,13 @@ namespace Project.Data
         /// 最大购买数量
         /// <summary>
         public int maxPay { get; set; }
+        /// <summary>
+        /// 广告类型
+        /// <summary>
+        public int adsType { get; set; }
+        /// <summary>
+        /// 刷新时间
+        /// <summary>
+        public int deadTune { get; set; }
     }
 }

@@ -9,24 +9,36 @@ namespace Project.Data
         /// <summary>
         public int ID { get; set; }
         /// <summary>
-        /// 关卡等级
+        /// 目标ID
         /// <summary>
-        public int level { get; set; }
+        public int difficulte { get; set; }
         /// <summary>
-        /// 怪物生命上浮
+        /// 模式
         /// <summary>
-        public float monsterHpUp { get; set; }
+        public int mode { get; set; }
         /// <summary>
-        /// 怪物攻击上浮
+        /// 图标
         /// <summary>
-        public float monsterAttUp { get; set; }
+        public string icon { get; set; }
         /// <summary>
-        /// 玩家生命上浮
+        /// 名称
         /// <summary>
-        public float playerHpUp { get; set; }
+        public string title { get; set; }
         /// <summary>
-        /// 玩家攻击上浮
+        /// 描述
         /// <summary>
-        public float playerAttUp { get; set; }
+        public string des { get; set; }
+        /// <summary>
+        /// 解锁描述
+        /// <summary>
+        public string unlockDes { get; set; }
+        /// <summary>
+        /// 解锁关卡
+        /// <summary>
+        public int unlockMission { get; set; }
+        /// <summary>
+        /// 解锁广告ID
+        /// <summary>
+        public int unlockIap { get; set; }
     }
 }

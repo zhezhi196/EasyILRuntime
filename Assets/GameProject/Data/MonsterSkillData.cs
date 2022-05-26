@@ -20,5 +20,17 @@ namespace Project.Data
         /// 伤害系数
         /// <summary>
         public string damage { get; set; }
+        /// <summary>
+        /// 受击图片
+        /// <summary>
+        public int iconHurt { get; set; }
+        /// <summary>
+        /// 参数1
+        /// <summary>
+        public string mosterArg1 { get; set; }
+        /// <summary>
+        /// 参数2
+        /// <summary>
+        public string mosterArg2 { get; set; }
     }
 }

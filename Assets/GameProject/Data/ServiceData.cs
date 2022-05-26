@@ -32,5 +32,9 @@ namespace Project.Data
         /// 全局(1 :是)
         /// <summary>
         public int global { get; set; }
+        /// <summary>
+        /// 标题
+        /// <summary>
+        public string title { get; set; }
     }
 }

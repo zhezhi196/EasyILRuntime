@@ -1,0 +1,65 @@
+﻿using Module;
+
+namespace ProjectUI
+{
+    public class AddCountBagOverSee: ShopItem
+    {
+        public int beishu
+        {
+            get
+            {
+                if (TimeHelper.IsNewDay(reward.iap.dbData.ID.ToString()))
+                {
+                    beishu = 0;
+                    return 0;
+                }
+                else
+                {
+                    return LocalFileMgr.GetInt("AddCountBag" + reward.iap.dbData.ID);
+                }
+            }
+            set
+            {
+                if (value == 5) value = 0;
+                LocalFileMgr.SetInt("AddCountBag" + reward.iap.dbData.ID, value);
+            }
+        }
+
+        public override void SetItem(RewardBag rewardBag)
+        {
+            this.reward = rewardBag;
+            rewardBag.product = (beishu + 1);
+            base.SetItem(rewardBag);
+            off.transform.parent.gameObject.OnActive(beishu > 0);
+            off.text = ConstKey.Cheng + reward.product;
+        }
+    
+        protected override void DefaultListener()
+        {
+            reward.GetReward(res =>
+            {
+                if (res.result == IapResultMessage.Success)
+                {
+                    beishu++;
+                    RewardUI.OpenRewardUI(reward);
+                    SetItem(reward);
+                }
+            });
+        }
+
+        // protected override void OnEnable()
+        // {
+        //     base.OnEnable();
+        //     var shop = transform.parent.GetComponentInParent<ShopItem>();
+        //     icon = shop.icon;
+        //     title = shop.title;
+        //     off = shop.off;
+        //     costCount = shop.costCount;
+        //     reward = shop.reward;
+        //     adsButton = shop.adsButton;
+        //     BuyButton = shop.BuyButton;
+        //     rewardIcon = shop.rewardIcon;
+        //     rewardCount = shop.rewardCount;
+        // }
+    }
+}

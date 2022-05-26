@@ -2,7 +2,7 @@ using Module;
 
 namespace Project.Data
 {
-    public class IapData : IapSqlData
+    public class IapData : IRwardData,ICurrencyData
     {
         /// <summary>
         /// IapData
@@ -68,5 +68,9 @@ namespace Project.Data
         /// 折扣值(仅显示)
         /// <summary>
         public float sale { get; set; }
+        /// <summary>
+        /// 刷新时间
+        /// <summary>
+        public int deadTune { get; set; }
     }
 }
