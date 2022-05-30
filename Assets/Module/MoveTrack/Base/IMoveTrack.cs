@@ -9,7 +9,7 @@ namespace Module
         /// 是否激活
         /// </summary>
         bool isActive { get; }
-
+        
         /// <summary>
         /// 经过若干次偏移到达终点
         /// </summary>

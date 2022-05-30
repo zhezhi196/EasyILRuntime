@@ -8,6 +8,5 @@ namespace Module
     public interface ITarget : IVisiableObject
     {
         Transform transform { get; }
-        Vector3 targetPoint { get; }
     }
 }
