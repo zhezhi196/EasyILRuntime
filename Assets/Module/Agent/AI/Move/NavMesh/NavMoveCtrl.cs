@@ -23,7 +23,7 @@ namespace Module
         private Action<NavMeshPathStatus, bool> callback;
         private bool _isStop;
         private bool isRotate;
-
+        public Vector3 moveDirection;
         #endregion
 
         public bool isStop => isPause || _isStop || station == MoveStation.Idle || Math.Abs(owner.moveSpeed) < 0.0001f;
@@ -65,7 +65,7 @@ namespace Module
             if (Mathf.Abs(owner.rotateSpeed) >= 0.0001f)
             {
                 Vector3 normal = owner.terrainNormal;
-                Vector3 direction = owner.moveDirection;
+                Vector3 direction = owner.faceDirection;
                 direction.y = 0.0f;
                 if (direction.magnitude > 0.1f && normal.magnitude > 0.1f)
                 {
@@ -73,8 +73,11 @@ namespace Module
                     Quaternion qNorm = Quaternion.FromToRotation(Vector3.up, normal);
                     Quaternion lookRotation = qNorm * qLook;
                     var rotation = owner.transform.rotation;
-                    rotation = Quaternion.Slerp(rotation, lookRotation, owner.GetDelatime(false) * owner.rotateSpeed);
+                    rotation = Quaternion.RotateTowards(rotation, lookRotation, owner.GetDelatime(false) * owner.rotateSpeed);
                     owner.transform.rotation = rotation;
+                    Quaternion invertLookAt = Quaternion.Inverse(rotation);
+                    Vector3 moveDir = owner.navmesh.steeringTarget - owner.transform.position;
+                    moveDirection = (invertLookAt * moveDir).normalized;
                     float angle2Target = Quaternion.Angle(rotation, lookRotation);
                     bool temp = angle2Target > owner.rotateToMove;
                     if (temp != isRotate)

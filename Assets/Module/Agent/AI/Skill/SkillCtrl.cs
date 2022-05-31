@@ -98,7 +98,7 @@ namespace Module
 
         public bool UpdateRelease(Action<bool> callback)
         {
-            if (readyRelease != null)
+            if (!isBusy && readyRelease != null)
             {
                 if (!TryRelease(callback))
                 {

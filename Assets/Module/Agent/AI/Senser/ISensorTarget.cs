@@ -6,6 +6,6 @@ namespace Module
     public interface ISensorTarget : ITarget
     {
         bool isSenserable { get; }
-        event Action<ISensorTarget> onDisable;
+        //event Action<ISensorTarget> onDisable;
     }
 }

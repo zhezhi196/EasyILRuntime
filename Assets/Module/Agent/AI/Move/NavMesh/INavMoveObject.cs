@@ -7,7 +7,7 @@ namespace Module
     public interface INavMoveObject : IMoveObject
     {
         NavMeshAgent navmesh { get; }
-        Vector3 moveDirection { get; }
+        Vector3 faceDirection { get; }
         Vector3 terrainNormal { get; }
     }
 }

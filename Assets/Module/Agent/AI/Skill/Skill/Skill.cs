@@ -51,7 +51,7 @@ namespace Module
             {
                 if (cd is TimeAction time)
                 {
-                    return time.timeClock.targetTime;
+                    return time.targetTime;
                 }
 
                 return 0;
@@ -64,7 +64,7 @@ namespace Module
             {
                 if (cd is TimeAction time)
                 {
-                    return time.timeClock.remainTime;
+                    return time.remainTime;
                 }
 
                 return 0;
@@ -219,7 +219,7 @@ namespace Module
         {
         }
         
-        protected virtual void OnCdUpdate(ISkillAction arg1,float percent)
+        protected virtual void OnCdUpdate(float percent)
         {
         }
 
@@ -338,12 +338,13 @@ namespace Module
                 {
                     if (cd.isEnd)
                     {
+                        cd.OnEnd(true);
                         EnterReady();
                     }
                     else
                     {
                         cd.OnUpdate();
-                        OnCdUpdate(cd, cd.percent);
+                        OnCdUpdate(cd.percent);
                     }
                 }
             }

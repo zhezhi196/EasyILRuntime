@@ -5,67 +5,77 @@ namespace Module.SkillAction
 {
     public class TimeAction : ISkillAction
     {
-        public Clock timeClock;
+        public bool isActive;
+        public float targetTime;
+        public float currentTime;
         private List<(float, Action<float>)> frameCallback;
+
+        public float remainTime
+        {
+            get
+            {
+                return targetTime - currentTime;
+            }
+        }
         public ISkillObject owner { get; }
 
         public bool isEnd
         {
-            get { return !timeClock.isActive; }
+            get { return currentTime >= targetTime; }
         }
 
         public float percent
         {
-            get { return timeClock.percent; }
+            get { return currentTime / targetTime; }
         }
 
         public TimeAction(float time, ISkillObject owner)
         {
-            timeClock = new Clock(time);
+            this.targetTime = time;
             this.owner = owner;
-            timeClock.owner = owner;
-            timeClock.autoKill = false;
         }
 
         public void OnStart()
         {
-            timeClock.Restart();
+            currentTime = 0;
+            isActive = true;
         }
 
         public void OnEnd(bool complete)
         {
-            if (!complete)
-            {
-                timeClock.Stop();
-            }
+            isActive = false;
             frameCallback = null;
         }
 
         public void OnPause()
         {
-            timeClock.Pause();
+            isActive = false;
         }
 
         public void OnContinue()
         {
-            timeClock.StartTick();
+            isActive = true;
         }
 
         public void Dispose()
         {
             frameCallback = null;
-            timeClock.autoKill = true;
-            timeClock.Stop();
+            isActive = false;
+            currentTime = 0;
         }
 
         public void OnUpdate()
         {
+            if (isActive)
+            {
+                currentTime += owner.GetDelatime(false);
+            }
             if (frameCallback != null)
             {
                 for (int i = 0; i < frameCallback.Count; i++)
                 {
                     var temp = frameCallback[i];
-                    if (timeClock.percent >= temp.Item1)
+                    if (percent >= temp.Item1)
                     {
                         temp.Item2?.Invoke(temp.Item1);
                         frameCallback.RemoveAt(i);

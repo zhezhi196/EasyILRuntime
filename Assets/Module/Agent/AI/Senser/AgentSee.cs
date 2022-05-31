@@ -100,14 +100,13 @@ namespace Module
         {
             onFousTarget?.Invoke(tar);
             onViewTarget.Add(tar);
-            tar.onDisable += RemoveFromTarget;
+
         }
 
         private void RemoveFromTarget(ISensorTarget tar)
         {
             onLoseTarget?.Invoke(tar);
             onViewTarget.Remove(tar);
-            tar.onDisable -= RemoveFromTarget;
         }
 
         private bool SeeTarget(ISensorTarget tar)

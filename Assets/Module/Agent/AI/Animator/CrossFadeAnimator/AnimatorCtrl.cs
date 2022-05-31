@@ -52,6 +52,7 @@ namespace Module
                 }
             }
             owner.onSwitchStation += OnOwnerSwitchStation;
+            animator.logWarnings = false;
 #if !UNITY_EDITOR
             animator.logWarnings = false;
 #endif
@@ -143,6 +144,7 @@ namespace Module
             onFadeOutLayer?.Invoke(layer);
         }
 
+        private float slerpTemp;
         /// <summary>
         /// SetFoloat with tween
         /// </summary>
@@ -150,11 +152,20 @@ namespace Module
         /// <param name="target"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        public Tweener SetFloat(string name, float target, float time)
+        public Tweener SetFloat(string name, float target, float speedOrtime, bool updateCall = false)
         {
-            return DOTween
-                .To(() => animator.GetFloat(name), (value) => { animator.SetFloat(name, value); }, target, time)
-                .SetUpdate(true);
+            if (!updateCall)
+            {
+                return DOTween
+                    .To(() => animator.GetFloat(name), (value) => { animator.SetFloat(name, value); }, target, speedOrtime)
+                    .SetUpdate(true);
+            }
+            else
+            {
+                Mathf.MoveTowards(animator.GetFloat(name), target, owner.GetDelatime(false)*speedOrtime);
+                return null;
+            }
+
         }
 
         /// <summary>
