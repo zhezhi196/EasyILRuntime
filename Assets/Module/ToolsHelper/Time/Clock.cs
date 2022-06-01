@@ -73,7 +73,6 @@ namespace Module
 
         #region PrivateIndex
 
-        private bool _isEncryption;
         private int currentIntervalIndex;
         private int currentSecond;
         private int currentMinute;
@@ -91,35 +90,12 @@ namespace Module
             get { return currentTime; }
         }
 
-        public bool isStop = true;
-
         public object ID { get; set; }
         public Func<bool> listener { get; set; }
 
         public bool autoKill { get; set; } = true;
-
-        public bool encryption
-        {
-            get
-            {
-                return _isEncryption;
-            }
-            set
-            {
-                if (_isEncryption != value)
-                {
-                    if (value)
-                    {
-                        _currentTimeEncryption = new FloatField(currentTime);
-                    }
-                    else
-                    {
-                        currentTime = _currentTimeEncryption.value;
-                    }
-                    _isEncryption = value;
-                }
-            }
-        }
+        
+        public bool encryption { get; set; }
 
         /// <summary>
         /// 当前已经进行的时间
@@ -142,7 +118,7 @@ namespace Module
 
         public float percent
         {
-            get { return Mathf.Clamp01(currentTime / targetTime); }
+            get { return Mathf.Clamp01(remainTime / targetTime); }
         }
 
         public float remainTime
@@ -163,7 +139,7 @@ namespace Module
 
         public bool isActive
         {
-            get { return !isStop && !isComplete; }
+            get { return clockList.Contains(this); }
         }
         /// <summary>
         /// 间隔时间
@@ -216,19 +192,12 @@ namespace Module
             if (active)
             {
                 if (!isActive)
-                {
-                    isStop = false;
                     clockList.Add(this);
-                }
             }
             else
             {
                 if (isActive)
-                {
-                    isStop = true;
                     clockList.Remove(this);
-                }
-
             }
         }
         
@@ -272,7 +241,7 @@ namespace Module
             }
         }
 
-        private void Complete()
+        public void Complete()
         {
             SetActive(false);
             onComplete?.Invoke();
@@ -309,16 +278,13 @@ namespace Module
             return delatime;
         }
 
-        private void OnUpdate()
+        public void OnUpdate()
         {
-            if (isActive)
-            {
-                float delatime = GetDelatime();
-                DelatimeUpdate(delatime);
-            }
+            float delatime = GetDelatime();
+            DelatimeUpdate(delatime);
         }
 
-        private void DelatimeUpdate(float delatime)
+        public void DelatimeUpdate(float delatime)
         {
             var tempCurr = currentTime;
 
@@ -376,7 +342,7 @@ namespace Module
 
         public bool MoveNext()
         {
-            return isActive;
+            return !isComplete;
         }
 
         public void Reset()

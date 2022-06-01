@@ -73,7 +73,7 @@ public class AudioRoomPortal : MonoBehaviour
         {
             return 0;
         }
-        else if (Mathf.Abs(pos.y - transform.position.y) > 4) //不在统一水平面
+        else if (Mathf.Abs(pos.y - transform.position.y) > 2) //不在统一水平面
         {
             return 0;
         }
@@ -82,21 +82,7 @@ public class AudioRoomPortal : MonoBehaviour
             return 0;
         }
 
-        pos.y = transform.position.y;
-        var distance = Vector3.Distance(pos, transform.position);
-        
-        if(distance > portalDetectRangeMax)
-        {
-            return 0;
-        }
-        else if (distance > portalDetectRangeMin)
-        {
-            return Mathf.Lerp(1, 0, (distance - portalDetectRangeMin) / (portalDetectRangeMax - portalDetectRangeMin));
-        }
-        else
-        {
-            return 1;
-        }
+        return GetSourceDistanceRate(pos);
     }
 
     public float GetSourceDistanceRate(Vector3 sourcePos)

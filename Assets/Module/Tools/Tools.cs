@@ -21,6 +21,24 @@ namespace Module
     public static class Tools
     {
         public static readonly MD5 md5 = MD5.Create();
+        
+        public static int GetChannelBit(string rawChannelStr)
+        {
+            if (rawChannelStr.IsNullOrEmpty())
+            {
+                return -1;
+            }
+            
+            int ret = 0;
+            var split = rawChannelStr.Split('|');
+            for (int i = 0; i < split.Length; i++)
+            {
+                int temp = int.Parse(split[i]);
+                ret = ret | (1 << temp);
+            }
+            // GameDebug.Log($"{rawChannelStr}:{ret}");
+            return ret;
+        }
         #region 对函数进行压力测试
 
         ///     对函数进行压力测试

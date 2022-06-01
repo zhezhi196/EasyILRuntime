@@ -31,6 +31,11 @@ public enum RunLogicalName
     
     [LabelText("教学")]  TeachEvent,
     [LabelText("停止攻击")]   StopAttack,
+    [LabelText("切换雾效")] SwitchFog,
+    
+    [LabelText("强制上锁")]ForceLock,
+    [LabelText("解除强制上锁")]RemoveForceLock,
+
 }
 
 public enum SendEventCondition
@@ -39,7 +44,9 @@ public enum SendEventCondition
     [LabelText("交互")] Interactive,
     [LabelText("添加状态")] AddStation,
     [LabelText("移除状态")] RemoveStation,
-    [LabelText("死亡")] Dead
+    [LabelText("死亡")] Dead,
+    [LabelText("玩家出生")]
+    PlayerBorn,
 }
 
 // public class EventContent

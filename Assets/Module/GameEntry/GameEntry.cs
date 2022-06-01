@@ -53,7 +53,6 @@ namespace Module
                 Back();
             }
 
-            SystemUpdate.Update();
             OnGameUpdate?.Invoke();
         }
         

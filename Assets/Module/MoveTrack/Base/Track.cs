@@ -4,7 +4,7 @@ namespace Module
 {
     public static class Track
     {
-        public static List<IMoveTrack> track;
+        public static List<IMoveTrack> track = new List<IMoveTrack>();
 
         public static void Update()
         {

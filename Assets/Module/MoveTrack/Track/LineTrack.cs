@@ -7,7 +7,6 @@ namespace Module
     {
         #region 字段
 
-        private Transform moveTarget;
         private bool _isActive;
         private Vector3 _endPoint;
 
@@ -29,14 +28,6 @@ namespace Module
         public bool isActive
         {
             get { return _isActive; }
-        }
-
-        public bool autoUpdate
-        {
-            get
-            {
-                return moveTarget != null;
-            }
         }
 
         /// <summary>

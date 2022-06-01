@@ -315,7 +315,6 @@ namespace Module
                     OnCloseComplete?.Invoke(tweenType);
                     onSequenceComplete?.Invoke(tweenType);
                     OnCloseComplete = null;
-                    onSequenceComplete = null;
                     UnLoad();
                     callback?.Invoke(true);
                 };

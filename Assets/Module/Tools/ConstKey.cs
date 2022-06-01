@@ -76,7 +76,7 @@ namespace Module
                 case AssetLoad.AssetFolderType.UI:
                     return "UI";
                 case AssetLoad.AssetFolderType.Effect:
-                    return "Effect";
+                    return "Effect/Prefabs";
                 case AssetLoad.AssetFolderType.DB:
                     return "DbData/";
                 case AssetLoad.AssetFolderType.Bundle:
@@ -111,8 +111,5 @@ namespace Module
         Huawei = 1 << 3,
         TapTap = 1 << 4,
         TikTok = 1 << 5,
-        TapTapHarmony = 1 << 6,
-        AppStoreCNHarmony = 1 << 7,
-        TikTokHarmony = 1 << 8,
     }
 }

@@ -20,6 +20,11 @@ namespace Module
         {
             return "Assets/" + path.Substring(Application.dataPath.Length + 1, path.Length - Application.dataPath.Length - 1).Replace("\\", "/");
         }
+
+        public static string GetAssetPath(string windowPath)
+        {
+            return windowPath.Substring(Application.dataPath.Length - 6, windowPath.Length - Application.dataPath.Length + 6);
+        }
 #endif
         public static string PersistentDataPath()
         {
