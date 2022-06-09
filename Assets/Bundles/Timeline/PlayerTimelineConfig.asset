@@ -14,34 +14,107 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assMonsterConfigs:
   - monster: 0
-    killTimeline: Timeline/PlayerTimelineConfig.asset
+    killTimeline: Timeline/Prisoner/PrisonerAss01Timeline.prefab
     noKillTimeline: 
-    killAndAbsorb: 
+  - monster: 1
+    killTimeline: Timeline/Prisoner/PrisonerAssTimeline.prefab
+    noKillTimeline: 
   - monster: 2
-    killTimeline: Timeline/PlayerTimelineConfig.asset
+    killTimeline: Timeline/Prisoner/PrisonerAssTimeline.prefab
     noKillTimeline: 
-    killAndAbsorb: 
   - monster: 3
-    killTimeline: 
+    killTimeline: Timeline/Dog/DogAssTimeline.prefab
     noKillTimeline: 
-    killAndAbsorb: Timeline/PlayerTimelineConfig.asset
+  - monster: 6
+    killTimeline: Timeline/Solider/SoliderAssTimeline.prefab
+    noKillTimeline: Timeline/Solider/SoliderAssFailTimeline.prefab
   excuteMonsterConfigs:
   - monster: 0
-    timeline: 
+    timeline: Timeline/Prisoner/PrisonerExcTimeline.prefab
+  - monster: 1
+    timeline: Timeline/Prisoner/PrisonerExcTimeline.prefab
   - monster: 2
-    timeline: 
+    timeline: Timeline/Prisoner/PrisonerExcTimeline.prefab
   - monster: 3
-    timeline: 
+    timeline: Timeline/Dog/DogExcTimeline.prefab
+  - monster: 6
+    timeline: Timeline/Solider/SoliderExcTimeline.prefab
+  getoutConfigs:
+  - monster: 0
+    timeline: Timeline/Prisoner/PrisonerGetoutTimeline.prefab
+  - monster: 1
+    timeline: Timeline/WeaponPrisoner/WeaponPrisonerGetoutTimeline.prefab
+  - monster: 2
+    timeline: Timeline/WeaponPrisoner/WeaponPrisonerGetoutTimeline.prefab
+  - monster: 3
+    timeline: Timeline/Dog/DogGetoutTimlein.prefab
+  - monster: 7
+    timeline: Timeline/Tumour/TumourGetoutPlayer.prefab
+  - monster: 8
+    timeline: Timeline/General/GeneralGetoutTimeline.prefab
+  - monster: 6
+    timeline: Timeline/Solider/SoliderGetoutTimeline.prefab
   deathConfigs:
   - monster: 0
     someSkill: 0
     skillName: 0
-    timeline: 
+    timeline: Timeline/Prisoner/PrisonerKillTimeline.prefab
+  - monster: 1
+    someSkill: 0
+    skillName: 0
+    timeline: Timeline/WeaponPrisoner/WeaponPrisonerKillTimeline.prefab
   - monster: 2
     someSkill: 0
     skillName: 0
-    timeline: 
+    timeline: Timeline/WeaponPrisoner/WeaponPrisonerKillTimeline.prefab
   - monster: 3
-    someSkill: 1
-    skillName: 21
-    timeline: 
+    someSkill: 0
+    skillName: 0
+    timeline: Timeline/Dog/DogKillTimeline.prefab
+  - monster: 7
+    someSkill: 0
+    skillName: 0
+    timeline: Timeline/Tumour/TumourKillPlayer.prefab
+  - monster: 8
+    someSkill: 0
+    skillName: 0
+    timeline: Timeline/General/GeneralKillTimeline.prefab
+  - monster: 6
+    someSkill: 0
+    skillName: 0
+    timeline: Timeline/Solider/SoliderKillTimeline.prefab
+  monsterShowConfigs:
+  - monster: 8
+    timeline: Timeline/MonsterEnter/GeneralEnter.prefab
+  - monster: 5
+    timeline: Timeline/MonsterEnter/AdvDogEnter.prefab
+  - monster: 7
+    timeline: Timeline/MonsterEnter/TumourEnter.prefab
+  endAnimConfig:
+  - difficulte: 0
+    timeline: Timeline/End/EndTimeline01.prefab
+  - difficulte: 1
+    timeline: Timeline/End/EndTimeline02.prefab
+  deathStory:
+  - Timeline/Death/Death1.prefab
+  - Timeline/Death/Death2.prefab
+  - Timeline/Death/Death3.prefab
+  - Timeline/Death/Death4.prefab
+  - Timeline/Death/Death5.prefab
+  editor: 0
+  PlayerModelPath: ArtWork/Player/PlayerNew/player_hand.fbx
+  mosterModels:
+  - monster: 0
+    modelPath: ArtWork/Monster/prisoner/Modle/prisoner.FBX
+  - monster: 1
+    modelPath: ArtWork/Monster/prisoner/Modle/prisoner.FBX
+  - monster: 2
+    modelPath: ArtWork/Monster/prisoner/Modle/prisoner.FBX
+  - monster: 3
+    modelPath: ArtWork/Monster/Dog/mod/Dog.FBX
+  - monster: 7
+    modelPath: ArtWork/Monster/tumour/Modle/tumour.fbx
+  - monster: 8
+    modelPath: ArtWork/Monster/general/general.FBX
+  - monster: 6
+    modelPath: ArtWork/Monster/Soldier/Modle/soldier.FBX

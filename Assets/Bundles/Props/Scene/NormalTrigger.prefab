@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &396370334862308858
+--- !u!1 &4063020304251783764
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,56 +8,62 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1245123501884291117}
-  - component: {fileID: 6578710725624643514}
-  - component: {fileID: 363425824838609280}
-  m_Layer: 2
+  - component: {fileID: 804717508228979242}
+  - component: {fileID: 6910491873874608412}
+  - component: {fileID: 5458447342700796760}
+  m_Layer: 18
   m_Name: NormalTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1245123501884291117
+--- !u!4 &804717508228979242
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 396370334862308858}
+  m_GameObject: {fileID: 4063020304251783764}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.852316, y: 0.18224096, z: -17.16401}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6578710725624643514
+--- !u!114 &6910491873874608412
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 396370334862308858}
+  m_GameObject: {fileID: 4063020304251783764}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 255431771aa44447895c097cb09ee4e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactiveCount: 0
+  tipsPoint: []
+  IsAnimating: 0
   progressPoint: {fileID: 0}
   _station: 0
   isInit: 0
   creator: {fileID: 0}
   lookPoints: []
+  findParent: 0
+  parentId: 0
+  followPoint: {fileID: 0}
   flashPoint: {fileID: 0}
-  collider: {fileID: 363425824838609280}
---- !u!65 &363425824838609280
+  collider: {fileID: 5458447342700796760}
+--- !u!65 &5458447342700796760
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 396370334862308858}
+  m_GameObject: {fileID: 4063020304251783764}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7937423551387204122
+--- !u!114 &-9082210347338886575
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,29 +9,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bcf279696ca443c9e61ae0e722969db, type: 3}
+  m_Script: {fileID: 11500000, guid: be00fd597378e494e83b0da6de2d2c2b, type: 3}
   m_Name: Task Start
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -280, y: -232}
+  position: {x: -616, y: -72}
   ports:
     keys:
     - outPort
     values:
     - _fieldName: outPort
-      _node: {fileID: -7937423551387204122}
+      _node: {fileID: -9082210347338886575}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: inPort
-        node: {fileID: 525709625057976484}
+        node: {fileID: -8517653847094729152}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
+  nextNode:
+  - {fileID: -8517653847094729152}
   outPort: 0
---- !u!114 &-4802504900621120624
+--- !u!114 &-8517653847094729152
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,58 +42,102 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 536cba385b5a45e68db0a4d8d3855e0e, type: 3}
-  m_Name: 1
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 01 Confinement
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 152, y: -280}
+  position: {x: -184, y: -184}
   ports:
     keys:
     - inPort
     - outPort
     values:
     - _fieldName: inPort
-      _node: {fileID: -4802504900621120624}
+      _node: {fileID: -8517653847094729152}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: outPort
-        node: {fileID: 525709625057976484}
+        node: {fileID: -6758040243446399472}
+        reroutePoints: []
+      - fieldName: outPort
+        node: {fileID: -9082210347338886575}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
     - _fieldName: outPort
-      _node: {fileID: -4802504900621120624}
+      _node: {fileID: -8517653847094729152}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: inPort
-        node: {fileID: 6213044657157543655}
+        node: {fileID: -1439512421153408248}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
+  nextNode:
+  - {fileID: -1439512421153408248}
   inPort: 0
   outPort: 0
-  editorPrefab: {fileID: 5608325755772364352, guid: ec5b57b42bbd4464b921441b79e075ff,
-    type: 3}
-  gameEditorInfo: {fileID: 0}
+  id: 1
   nodeSetting:
-    loadScene: 
-    unloadScene: 
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 2
+    - runtimeLoad: 1
+      sceneName: 1
+    unloadScene: []
     bgm: 
     frog:
-      fog: 0
-      fogColor: {r: 0, g: 0, b: 0, a: 0}
-      fogMode: 1
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.18867922, g: 0.18422924, b: 0.18422924, a: 1}
+      fogMode: 2
       Start: 0
-      End: 0
-      density: 0
-  station: 0
---- !u!114 &-612455156340391684
+      End: 50
+      density: 0.08
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 2
+  mapID: 1
+  parentPrefab: {fileID: 3927493152564921261, guid: 460e1ddd36e13654fbd8c737f8cbda37,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &-6758040243446399472
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,57 +146,320 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 536cba385b5a45e68db0a4d8d3855e0e, type: 3}
-  m_Name: 2
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 00 Dream
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 152, y: -24}
+  position: {x: -440, y: -24}
   ports:
     keys:
     - inPort
     - outPort
     values:
     - _fieldName: inPort
-      _node: {fileID: -612455156340391684}
+      _node: {fileID: -6758040243446399472}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: -6758040243446399472}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: -8517653847094729152}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: -8517653847094729152}
+  inPort: 0
+  outPort: 0
+  id: 0
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 1
+    - runtimeLoad: 1
+      sceneName: 2
+    unloadScene: []
+    bgm: 
+    frog:
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.10123711, g: 0.19883084, b: 0.23584908, a: 1}
+      fogMode: 3
+      Start: 0
+      End: 50
+      density: 0.05
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate: []
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 0
+  mapID: 1
+  parentPrefab: {fileID: 4017792780059107426, guid: 33c06b9b7143cab4cbe76a836b29f3d5,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &-4715342014016747634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 05 boss
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 856, y: -168}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: -4715342014016747634}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: outPort
-        node: {fileID: 525709625057976484}
+        node: {fileID: 8976002804917806648}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
     - _fieldName: outPort
-      _node: {fileID: -612455156340391684}
+      _node: {fileID: -4715342014016747634}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: inPort
-        node: {fileID: 6213044657157543655}
+        node: {fileID: 4794670778259781627}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
+  nextNode:
+  - {fileID: 4794670778259781627}
   inPort: 0
   outPort: 0
-  editorPrefab: {fileID: 6972859457767560299, guid: c9d1b92da5767194b8aca765e10c0560,
-    type: 3}
-  gameEditorInfo: {fileID: 0}
+  id: 5
   nodeSetting:
-    loadScene: 
-    unloadScene: 
+    loadScene: []
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 4
     bgm: 
     frog:
-      fog: 0
-      fogColor: {r: 0, g: 0, b: 0, a: 0}
-      fogMode: 1
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.08235295, g: 0.17811447, b: 0.2, a: 1}
+      fogMode: 3
       Start: 0
-      End: 0
+      End: 50
+      density: 0.03
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.76470596, g: 0.7019608, b: 0.56078434, a: 1}
+      fogMode: 1
+      Start: 5
+      End: 50
       density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 434
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
   station: 0
+  mapID: 5
+  parentPrefab: {fileID: 4470452533883619864, guid: 14099b8b33613fd4ab6e062029205c8f,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &-1439512421153408248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 02 Cell
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 72, y: -168}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: -1439512421153408248}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: -8517653847094729152}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: -1439512421153408248}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: 6377745497586983518}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: 6377745497586983518}
+  inPort: 0
+  outPort: 0
+  id: 2
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 3
+    unloadScene: []
+    bgm: 
+    frog:
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.11903704, g: 0.21523523, b: 0.23584908, a: 1}
+      fogMode: 3
+      Start: 0
+      End: 50
+      density: 0.05
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 116
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 1
+  mapID: 2
+  parentPrefab: {fileID: 6331798287007978309, guid: c6e2fa262860eca46a10fd86f7e83f24,
+    type: 3}
+  nodeParent: {fileID: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,17 +469,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8be4771a59d9489f97932996613364a9, type: 3}
+  m_Script: {fileID: 11500000, guid: d947154bcbbca2c40842eb0ae9b3369b, type: 3}
   m_Name: 17001
   m_EditorClassIdentifier: 
   nodes:
-  - {fileID: -7937423551387204122}
-  - {fileID: 525709625057976484}
-  - {fileID: -4802504900621120624}
-  - {fileID: -612455156340391684}
-  - {fileID: 6213044657157543655}
-  - {fileID: 4230034532038931329}
---- !u!114 &525709625057976484
+  - {fileID: -9082210347338886575}
+  - {fileID: -6758040243446399472}
+  - {fileID: 4794670778259781627}
+  - {fileID: -8517653847094729152}
+  - {fileID: -1439512421153408248}
+  - {fileID: 6377745497586983518}
+  - {fileID: 8976002804917806648}
+  - {fileID: -4715342014016747634}
+--- !u!114 &4794670778259781627
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -179,92 +490,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 536cba385b5a45e68db0a4d8d3855e0e, type: 3}
-  m_Name: Born
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: -136, y: -280}
-  ports:
-    keys:
-    - inPort
-    - outPort
-    values:
-    - _fieldName: inPort
-      _node: {fileID: 525709625057976484}
-      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections:
-      - fieldName: outPort
-        node: {fileID: -7937423551387204122}
-        reroutePoints: []
-      _direction: 0
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: outPort
-      _node: {fileID: 525709625057976484}
-      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections:
-      - fieldName: inPort
-        node: {fileID: -4802504900621120624}
-        reroutePoints: []
-      - fieldName: inPort
-        node: {fileID: -612455156340391684}
-        reroutePoints: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  inPort: 0
-  outPort: 0
-  editorPrefab: {fileID: 371160773420858819, guid: 1cc76085e1538f649a92c2f3e146b95d,
-    type: 3}
-  gameEditorInfo: {fileID: 0}
-  nodeSetting:
-    loadScene: 00000000
-    unloadScene: 
-    bgm: 
-    frog:
-      fog: 0
-      fogColor: {r: 0, g: 0, b: 0, a: 0}
-      fogMode: 1
-      Start: 0
-      End: 0
-      density: 0
-  station: 0
---- !u!114 &4230034532038931329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 649fefaf0b814006a77a2e0b8b2f4c82, type: 3}
+  m_Script: {fileID: 11500000, guid: 972c393c27e69194bb7d7509fc57206e, type: 3}
   m_Name: Task End
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 840, y: -152}
+  position: {x: 1112, y: -120}
   ports:
     keys:
     - inPort
     values:
     - _fieldName: inPort
-      _node: {fileID: 4230034532038931329}
+      _node: {fileID: 4794670778259781627}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: outPort
-        node: {fileID: 6213044657157543655}
+        node: {fileID: -4715342014016747634}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
+  nextNode: []
   inPort: 0
---- !u!114 &6213044657157543655
+  taskPredicate:
+    tag: 
+    enterPredicate:
+    - predicate: 3
+      arg:
+      - 500
+--- !u!114 &6377745497586983518
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -273,57 +528,196 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 536cba385b5a45e68db0a4d8d3855e0e, type: 3}
-  m_Name: 3
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 03 Canteen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 542.9633, y: -188.02527}
+  position: {x: 344, y: -152}
   ports:
     keys:
     - inPort
     - outPort
     values:
     - _fieldName: inPort
-      _node: {fileID: 6213044657157543655}
+      _node: {fileID: 6377745497586983518}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: outPort
-        node: {fileID: -4802504900621120624}
-        reroutePoints: []
-      - fieldName: outPort
-        node: {fileID: -612455156340391684}
+        node: {fileID: -1439512421153408248}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
     - _fieldName: outPort
-      _node: {fileID: 6213044657157543655}
+      _node: {fileID: 6377745497586983518}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: inPort
-        node: {fileID: 4230034532038931329}
+        node: {fileID: 8976002804917806648}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
+  nextNode:
+  - {fileID: 8976002804917806648}
   inPort: 0
   outPort: 0
-  editorPrefab: {fileID: 1675722750599926789, guid: 8d311c2b74f939d49af31ad8f71d1e2b,
-    type: 3}
-  gameEditorInfo: {fileID: 0}
+  id: 3
   nodeSetting:
-    loadScene: 
-    unloadScene: 
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 4
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 2
     bgm: 
     frog:
-      fog: 0
-      fogColor: {r: 0, g: 0, b: 0, a: 0}
-      fogMode: 1
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.0985226, g: 0.14129582, b: 0.16981131, a: 1}
+      fogMode: 3
       Start: 0
-      End: 0
-      density: 0
+      End: 50
+      density: 0.025
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 232
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
   station: 0
+  mapID: 3
+  parentPrefab: {fileID: 4768191952336027918, guid: 9774f81225489414db464f09d659fbc2,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &8976002804917806648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 04 Sewer
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 616, y: -168}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: 8976002804917806648}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: 6377745497586983518}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: 8976002804917806648}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: -4715342014016747634}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: -4715342014016747634}
+  inPort: 0
+  outPort: 0
+  id: 4
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 5
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 3
+    bgm: 
+    frog:
+    - fog: 1
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0.08235295, g: 0.17811447, b: 0.2, a: 1}
+      fogMode: 3
+      Start: 0
+      End: 50
+      density: 0.03
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 335
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 0
+  mapID: 4
+  parentPrefab: {fileID: 5206307626824420585, guid: 0bd3e9fd8595ac54b88ddc2130184e14,
+    type: 3}
+  nodeParent: {fileID: 0}
