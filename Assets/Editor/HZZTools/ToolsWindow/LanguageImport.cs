@@ -134,17 +134,16 @@ namespace EditorModule
                     {
                         List<LangInfo> info = new List<LangInfo>();
                         string key = table.GetCell(i, fromPoint.y).Value;
-                        string channel = null;
                         int channelBit = -1;
                         if (fromPoint.y > 1 && subChannel)
                         {
-                            channel = table.GetValue(i, fromPoint.y - 1).ToString().ToLower();
-                            channelBit = GetChannelBit(channel);
+                            var channel = table.GetValue(i, fromPoint.y - 1).ToString().ToLower();
+                            channelBit = Module.Tools.GetChannelBit(channel);
                         }
 
                         if (!key.IsNullOrEmpty())
                         {
-                            if (channel.IsNullOrEmpty() || (channelBit & (int) channelT) != 0) //channel.ToLower().Contains(Channel.channel.ToString().ToLower())))
+                            if (channelBit != -1 || (channelBit & (int) channelT) != 0) //channel.ToLower().Contains(Channel.channel.ToString().ToLower())))
                             {
                                 for (int j = fromPoint.y; j <= table.NumberOfColumns; j++)
                                 {
@@ -189,23 +188,7 @@ namespace EditorModule
             
         }
 
-        private int GetChannelBit(string rawChannelStr)
-        {
-            if (rawChannelStr.IsNullOrEmpty())
-            {
-                return -1;
-            }
-            
-            int ret = 0;
-            var split = rawChannelStr.Split('|');
-            for (int i = 0; i < split.Length; i++)
-            {
-                int temp = int.Parse(split[i]);
-                ret = ret | (1 << temp);
-            }
-            // GameDebug.Log($"{rawChannelStr}:{ret}");
-            return ret;
-        }
+
 
         private void OpenDialog(bool multiselect, Action<string[]> callback)
         {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using RootMotion;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;

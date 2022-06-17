@@ -132,7 +132,9 @@ namespace EditorModule
                 }
 
                 CreatCs(files[0]);
-
+                File.Delete(tempPath);
+                AssetDatabase.Refresh();
+                Debug.Log("生成脚本成功");
             });
         }
 
@@ -189,9 +191,7 @@ namespace EditorModule
                     }
                 }
             }
-            File.Delete(tempPath);
-            AssetDatabase.Refresh();
-            Debug.Log("生成脚本成功");
+            
         }
 
         private void OpenDialog(bool multiselect, Action<string[]> callback)
@@ -230,8 +230,6 @@ namespace EditorModule
                 }
                 CreateSqliteConnection(editorPath, null, files[0]);
                 CreateSqliteConnection($"{Application.streamingAssetsPath}/{ConstKey.GetFolder(AssetLoad.AssetFolderType.DB)}/{ConstKey.Config_data}", ConstKey.SqlPassword, files[0]);
-                CreatCs(files[0]);
-
             });
         }
 
@@ -305,16 +303,17 @@ namespace EditorModule
             {
                 string idKey = tables.GetValue(i, start.y).ToString();
                 //获取表的渠道
-                string channel = null;
+                int channelBit = -1;
                 if (start.y > 1 && subChannel)
                 {
-                    channel = tables.GetValue(i, start.y - 1).ToString().ToLower();
+                    var channel = tables.GetValue(i, start.y - 1).ToString().ToLower();
+                    channelBit = Module.Tools.GetChannelBit(channel);
                 }
 
                 Config config = AssetDatabase.LoadAssetAtPath<Config>("Assets/Config/Config.asset");
                 ChannelType cn = config.channel;
                 //如果没有ID列,则此行无效
-                if (idKey.IsNullOrEmpty() || (!channel.IsNullOrEmpty() && channel.ToLower().Contains(cn.ToString().ToLower())))
+                if (idKey.IsNullOrEmpty() || ((channelBit & (int) cn) == 0 && channelBit != -1))
                 {
                     continue;
                 }

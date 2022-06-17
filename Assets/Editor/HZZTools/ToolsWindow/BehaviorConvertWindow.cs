@@ -1,6 +1,4 @@
-﻿using BehaviorDesigner.Editor;
-using BehaviorDesigner.Runtime;
-using Module;
+﻿using Module;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 
