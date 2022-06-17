@@ -1,5 +1,6 @@
 ﻿using Module;
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 namespace ProjectUI
@@ -32,6 +33,7 @@ namespace ProjectUI
         public UIBtnBase otherBtn;
         public GameObject lockIcon;
         public Text otherLable;
+        public GameObject otherLableLight;
 
         protected override void OnChildStart()
         {
@@ -69,6 +71,7 @@ namespace ProjectUI
             {
                 lockIcon.OnActive(false);
                 otherLable.SetAlpha(1f);
+                otherLableLight.OnActive(true);
             }
             //AudioPlay.PlayBackGroundMusic("BGM_aiji");
             HttpCache.Instance.login.Login(() => {});

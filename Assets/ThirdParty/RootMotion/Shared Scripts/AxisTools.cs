@@ -83,10 +83,10 @@ namespace RootMotion {
             direction = direction.normalized;
             Vector3 axis = Vector3.right;
 
-            float dotX = Mathf.Abs(Vector3.Dot(Vector3.Normalize(r * Vector3.right), direction));
-            float dotY = Mathf.Abs(Vector3.Dot(Vector3.Normalize(r * Vector3.up), direction));
+            float dotX = Mathf.Abs(Vector3.Dot(r * Vector3.right, direction));
+            float dotY = Mathf.Abs(Vector3.Dot(r * Vector3.up, direction));
             if (dotY > dotX) axis = Vector3.up;
-            float dotZ = Mathf.Abs(Vector3.Dot(Vector3.Normalize(r * Vector3.forward), direction));
+            float dotZ = Mathf.Abs(Vector3.Dot(r * Vector3.forward, direction));
             if (dotZ > dotX && dotZ > dotY) axis = Vector3.forward;
 
             return axis;

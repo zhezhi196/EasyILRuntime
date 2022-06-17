@@ -20,8 +20,7 @@ public abstract class ChargeSkill : MonsterSkill
     public Bounds damageBounds;
     [LabelText("冲锋到终点后的动画")]
     public string OnTriggerAnimation;
-    [LabelText("冲锋检测层")]
-    public LayerMask stopLayer;
+
     public abstract Transform checkAttackPoint { get; }
     [ReadOnly]
     public Vector3 stopPoint;
@@ -53,17 +52,22 @@ public abstract class ChargeSkill : MonsterSkill
     protected override void OnReleaseStart()
     {
         base.OnReleaseStart();
+        isCompleteCharge = false;
         isHurtPlayer = false;
-        Ray ray = new Ray(monster.eye.transform.position, Player.player.transform.position - monster.transform.position);
+        Ray ray = new Ray(monster.eye.transform.position, Player.player.CenterPostion - monster.eye.transform.position);
         RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, maxChargeDistance, stopLayer))
+        if (Physics.Raycast(ray, out hitInfo, maxChargeDistance, MaskLayer.obstacal))
         {
             stopPoint = new Vector3(hitInfo.point.x, monster.transform.position.y, hitInfo.point.z);
+            GameObject ggg = new GameObject("ggg");
+
+            ggg.transform.position = stopPoint;
             hasObstacle = true;
         }
         else
         {
             stopPoint = ray.GetPoint(maxChargeDistance);
+            stopPoint.y = monster.transform.position.y;
             hasObstacle = false;
         }
     }
@@ -114,5 +118,5 @@ public abstract class ChargeSkill : MonsterSkill
     {
     }
 
-    public override float stopMoveDistance => damageBounds.extents.z;
+    public override float stopMoveDistance => damageBounds.extents.z * 0.5f;
 }

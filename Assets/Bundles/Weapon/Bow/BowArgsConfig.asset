@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: BowArgsConfig
   m_EditorClassIdentifier: 
   attckDistance: 2000
+  firstBulletCount: 1
+  getBulletCount: 1
   moveMul: 2
   crouchMoveMul: 1.5
   crouchMul: 0.5
@@ -20,11 +22,12 @@ MonoBehaviour:
   fallAccurate: 80
   Recoil: 20
   MaxRecoil: 100
+  diffusionArea: 100
   attackSoundRange: 100
   hitSoundRange: 10
-  fireAudio: 
+  fireAudio: nu_fire
   toAimAudio: 
   toNoAimAudio: 
-  emptyFireAuido: 
-  reloadAudio: 
+  emptyFireAuido: M1014_fire2
+  reloadAudio: nu_change
   emptyReloadAudio: 

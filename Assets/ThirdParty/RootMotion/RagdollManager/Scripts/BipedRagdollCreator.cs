@@ -431,7 +431,7 @@ namespace RootMotion.Dynamics {
 				if (isVertical) bendPlaneNormal = Vector3.Dot(bone1Dir, root.up) > 0f? root.right: -root.right;
 				else bendPlaneNormal = Vector3.Dot(bone1Dir, root.right) > 0f? root.up: -root.up;
 
-				//Debug.LogWarning("Limb " + bone1.name + ", " + bone2.name + ", " + bone3.name + " appears to be completely stretched out, Ragdoll Creator can not know how to assign joint limits. Please rotate the elbow/knee bone slightly towards it's natural bending direction.");
+				//Debug.LogWarning("Limb " + bone1.name + ", " + bone2.name + ", " + bone3.name + " appears to be completely stretched out, Ragdoll Creator can not know how to assign joint limits. Please rotate the elbow/knee bone slightly towards its natural bending direction.");
 			}
 			
 			CreateJoint(new CreateJointParams(

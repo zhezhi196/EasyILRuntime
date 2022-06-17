@@ -45,6 +45,10 @@ public partial class PropsCreator
             EditorDestroyProps();
             OnLoadTypeChanged();
         }
+        
+        //刷新Progress
+        GetComponentInParent<NodeParent>().progressSO.ChangeCreatorId(idBackUp , id);
+        idBackUp = id;
     }
 
     // private static IEnumerable<string> GetModelNames()
@@ -57,14 +61,14 @@ public partial class PropsCreator
     //     return ret;
     // }
 
-    private void CheckProgress()
-    {
-        NodeParent parent = transform.GetComponentInParent<NodeParent>();
-        string[] spite = parent.prefab.Split('/');
-        string path = parent.prefab.Substring(0, parent.prefab.Length - spite.Last().Length - 1);
-        MissionGraph graph = UnityEditor.AssetDatabase.LoadAssetAtPath<MissionGraph>(path + ".asset");
-        graph.CheckProgress(extuil.progress.index);
-    }
+    // private void CheckProgress()
+    // {
+    //     NodeParent parent = transform.GetComponentInParent<NodeParent>();
+    //     string[] spite = parent.prefab.Split('/');
+    //     string path = parent.prefab.Substring(0, parent.prefab.Length - spite.Last().Length - 1);
+    //     MissionGraph graph = UnityEditor.AssetDatabase.LoadAssetAtPath<MissionGraph>(path + ".asset");
+    //     graph.CheckProgress(extuil.progress.index);
+    // }
 
     private void OnLoadTypeChanged()
     {

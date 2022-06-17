@@ -20,7 +20,24 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
     public float toPlayerAnger;
     [SerializeField, TabGroup("状态")] public FightState _fightState;
     [SerializeField, TabGroup("状态")] public int seePlayerPointCount;
-    public ITarget target;
+
+    private ITarget _target;
+
+    public ITarget target
+    {
+        get
+        {
+            return _target;
+        }
+        set
+        {
+            if (_target != value)
+            {
+                _target = value;
+                GetAgentCtrl<SkillCtrl>().BreakSkill(BreakSkillFlag.BreakAction | BreakSkillFlag.WithAnimation);
+            }
+        }
+    }
     [SerializeField, TabGroup("挂点")] public MonsterCreator creator;
     [SerializeField, TabGroup("挂点")] public Transform horRotate;
     [SerializeField, TabGroup("挂点")] public Transform vecRotate;
@@ -54,19 +71,34 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
         set { defaultLevel = value; }
     }
 
+    private InitStation _initStation;
+
     public MonsterLevel currentLevel => _currentLevel;
     public bool isAlive => initStation == InitStation.Normal;
     public bool isProgressComplete => true;
     public bool canAss { get; }
     public FightState fightState => _fightState;
-    public InitStation initStation { get; set; }
-    
+
+    public InitStation initStation
+    {
+        get
+        {
+            return _initStation;
+        }
+        set
+        {
+            _initStation = value;
+            creator.initStation = value;
+        }
+    }
+
     public bool isVisiable => false;
     public bool isSenserable => false;
     public MonsterStation station => _station;
     public event Action onSwitchStation;
     public List<IAgentCtrl> ctrlList = new List<IAgentCtrl>();
-    
+    public LineRenderer line;
+    public Transform look;
     public T GetAgentCtrl<T>() where T : IAgentCtrl
     {
         for (int i = 0; i < ctrlList.Count; i++)
@@ -86,18 +118,24 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
     {
         get
         {
+            if (Player.player == null || Player.player.crouchSensorPoints == null || Player.player.standSensorPoints == null) return _canSeeTarget;
             MonsterCtrl ctrl = BattleController.GetCtrl<MonsterCtrl>();
-            if (_canSeeTarget.Count != BattleController.GetCtrl<MonsterCtrl>().exitMonster.Count + Player.player.CheckPoins.Count)
+            if (ctrl != null)
             {
-                _canSeeTarget.Clear();
-                for (int i = 0; i < ctrl.exitMonster.Count; i++)
+                if (_canSeeTarget.Count != ctrl.exitMonster.Count + Player.player.crouchSensorPoints.Count+Player.player.standSensorPoints.Count)
                 {
-                    if (ctrl.exitMonster[i] is ISensorTarget sensor)
+                    _canSeeTarget.Clear();
+                    for (int i = 0; i < ctrl.exitMonster.Count; i++)
                     {
-                        _canSeeTarget.Add(sensor);
+                        if (ctrl.exitMonster[i] is ISensorTarget sensor)
+                        {
+                            _canSeeTarget.Add(sensor);
+                        }
                     }
+                    _canSeeTarget.AddRange(Player.player.crouchSensorPoints);
+                    _canSeeTarget.AddRange(Player.player.standSensorPoints);
                 }
-                _canSeeTarget.AddRange(Player.player.CheckPoins);
+
             }
 
             return _canSeeTarget;
@@ -146,7 +184,6 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
     {
         _seePlayerTime = 0;
         _fightState = FightState.Normal;
-        GetAgentCtrl<SkillCtrl>().ClearCD();
         GetAgentCtrl<SimpleBehaviorCtrl>().SwitchBehavior(new Idle());
         target = null;
     }
@@ -195,6 +232,7 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
             }
 
             GetAgentCtrl<SkillCtrl>().SetSkill(skillTemp.ToArray());
+            //GetAgentCtrl<SkillCtrl>().SetSkill(currentLevel.editorData.skills.ToArray());
         }
     }
 
@@ -232,15 +270,21 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
     }
 
     private Vector3 tempRotate;
-    public Transform look;
+
     public void LookAtPoint(Vector3 point)
     {
-        Vector3 dir = point - zero.transform.position;
-        look.transform.forward = new Vector3(dir.x, 0, dir.z);
+        look.transform.LookAt(point);
         Vector3 tar = new Vector3(horRotate.transform.eulerAngles.x, look.transform.eulerAngles.y, horRotate.transform.eulerAngles.z);
+        //Vector3 vecTar = new Vector3(look.transform.eulerAngles.x, 0, 0);
         horRotate.transform.eulerAngles = Vector3.SmoothDamp(horRotate.transform.eulerAngles, tar, ref tempRotate, 0.5f);
+        //vecRotate.transform.localEulerAngles = Vector3.SmoothDamp(vecRotate.transform.eulerAngles, vecTar, ref tempVecRotate, 0.5f);
+        vecRotate.transform.localEulerAngles = new Vector3(look.transform.localEulerAngles.x, 0, 0);
+        isAim = Mathf.Abs((horRotate.transform.eulerAngles.y - look.transform.eulerAngles.y)) <= 10;
+        
         //vecRotate.transform.forward = new Vector3(0, dir.y, 0);
     }
+
+    public bool isAim;
 
     private void Update()
     {
@@ -251,25 +295,7 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
             toPlayerAnger = Vector3.Angle(new Vector3(Player.player.transform.forward.x, 0, Player.player.transform.forward.z), new Vector3(transform.forward.x, 0, transform.forward.z));
         }
 
-        if (isSeePlayer)
-        {
-            target = Player.player;
-        }
-        else
-        {
-            if (target == null)
-            {
-                target = eye.onViewTarget.First(fd => fd is AttackMonster);
-            }
-            else
-            {
-                if (target is AttackMonster monster && !monster.isAlive)
-                {
-                    target = null;
-                }
-            }
-        }
-
+        RefreshTarget();
 
         if (target != null)
         {
@@ -302,26 +328,28 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
         }
     }
 
-    private void RefreshTarget()
+    public void RefreshTarget()
     {
-        if (eye.onViewTarget.Count > 0)
+        if (isSeePlayer)
         {
-            for (int i = 0; i < eye.onViewTarget.Count; i++)
-            {
-                if (eye.onViewTarget[i] is Player)
-                {
-                    target = eye.onViewTarget[i];
-                    return;
-                }
-            }
-
-            target = eye.onViewTarget[0];
+            target = Player.player;
         }
         else
         {
-            target = null;
+            if (target == null)
+            {
+                target = eye.onViewTarget.First(fd => fd is AttackMonster);
+            }
+            else
+            {
+                if ((target is AttackMonster monster && !monster.isAlive) || target is Player player)
+                {
+                    target = null;
+                }
+            }
         }
     }
+    
 
     // private void OnDisable()
     // {
@@ -454,6 +482,7 @@ public class GunMonster : MonoBehaviour, IMonster, ISkillObject,ISimpleBehaviorO
     public void OnReleasingSkill(ISkill skill)
     {
     }
+
 
     public Vector3 targetPoint => transform.position;
 }

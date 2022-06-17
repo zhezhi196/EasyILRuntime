@@ -15,6 +15,15 @@ public class Whirlwind : MeleeAttack
         get { return "liandaolajin"; }
     }
 
+    public override bool isWanted
+    {
+        get
+        {
+            return base.isWanted && monster.toPlayerDistance <= maxDistance &&
+                   monster.toPlayerDistance >= minDistance;
+        }
+    }
+
     public override Transform damagePoint
     {
         get { return general.weapon.transform; }

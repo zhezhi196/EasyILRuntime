@@ -1,11 +1,14 @@
 ﻿using Module;
 using Module.SkillAction;
 using Project.Data;
+using Sirenix.OdinInspector;
 
 [SkillDescript("防爆士兵/格挡")]
 public class Blocking : MonsterSkill, IConfrontationSkill
 {
+    [LabelText("格挡时间")]
     public float blockTime = 3;
+    [LabelText("离玩家多少米停止格挡")]
     public float minBlockDistance = 2;
     public override bool isWanted
     {
@@ -38,10 +41,26 @@ public class Blocking : MonsterSkill, IConfrontationSkill
         monster.GetAgentCtrl<AnimatorCtrl>().SetFloat("gedang", 0, 0.2f);
     }
 
+    protected override void OnActionUpdate(ISkillAction arg1, float percent)
+    {
+        base.OnActionUpdate(arg1, percent);
+        if (monster.target != null)
+        {
+            monster.MoveTo(MoveStyle.Walk, Player.player.chasePoint, ((status, b) =>
+            {
+                if (b && monster.ContainStation(MonsterStation.IsSeePlayHide))
+                {
+                    Player.player.OnHurt(GetDamage());
+                }
+            } ));
+        }
+    }
+
     public override float stopMoveDistance
     {
         get { return 0.5f; }
     }
 
     public int moveToward { get; }
+    public Confrontation behavior { get; set; }
 }

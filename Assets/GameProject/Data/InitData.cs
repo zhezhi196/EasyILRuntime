@@ -26,6 +26,7 @@ namespace Project.Data
             SqlData.InitSqlData<BulletData>(ConstKey.Config_data, SQLiteOpenFlags.ReadOnly, config);
             SqlData.InitSqlData<AdsData>(ConstKey.Config_data, SQLiteOpenFlags.ReadOnly, config);
             SqlData.InitSqlData<JessicaData>(ConstKey.Config_data, SQLiteOpenFlags.ReadOnly, config);
+            SqlData.InitSqlData<MapData>(ConstKey.Config_data, SQLiteOpenFlags.ReadOnly, config);
             SqlData.InitSqlData<TongYong>(ConstKey.Config_data, SQLiteOpenFlags.ReadOnly, config);
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Module;
 using System;
+using GameProject;
 
 namespace ProjectUI
 {
@@ -20,12 +21,13 @@ namespace ProjectUI
         public GameObject mapTip;
         public UIBtnBase rewardBtn;
         public GameObject rewardTip;
-        public ProgressTips progressTips;
+        public List<ProgressTips> progressTips;
         public GameObject tipRedpoint;
 
         public float spacing = 80f;
         public RectTransform btnGridTrans;
         private List<GameObject> btnObjs = new List<GameObject>();
+        private ProgressCtrl ctrl = BattleController.GetCtrl<ProgressCtrl>();
 
         public void Start()
         {
@@ -113,7 +115,7 @@ namespace ProjectUI
         private void OnMapBtn()
         {
             mapTip.OnActive(false);
-            UIController.Instance.Open("MapUI", UITweenType.None);
+            MapUI.TryOpenMap();
         }
 
         private void OnRewardBtn()
@@ -133,7 +135,26 @@ namespace ProjectUI
 
         private void RefreshProgress()
         {
-            progressTips.Refresh(ActiveTipsButton);
+            int count = 0;
+            for (int i = 0; i < progressTips.Count; i++)
+            {
+                var show = progressTips[i].Refresh();
+                if (show)
+                {
+                    count++;
+                }
+            }
+            
+            if (ctrl.showingTips)
+            {
+                if (ctrl.GetCurProgressComplete()) //提示中每一帧判断有没有完成这个提示
+                {
+                    ctrl.showingTips = false;
+                    // var ret = ctrl.TryNextProgress();
+                }
+            }
+            
+            ActiveTipsButton( !ctrl.IsAllComplete() && !ctrl.showingTips);
         }
 
         private void ActiveTipsButton(bool boo)
@@ -200,7 +221,7 @@ namespace ProjectUI
                         new PupupOption(() =>
                         {
                             LocalFileMgr.Record(showKey);
-                            BattleController.GetCtrl<ProgressCtrl>().ShowTips(true, null);
+                            BattleController.GetCtrl<ProgressCtrl>().ShowTips(true);
                         }, Language.GetContent("2213")));
             }
             else
@@ -210,7 +231,7 @@ namespace ProjectUI
                   {
                       CommonPopup.Popup(Language.GetContent("701"), Language.GetContent("714"), null,
                           new PupupOption(null, Language.GetContent("703")), 
-                          new PupupOption(() => BattleController.GetCtrl<ProgressCtrl>().ShowTips(false, null), Language.GetContent("715"), sp));
+                          new PupupOption(() => BattleController.GetCtrl<ProgressCtrl>().ShowTips(false), Language.GetContent("715"), sp));
                   });
                 //option = new PupupOption(() => BattleController.GetCtrl<ProgressCtrl>().ShowTips(false,null), "获取提示");
             }

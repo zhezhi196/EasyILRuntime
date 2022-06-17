@@ -65,7 +65,7 @@ namespace RootMotion.Dynamics {
 			
 			collisionCenter /= c.contacts.Length;
 
-			P += collisionCenter;// * pressure // TODO process each collision based on it's pressure
+			P += collisionCenter;// * pressure // TODO process each collision based on its pressure
 
 			count++;
 			inContact = true;

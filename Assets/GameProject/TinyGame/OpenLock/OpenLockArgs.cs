@@ -7,10 +7,17 @@ using UnityEngine;
 [Serializable]
 public struct OpenLockArgArea
 {
-    [LabelText("区域位置长度"),MinMaxSlider(0,1)]
+    [LabelText("区域位置长度"),MinMaxSlider(0,1),OnValueChanged("OnLengthChange")]
     public Vector2 pos;
     [LabelText("滑块速度"),PropertyRange(1,40)]
     public float moveSpeed;
+
+    [LabelText("长度"),ReadOnly] public float length;
+
+    public void OnLengthChange()
+    {
+        length = pos.y - pos.x;
+    }
 }
 
 [CreateAssetMenu(fileName = "New OpenLockArgs", menuName = "小游戏/创建开锁游戏配置文件", order = 0)]
@@ -40,4 +47,15 @@ public class OpenLockArgs : ScriptableObject
             }
         }
     }
+
+    [Button("刷新长度")]
+    private void OnClickRefreshLength()
+    {
+        for (int i = 0; i < areas.Count; i++)
+        {
+            areas[i].OnLengthChange();
+        }
+    }
+    
+    
 }

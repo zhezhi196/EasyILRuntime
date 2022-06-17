@@ -24,6 +24,19 @@ namespace RootMotion
 
             EditorGUILayout.Space();
 
+            switch(script.mode)
+            {
+                case Baker.Mode.AnimationClips:
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("inheritClipSettings"));
+                    if (!serializedObject.FindProperty("inheritClipSettings").boolValue) DrawClipSettings();
+                    break;
+                default:
+                    DrawClipSettings();
+                    break;
+            }
+
+            EditorGUILayout.Space();
+
             EditorGUILayout.PropertyField(serializedObject.FindProperty("mode"));
 
             switch (script.mode)
@@ -33,12 +46,11 @@ namespace RootMotion
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("appendName"));
                     break;
                 case Baker.Mode.AnimationStates:
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("loop"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("animationStates"), true);
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("appendName"));
+                    
                     break;
                 case Baker.Mode.PlayableDirector:
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("loop"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("saveName"));
                     break;
                 default:
@@ -55,6 +67,57 @@ namespace RootMotion
                 serializedObject.FindProperty("saveToFolder").stringValue = SaveClipFolderPanel.Apply(serializedObject.FindProperty("saveToFolder").stringValue);
             }
             //EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawClipSettings()
+        {
+            var p = serializedObject.FindProperty("clipSettings");
+
+            EditorGUILayout.PropertyField(p, false);
+
+            if (p.isExpanded)
+            {
+                EditorGUILayout.BeginVertical("Box");
+                EditorGUI.indentLevel++;
+
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("loopTime"));
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("loopBlend"), new GUIContent("Loop Pose"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("cycleOffset"));
+                EditorGUI.indentLevel--;
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField(new GUIContent("Root Transform Rotation"));
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("loopBlendOrientation"), new GUIContent("Bake Into Pose"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("basedUponRotation"), new GUIContent("Based Upon"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("orientationOffsetY"), new GUIContent("Offset"));
+                EditorGUI.indentLevel--;
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField(new GUIContent("Root Transform Position (Y)"));
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("loopBlendPositionY"), new GUIContent("Bake Into Pose"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("basedUponY"), new GUIContent("Based Upon (at Start)"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("level"), new GUIContent("Offset"));
+                EditorGUI.indentLevel--;
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField(new GUIContent("Root Transform Position (XZ)"));
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("loopBlendPositionXZ"), new GUIContent("Bake Into Pose"));
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("basedUponXZ"), new GUIContent("Based Upon"));
+                EditorGUI.indentLevel--;
+
+                EditorGUILayout.Space();
+                EditorGUILayout.PropertyField(p.FindPropertyRelative("mirror"));
+
+                EditorGUI.indentLevel--;
+                EditorGUILayout.EndVertical();
+            }
         }
 
         private void TryBake(Baker script)

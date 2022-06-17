@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6993338d9cc746f6a506d9571403a989, type: 3}
+  m_Name: MonsterConfig
+  m_EditorClassIdentifier: 
+  config:
+  - normalId: 18001
+    missionConfig:
+    - missionId: 17001
+      targetId: 18001
+    - missionId: 17002
+      targetId: 18002
+    - missionId: 17003
+      targetId: 18003
+  - normalId: 18004
+    missionConfig:
+    - missionId: 17001
+      targetId: 18004
+    - missionId: 17002
+      targetId: 18005
+    - missionId: 17003
+      targetId: 18006
+  - normalId: 18007
+    missionConfig:
+    - missionId: 17001
+      targetId: 18007
+    - missionId: 17002
+      targetId: 18008
+    - missionId: 17003
+      targetId: 18009
+  - normalId: 18010
+    missionConfig:
+    - missionId: 17001
+      targetId: 18010
+    - missionId: 17002
+      targetId: 18011
+    - missionId: 17003
+      targetId: 18012

@@ -84,7 +84,7 @@ namespace RootMotion.Dynamics {
 			behaviour.OnPreFixedUpdate += Solve;
 		}
 
-		void Solve() {
+		void Solve(float deltaTime) {
 			if (copPoints.Length == 0) {
 				cop = joint.transform.TransformPoint(joint.anchor);
 			} else {
@@ -107,7 +107,7 @@ namespace RootMotion.Dynamics {
 			Vector3 requiredAcceleration = PhysXTools.GetFromToAcceleration(dirVel, -Physics.gravity);
 			requiredAcceleration -= Ibody.angularVelocity;
 			
-			Vector3 torque = requiredAcceleration / Time.fixedDeltaTime;
+			Vector3 torque = requiredAcceleration / deltaTime;
 			
 			PhysXTools.ScaleByInertia(ref torque, Ibody.rotation, Ibody.inertiaTensor * settings.IMlp);
 			

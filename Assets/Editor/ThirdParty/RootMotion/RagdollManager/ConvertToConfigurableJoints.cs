@@ -9,7 +9,7 @@ namespace RootMotion.Dynamics {
 	public class ConvertToConfigurableJoints: Editor {
 
 		/// <summary>
-		/// Converts any 3D joints on the selected Transform and it's children to ConfigurableJoints
+		/// Converts any 3D joints on the selected Transform and its children to ConfigurableJoints
 		/// </summary>
 		//[MenuItem ("Component/Physics/Convert to ConfigurableJoints")]
 		[MenuItem ("GameObject/Convert to ConfigurableJoints")]

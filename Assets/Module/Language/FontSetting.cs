@@ -14,9 +14,13 @@ namespace Module
         [ReadOnly]
         public SystemLanguage textLanguage;
 
-        protected virtual void Awake()
+        protected virtual async void Awake()
         {
             if (text == null) text = GetComponent<Text>();
+            if (Language.info == null)
+            {
+                await Async.WaitUntil(()=>Language.info!=null);
+            }
             OnLanguageChanged(Language.currentLanguage);
         }
         

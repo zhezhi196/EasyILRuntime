@@ -16,18 +16,18 @@ public class Prisoner : AttackMonster
         }
     }
 
-    // public override float GetLayerFadeTime(int type, string name)
-    // {
-    //     if (name == "AssKilled" || name == "ExcKilled")
-    //     {
-    //         return 0;
-    //     }
-    //     else
-    //     {
-    //         return base.GetLayerFadeTime(type, name);
-    //     }
-    // }
-    
+    public override float GetLayerFadeTime(int type, string name)
+    {
+        if (name == "Exc"|| name=="Ass")
+        {
+            return 0;
+        }
+        else
+        {
+            return base.GetLayerFadeTime(type, name);
+        }
+    }
+
     public override float GetTranslateTime(string name)
     {
         if (name == "Exc"|| name=="Ass")
@@ -47,7 +47,7 @@ public class Prisoner : AttackMonster
         if (type == 1)
         {
             GetAgentCtrl<AnimatorCtrl>().Play("zhuangsi", 0, 0);
-            GameDebug.LogError("装死吧兄弟");
+            AddStation(MonsterStation.Sleep);
         }
     }
 }

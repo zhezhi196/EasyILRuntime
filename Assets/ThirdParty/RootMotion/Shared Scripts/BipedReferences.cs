@@ -172,7 +172,7 @@ namespace RootMotion {
 				}
 			}
 		}
-		
+        
 		/// <summary>
 		/// Automatically detects biped bones. Returns true if a valid biped has been referenced.
 		/// </summary>
@@ -514,7 +514,7 @@ namespace RootMotion {
 				if (i != 0 && references.spine.Length > 1 && references.spine[i].position == references.spine[i - 1].position) matchesParentPosition = true;
 
 				if (matchesParentPosition) {
-					errorMessage = "Biped's spine bone nr " + i + " position is the same as it's parent spine/pelvis bone's position. Please remove this bone from the spine.";
+					errorMessage = "Biped's spine bone nr " + i + " position is the same as its parent spine/pelvis bone's position. Please remove this bone from the spine.";
 					return true;
 				}
 			}
@@ -563,7 +563,7 @@ namespace RootMotion {
 			float rootHeight = GetVerticalOffset(references.root.position, references.leftFoot.position, references.root.rotation);
 			
 			if (rootHeight / headHeight > 0.2f) {
-				warningMessage = "Biped's root Transform's position should be at ground level relative to the character (at the character's feet not at it's pelvis).";
+				warningMessage = "Biped's root Transform's position should be at ground level relative to the character (at the character's feet not at its pelvis).";
 				return true;
 			}
 			
@@ -579,7 +579,7 @@ namespace RootMotion {
 			float dotFeet = Vector3.Dot(feetLeftToRight.normalized, references.root.right);
 			
 			if (dotHands < 0 || dotFeet < 0) {
-				warningMessage = "Biped does not seem to be facing it's forward axis. " +
+				warningMessage = "Biped does not seem to be facing its forward axis. " +
 					"Please make sure that in the initial pose the character is facing towards the positive Z axis of the Biped root gameobject.";
 				return true;
 			}

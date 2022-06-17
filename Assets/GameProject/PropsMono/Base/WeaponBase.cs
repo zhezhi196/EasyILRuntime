@@ -4,6 +4,14 @@ public class WeaponBase : InteractiveToBag
 {
     public override InterActiveStyle interactiveStyle => InterActiveStyle.Handle;
 
+    public override bool progressIsComplete
+    {
+        get
+        {
+            return ((WeaponEntity) entity).isGet;
+        }
+    }
+
     public override void OnButtonPutToBag()
     {
         //BattleController.GetCtrl<ProgressCtrl>().TryNextProgress(creator.id, CompleteProgressPredicate.PutToBag);

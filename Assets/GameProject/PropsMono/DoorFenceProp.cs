@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 栅栏门
 /// </summary>
-public class DoorFenceProp : DoorUnlockTranslationProp
+public class DoorFenceProp : DoorUnlockProp
 {
     public List<GameObject> ammoIgnoreObj;
     

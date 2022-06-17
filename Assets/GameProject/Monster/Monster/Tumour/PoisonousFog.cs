@@ -13,9 +13,24 @@ public class PoisonousFog : RemoteAttack
         }
     }
 
+    protected override float animationSpeed
+    {
+        get
+        {
+            return 0.6f;
+        }
+    }
+
+    protected override void OnReleaseEnd(bool complete)
+    {
+        base.OnReleaseEnd(complete);
+        tumour.duwu01.gameObject.OnActive(false);
+        monster.Roar(null);
+    }
+
     public override void OnReleaseGo(AnimationEvent @event, int index)
     {
-        EffectPlay.Play("rouliu_duwu01", tumour.fogFirePoint.transform);
+        tumour.duwu01.gameObject.OnActive(true);
         AssetLoad.LoadGameObject<Poisionous>("Monster/Tumour/Poisionous.prefab", null, (pos, arg) =>
         {
             if (pos != null)

@@ -57,8 +57,9 @@ public class BlackMaskChange : MonoBehaviour
         text.text = "";
         if (time > 0)
         {
-            maskImage.color = new Color(0, 0, 0, 1);
-            maskImage.DOColor(new Color(0, 0, 0, 0), time).SetUpdate(true).OnComplete(() =>
+            Color endColor = new Color(maskImage.color.r, maskImage.color.g, maskImage.color.b, 0);
+            //maskImage.color = new Color(0, 0, 0, 1);
+            maskImage.DOColor(endColor, time).SetUpdate(true).OnComplete(() =>
             {
                 onComplete?.Invoke();
                 onComplete = null;
@@ -71,25 +72,32 @@ public class BlackMaskChange : MonoBehaviour
         }
     }
     //复活
-    public void Resurrection(float time = 3f)
-    {
-        text.text = "";
-        maskImage.color = new Color(0, 0, 0, 1);
-        this.gameObject.OnActive(true);
-        maskImage.DOColor(new Color(0, 0, 0, 0), time).SetUpdate(true).OnComplete
-        (() =>
-        {
-            onComplete?.Invoke();
-            onComplete = null;
-            this.gameObject.OnActive(false);
-        }).SetEase(resurrectionCurve);
-    }
+    //public void Resurrection(float time = 3f)
+    //{
+    //    text.text = "";
+    //    maskImage.color = new Color(0, 0, 0, 1);
+    //    this.gameObject.OnActive(true);
+    //    maskImage.DOColor(new Color(0, 0, 0, 0), time).SetUpdate(true).OnComplete
+    //    (() =>
+    //    {
+    //        onComplete?.Invoke();
+    //        onComplete = null;
+    //        this.gameObject.OnActive(false);
+    //    }).SetEase(resurrectionCurve);
+    //}
     //纯黑
     public void Black()
     {
         text.text = "";
         this.gameObject.OnActive(true);
         maskImage.color = new Color(0, 0, 0, 1);
+    }
+
+    public void White()
+    {
+        text.text = "";
+        this.gameObject.OnActive(true);
+        maskImage.color = new Color(1, 1, 1, 1);
     }
 
     public void ShowText()

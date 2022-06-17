@@ -28,9 +28,9 @@ namespace RootMotion.Dynamics {
 		/// </summary>
 		public PuppetMaster puppetMaster;
 
-		[Tooltip("If a prop is connected, what will it's joint be connected to?")]
+		[Tooltip("If a prop is connected, what will its joint be connected to?")]
 		/// <summary>
-		/// If a prop is connected, what will it's joint be connected to?
+		/// If a prop is connected, what will its joint be connected to?
 		/// </summary>
 		public Rigidbody connectTo;
 
@@ -117,7 +117,7 @@ namespace RootMotion.Dynamics {
             puppetMaster.AddMuscle(prop.muscle, prop.transform, connectTo, transform, prop.muscleProps, false, prop.forceLayers);
 
 			if (prop.additionalPin != null && prop.additionalPinTarget != null) {
-				puppetMaster.AddMuscle(prop.additionalPin, prop.additionalPinTarget, prop.muscle.GetComponent<Rigidbody>(), prop.transform, new Muscle.Props(prop.additionalPinWeight, 0f, 0f, 0f, false, Muscle.Group.Prop), true, prop.forceLayers);
+				puppetMaster.AddMuscle(prop.additionalPin, prop.additionalPinTarget, prop.muscle.GetComponent<Rigidbody>(), prop.transform, new Muscle.Props(prop.additionalPinWeight, 0f, 0f, 0f, Muscle.Group.Prop), true, prop.forceLayers);
 			}
 		}
 

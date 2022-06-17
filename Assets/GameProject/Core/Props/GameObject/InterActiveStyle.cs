@@ -10,4 +10,6 @@
     noPickUp,
     Shop,
     None,
+    LockPick,
+    PowerDoor,
 }

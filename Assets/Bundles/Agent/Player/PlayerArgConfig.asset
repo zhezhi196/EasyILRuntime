@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53f6d43e85a9f99478bfdcf4faf38254, type: 3}
+  m_Name: PlayerArgConfig
+  m_EditorClassIdentifier: 
+  standHeight: 1.72
+  squatHeight: 0.9
+  rotateSpeed: 0.16
+  aimRotateSpeed: 0.16
+  strengthRecover: 0.3
+  runStrengthExpend: 15
+  energyRecover: 0
+  dodgeExpend: 20
+  squatWalkAudioTime: 0.8
+  squatWalkAudio:
+  - stepsound_xiadun1
+  - stepsound_xiadun2
+  - stepsound_xiadun3
+  - stepsound_xiadun4
+  walkAudioTime: 0.65
+  runAudioTime: 0.45
+  walkAudio:
+  - zoulu_1
+  - zoulu_2
+  - zoulu_3
+  - zoulu_4
+  hurtAudioTime: 0.6
+  hurtAudio:
+  - hurted
+  - hurted2
+  - hurted3
+  stepRange: 2.5
+  squatStepRange: 1.4
+  runStepRange: 8
+  assDistance: 2
+  assAngle: 60
+  rejectStationConfig:
+  - inStation: 16
+    outStations: 040000000010000001000000
+  - inStation: 16384
+    outStations: 040000000010000001000000
+  - inStation: 256
+    outStations: 0400000010000000
+  - inStation: 1
+    outStations: 1000000000100000
+  - inStation: 128
+    outStations: 010000000200000004000000100000000040000000010000
+  - inStation: 32
+    outStations: 0100000004000000100000000000010000800000
+  - inStation: 64
+    outStations: 0180000004000000100000000000010000800000
+  - inStation: 512
+    outStations: 010000000200000004000000100000000080000000000100
+  - inStation: 8192
+    outStations: 01000000020000000400000010000000
+  - inStation: 1024
+    outStations: 010000000200000000800000
+  - inStation: 2
+    outStations: 00100000
+  - inStation: 4096
+    outStations: 010000000200000010000000
+  - inStation: 2048
+    outStations: 00100000
+  - inStation: 32768
+    outStations: 01000000040000001000000000000100
+  - inStation: 4
+    outStations: 0000010000000400
+  - inStation: 262144
+    outStations: 001000000400000001000000
+  - inStation: 524288
+    outStations: 100000000010000001000000020000000400000000800000
+  baseStationConfig:
+  - inStation: 1
+    outStations: 0400000010000000
+  - inStation: 1024
+    outStations: 00800000
+  - inStation: 16
+    outStations: 0040000000000400

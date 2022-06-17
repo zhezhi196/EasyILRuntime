@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public class DoorLockPickProp : DoorRotate
 {
-    public override InterActiveStyle interactiveStyle => InterActiveStyle.Handle;
+    public override InterActiveStyle interactiveStyle => InterActiveStyle.LockPick;
 
     public override bool canInteractive => !IsAnimating && ContainStation(PropsStation.Locked) && isActive;
     

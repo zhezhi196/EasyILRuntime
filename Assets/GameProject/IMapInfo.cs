@@ -2,5 +2,5 @@
 {
     bool isGet { get; }
     MapType mapType { get; }
-    string mapId { get; }
+    int mapId { get; }
 }

@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class WireConnectUIItem : MonoBehaviour, IPointerClickHandler
+public class WireConnectUIItem : MonoBehaviour ,IPointerDownHandler
 {
     [LabelText("位置")] 
     public Vector2Int pos;
@@ -130,7 +130,7 @@ public class WireConnectUIItem : MonoBehaviour, IPointerClickHandler
         {
             highlightObj.OnActive(count == 4);
             var singleObj = knobObj[(int) _curKnobType].transform.GetChild(1).gameObject;
-            singleObj.OnActive(count != 4);
+            singleObj.OnActive(count > 0 && count != 4);
 
             if (t == "01" || t == "10")
             {
@@ -155,6 +155,7 @@ public class WireConnectUIItem : MonoBehaviour, IPointerClickHandler
     {
         var batteryItem = (WireSideItem) slotItem;
         BatteryImg.transform.GetChild(0).gameObject.SetActive(batteryItem.batteryIsLinkToExport);
+        BatteryImg.transform.GetChild(1).gameObject.SetActive(!batteryItem.batteryIsLinkToExport);
     }
 
     private void OnRefreshHighLightExport(Dictionary<WirePort,int> visit)
@@ -252,7 +253,7 @@ public class WireConnectUIItem : MonoBehaviour, IPointerClickHandler
         knobObj[(int)knobType].OnActive(true);
     }
     
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
         ChangeTo(eventData);
     }

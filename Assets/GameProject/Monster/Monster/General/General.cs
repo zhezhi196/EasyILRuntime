@@ -33,9 +33,4 @@ public class General : AttackMonster
         return "Normal";
     }
 
-    public override IActiveSkill RefreshReadySkill()
-    {
-        return skillCtrl.allSkill[0] as IActiveSkill;
-        
-    }
 }

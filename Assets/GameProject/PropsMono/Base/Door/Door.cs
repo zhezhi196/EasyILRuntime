@@ -12,11 +12,10 @@ public abstract class Door : PropsBase
     [LabelText("播放开门关门动画的物体")] public GameObject animDoorGo;
     [LabelText("开门的时间")] public float openDoorTime = 3;
     [LabelText("关门的时间")] public float closeDoorTime = 3;
-    public override bool isProgressShow => base.isProgressShow && ContainStation(PropsStation.Off);
+    
     public NavMeshObstacle navObstacle;
     
     // private OcclusionPortal _occlusion;
-
     // public OcclusionPortal occlusion
     // {
     //     get
@@ -45,7 +44,11 @@ public abstract class Door : PropsBase
     {
         get
         {
-            if (singleDirectionOpen)
+            if (forceLock)
+            {
+                return null;
+            }
+            else if (singleDirectionOpen)
             {
                 if (interactiveStyle == InterActiveStyle.Watch)
                 {
@@ -64,10 +67,10 @@ public abstract class Door : PropsBase
     }
 
 
-    public override bool mapIsGet
-    {
-        get { return !ContainStation(PropsStation.Off); }
-    }
+    // public override bool mapIsGet
+    // {
+    //     get { return !ContainStation(PropsStation.Off) && !ContainStation(PropsStation.Locked); }
+    // }
 
     public override int ActiveLayer
     {
@@ -120,6 +123,9 @@ public abstract class Door : PropsBase
 
     [LabelText("铁链拴着(拴着无交互点)")]
     public bool haveChain;
+    
+    [ReadOnly,LabelText("强制上锁")]
+    public bool forceLock;
 
     // public override string writeData => receiveCodeOpenCount.ToString();
 
@@ -151,6 +157,7 @@ public abstract class Door : PropsBase
                 break;
             case RunLogicalName.Off:
             case RunLogicalName.Lock:
+            case RunLogicalName.ForceLock:
                 Close(false);
                 break;
         }
@@ -215,9 +222,11 @@ public abstract class Door : PropsBase
                 }
                 break;
             case RunLogicalName.Lock:
+            case RunLogicalName.ForceLock:
                 Close(true);
                 AddStation(PropsStation.Off);
                 AddStation(PropsStation.Locked);
+                SetObstacle(true);
                 break;
         }
     }

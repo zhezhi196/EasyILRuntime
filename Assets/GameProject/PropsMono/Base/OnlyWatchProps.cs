@@ -46,7 +46,14 @@ public class OnlyWatchProps : PropsBase, IBag
     
     public void OnButtonPutToBag()
     {
-        UIController.Instance.Open("GameUI", UITweenType.None, OpenFlag.Insertion);
+        if (BattleController.Instance.GetCurMission().gameMode == GameMode.Black)
+        {
+            UIController.Instance.Open("BlackGameUI", UITweenType.None, OpenFlag.Insertion);
+        }
+        else
+        {
+            UIController.Instance.Open("GameUI", UITweenType.None, OpenFlag.Insertion);    
+        }
     }
 
     public virtual string GetText(string type)

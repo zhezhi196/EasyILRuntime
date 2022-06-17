@@ -24,9 +24,17 @@ public class JumpAttack : JumpSkill
         }
     }
 
-    public override void JumpComplete()
+    protected override async void OnReleaseEnd(bool complete)
     {
-        base.JumpComplete();
-        EffectPlay.Play("rouliu_tiaoza", monster.transform);
+        if (monster.navmesh)
+        {
+            monster.navmesh.enabled = true;
+        }
+
+        await Async.WaitforSeconds(0.5f);
+        monster.Roar(null);
+        EffectPlay.Play("rouliu_tiaoza", monster.transform.position, monster.transform.eulerAngles, damageRadius);
+        monster.HurtPlayer(GetDamage(), damageRadius, damagePoint);
+        monster.RemoveStation(this.addStation);
     }
 }

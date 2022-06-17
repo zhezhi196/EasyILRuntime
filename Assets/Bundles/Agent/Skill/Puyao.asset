@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6d7d3abcf224361959cf77ac217f75b, type: 3}
+  m_Name: Puyao
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: dbData
+      Entry: 6
+      Data: 
+    - Name: runAction
+      Entry: 6
+      Data: 
+  addStation: 4
+  dbId: 26010
+  wantDistance: 9999
+  beginPuDistance: 5
+  puSpeedK: 4
+  maxPuDistance: 1.5
+  animation: Puyao
+  damageBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.8, y: 1, z: 1.2}
+  puPoint: {x: 0, y: 0, z: 0}

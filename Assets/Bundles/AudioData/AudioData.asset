@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8697c0ee2d634d28b5211ffb5f752fcf, type: 3}
+  m_Name: AudioData
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  units:
+  - name: BGM_Mu
+    rule: 0
+    paths:
+    - path: Audio/BGM_Mu.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    isBGM: 1
+    mixerName: BGM
+    rulePtr: 0
+  - name: b
+    rule: 0
+    paths:
+    - path: Audio/ClapSound.wav
+      lowpassRange: {x: 10, y: 20000}
+    isBGM: 0
+    mixerName: Sound
+    rulePtr: 0
+  - name: Break_wooden_box
+    rule: 0
+    paths:
+    - path: Audio/Break_wooden_box.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    isBGM: 0
+    mixerName: Sound
+    rulePtr: 0
+  - name: cat_miao
+    rule: 0
+    paths:
+    - path: Audio/cat_miao.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    isBGM: 0
+    mixerName: Sound
+    rulePtr: 0
+  - name: hufa_walk
+    rule: 1
+    paths:
+    - path: Audio/hufa_walk1.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    - path: Audio/hufa_walk2.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    - path: Audio/hufa_walk3.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    - path: Audio/hufa_walk4.ogg
+      lowpassRange: {x: 1000, y: 20000}
+    isBGM: 0
+    mixerName: Sound
+    rulePtr: 0

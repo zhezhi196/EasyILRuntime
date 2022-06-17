@@ -16,6 +16,26 @@ public class NodeParent: MonoBehaviour
             return _lastEditorObj;
         }
     }
+    
+    [ReadOnly]
+    public ProgressSO progressSO;
+    [Button("读取提示点信息")]
+    public void LoadProgressSO()
+    {
+        if (progressSO == null)
+        {
+            AssetLoad.PreloadAsset<ProgressSO>($"Progress/Progress_{node.graph.name}.asset", (v) =>
+            {
+                progressSO = v.Result;
+            });
+        }
+    }
+    
+    private void Awake()
+    {
+        LoadProgressSO();
+    }
+    
 
     public TaskNode node;
     public static NodeParent CreatParent()

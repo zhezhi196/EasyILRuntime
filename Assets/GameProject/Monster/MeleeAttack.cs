@@ -6,7 +6,7 @@ using UnityEngine;
 public abstract class MeleeAttack : MonsterSkill
 {
     public override float stopMoveDistance => maxDistance;
-
+    public virtual float animationSpeed { get; } = 1;
     
 
     protected abstract string animation { get; }
@@ -42,7 +42,7 @@ public abstract class MeleeAttack : MonsterSkill
     public override void OnInit(ISkillObject owner)
     {
         base.OnInit(owner);
-        PushAction(new AnimationAction(animation, 0, owner));
+        PushAction(new AnimationAction(animation, 0, owner) {speed = animationSpeed});
         monster.onAnimationCallback += OnAnimationCallback;
     }
 
@@ -111,8 +111,7 @@ public abstract class MeleeAttack : MonsterSkill
             {
                 if (b && monster.ContainStation(MonsterStation.IsSeePlayHide))
                 {
-                    GameDebug.LogError("出来吧小子");
-
+                    Player.player.OnHurt(GetDamage());
                 }
             } ));
         }

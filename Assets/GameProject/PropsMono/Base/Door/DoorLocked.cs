@@ -16,7 +16,6 @@ public class DoorLocked : Door
     public bool unlockedCanInteractive = false;
     
     
-    
     //门交互点逻辑：通电门小游戏、闸门、单向门背面是放大镜；任何方式打不开的门都是锁头；能用钥匙打开的、开锁小游戏都是手
     public override InterActiveStyle interactiveStyle
     {
@@ -35,6 +34,12 @@ public class DoorLocked : Door
             }
             else
             {
+                //5.27雷松新需求，钥匙门+一个新的状态，实现无法交互、没有交互提示、锁头提示
+                if (forceLock)
+                {
+                    return InterActiveStyle.Lockdead;
+                }
+                
                 if (needKey)
                 {
                     return InterActiveStyle.Handle;
@@ -146,6 +151,18 @@ public class DoorLocked : Door
         {
             Open(false);
         }
+        else if (logical == RunLogicalName.ForceLock)
+        {
+            forceLock = true;
+        }
+        else if (logical == RunLogicalName.RemoveForceLock)
+        {
+            forceLock = false;
+            RemoveStation(PropsStation.Off);
+            RemoveStation(PropsStation.Locked);
+            Open(true);
+            SetObstacle(false);
+        }
         base.OnInitLogical(logical, flag, senderArg, args);
     }
     
@@ -159,6 +176,18 @@ public class DoorLocked : Door
             Open(true);
             SetObstacle(false);
             haveChain = false;
+        }
+        else if (logical == RunLogicalName.ForceLock)
+        {
+            forceLock = true;
+        }
+        else if (logical == RunLogicalName.RemoveForceLock)
+        {
+            forceLock = false;
+            RemoveStation(PropsStation.Off);
+            RemoveStation(PropsStation.Locked);
+            Open(true);
+            SetObstacle(false);
         }
 
         base.OnRunPerformance(logical, flag, sender, senderArg, args);

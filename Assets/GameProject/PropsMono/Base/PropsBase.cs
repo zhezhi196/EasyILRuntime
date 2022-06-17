@@ -27,6 +27,7 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
     private static float unInteractiveTime;
     public static bool isCountTime = true;
     
+    
     /// <summary>
     /// 是否正在播放动画
     /// </summary>
@@ -125,13 +126,19 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
 
     public virtual void Init(PropsInitLogical logical, PropEntity entity, string customData)
     {
-        if (creator == null || creator.initLocalCount == -1 || localInitCount < creator.initLocalCount)
+        if (creator == null)
+        {
+            GameDebug.LogError($"{entity.modelName} 找不到creator了，检查一下配置，实在不行找勇辉");
+            return;
+        }
+        
+        if (creator.initLocalCount == -1 || localInitCount < creator.initLocalCount)
         {
             if (creator != null && creator.initLocalCount > 0) localInitCount++;
             this.entity = entity;
             creator.InitEvent();
             creator.RunLogical(logical.runLogical, creator, RunLogicalFlag.None, null, logical.args);
-            this._station = logical.station;
+            // this._station = logical.station;
             if (logical.runLogical != RunLogicalName.Destroy)
             {
                 if (!creator.matchInfo.IsNullOrEmpty())
@@ -275,20 +282,20 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
 
     public bool Interactive(bool fromMonster = false)
     {
-        if (BattleController.Instance.ctrlProcedure.isResult) return false;
+        if (BattleController.Instance.ctrlProcedure. isResult) return false;
         if (hasEnoughInteractiveCount)
         {
             if ((entity == null || entity.OnInteractive()) && OnInteractive(fromMonster))
             {
                 creator.isGet = true;
-                AnalyticsEvent.SendEvent(AnalyticsType.InterProps, creator.id.ToString());
-                creator.TrySendEvent(SendEventCondition.Interactive);
-                BattleController.Instance.TryNextNode(PredicateType.Intaractive, creator.id.ToString());
                 if (interactiveCount < creator.remainInteractiveCount)
                 {
                     interactiveCount++;
                 }
-
+                EventCenter.Dispatch<IMapInfo>(EventKey.MapInteractionEvent,this.creator);
+                AnalyticsEvent.SendEvent(AnalyticsType.InterProps, creator.id.ToString());
+                creator.TrySendEvent(SendEventCondition.Interactive);
+                BattleController.Instance.TryNextNode(PredicateType.Intaractive, creator.id.ToString());
                 return true;
             }
         }
@@ -395,6 +402,16 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
                 transform.localPosition = Vector3.zero;
             }
         }
+
+        if (logical == RunLogicalName.Destroy)
+        {
+            DestroyThis(false);
+        }
+        else if (logical == RunLogicalName.ForceDestroy)
+        {
+            DestroyThis(true);
+        }
+        
     }
 
     /// <summary>
@@ -418,7 +435,7 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
                 break;
         }
     }
-
+    
     protected virtual void OnDestroy()
     {
         if (!matchObject.IsNullOrEmpty())
@@ -447,6 +464,7 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
         
         if(force)
         {
+            creator.props = null;
             AssetLoad.Destroy(gameObject);
             return;
         }
@@ -493,8 +511,7 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
         creator.RunLogical(logical, creator, RunLogicalFlag.WithPerformance | RunLogicalFlag.Save, null, args);
     }
     
-    
-    public virtual bool isProgressShow => isInit;
+    public virtual bool progressIsComplete => creator.isGet;
 #if UNITY_EDITOR
     [SerializeField,LabelText("传送点(Editor用)"),FoldoutGroup("Editor传送测试")]
     protected Transform flashPoint;
@@ -513,4 +530,8 @@ public abstract class PropsBase : MonoBehaviour, IStationObject<PropsStation>,  
         Player.player.characterController.enabled = true;
     }
 #endif
+
+
+
+    
 }

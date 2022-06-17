@@ -11,6 +11,7 @@ namespace Module.SkillAction
         public AnimationPlay play;
         private List<(float, Action<float>)> frameCallback;
 
+        public float speed = 1;
 
         public AnimationAction(string name,int layer, ISkillObject owner)
         {
@@ -31,7 +32,7 @@ namespace Module.SkillAction
 
         public void OnStart()
         {
-            play = owner.GetAgentCtrl<AnimatorCtrl>().Play(name, layer, 0);
+            play = owner.GetAgentCtrl<AnimatorCtrl>().Play(name, layer, 0).SetDuationSpeed(speed);
         }
 
         public void OnEnd(bool complete)

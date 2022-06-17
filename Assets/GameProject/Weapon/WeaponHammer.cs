@@ -98,6 +98,11 @@ public class WeaponHammer : Weapon
                             damage.damage *= 0.5f;//虚弱状态攻击力减半
                             damage.lagDamage *= 0.5f;
                         }
+                        if (attackType == AttackType.ChargeAttack)
+                        {
+                            damage.damage *= damageRatio;//蓄力攻击加成
+                            damage.lagDamage *= damageRatio;
+                        }
                         //GameDebug.LogErrorFormat("MammerPreAttack:{0};Damage:{1};weakAttack{2}", part.monster.hp, damage.damage, weakAttack);
                         //如果怪物没死
                         if ((part.monster.hp - damage.damage) >= 0)
@@ -123,6 +128,12 @@ public class WeaponHammer : Weapon
                     if (weakAttack)
                     {
                         damage.damage *= 0.5f;//虚弱状态攻击力减半
+                        damage.lagDamage *= 0.5f;
+                    }
+                    if (attackType == AttackType.ChargeAttack)
+                    {
+                        damage.damage *= damageRatio;//蓄力攻击加成
+                        damage.lagDamage *= damageRatio;
                     }
                     if (hurtObject is MonsterPart part)
                     {
@@ -198,6 +209,8 @@ public class WeaponHammer : Weapon
             if (!AttackCheck(true))
             {
                 waitAttack = true;
+                float pressedContinueTime = Time.time - pressedTime - chargeAttack;
+                damageRatio = 1f + Mathf.Clamp01(pressedContinueTime / maxChargeTime);//1-2蓄力系数
                 GameDebug.Log("WeaponHammer:ChargeAttack");
                 PlayAttackAnim(attackType);
             }

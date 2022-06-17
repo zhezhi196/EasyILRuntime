@@ -51,9 +51,9 @@ namespace RootMotion.Dynamics {
 		/// </summary>
 		public float boostChildren;
 
-		[Tooltip("This does nothing on it's own, you can use it in a 'yield return new WaitForseconds(delay);' call.")]
+		[Tooltip("This does nothing on its own, you can use it in a 'yield return new WaitForseconds(delay);' call.")]
 		/// <summary>
-		/// This does nothing on it's own, you can use it in a 'yield return new WaitForseconds(delay);' call.
+		/// This does nothing on its own, you can use it in a 'yield return new WaitForseconds(delay);' call.
 		/// </summary>
 		public float delay;
 

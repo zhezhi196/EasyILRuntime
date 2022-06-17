@@ -227,6 +227,8 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
             }
         }
         EventCenter.Register<bool>(EventKey.GamePause, OnGamePasue);
+        if (!string.IsNullOrEmpty(fireEffect))
+            ObjectPool.Cache(EffectPlay.GetPath(fireEffect), 1);
     }
 
     private void OnDestroy()
@@ -378,6 +380,7 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
             _animator.Play("FirstGet");
             _player.AddStation(Player.Station.WeaponChanging);
             _player.AddStation(Player.Station.Story);
+            EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterTimeLine, null, TimeLineType.Story);
         }
         else {
             if (_player.ContainStation(Player.Station.Aim))
@@ -402,12 +405,14 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
     {
         bulletCount += count;
         EventCenter.Dispatch(EventKey.WeaponBulletChange, this, bulletCount);
-        BattleController.Instance.Save(0);
+        if (count > 0)
+        {
+            BattleController.Instance.Save(0);    
+        }
     }
 
     public void HitSomething(IHurtObject hurtObject, RaycastHit hit,WeaponType type)
     {
-        return;
         Vector3 direction;
         if (firePoint != null)
         {
@@ -420,7 +425,6 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
         {
             case Hurtmaterial.None:
                 break;
-            case Hurtmaterial.Eggs:
             case Hurtmaterial.Close:
             case Hurtmaterial.Paper:
             case Hurtmaterial.Glass:
@@ -432,41 +436,42 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
                     e.transform.rotation = Quaternion.LookRotation(direction);
                 });
                 GameDebug.DrawLine(hit.point, hit.point + direction, Color.blue, 1f);
-                if (type == WeaponType.MeleeWeapon)
-                {
-                    PlayAudio("qiang_peng", hit.point);
-                }
-                else
-                {
-                    PlayAudio("Hit_Concrete", hit.point);
-                }
+                //todo  击中音效
+                //if (type == WeaponType.MeleeWeapon)
+                //{
+                //    PlayAudio("qiang_peng", hit.point);
+                //}
+                //else
+                //{
+                //    PlayAudio("Hit_Concrete", hit.point);
+                //}
                 break;
             case Hurtmaterial.Mental:
                 EffectPlay.Play("Hit_metal", hit.transform, (e) => {
                     e.transform.position = hit.point;
                     e.transform.rotation = Quaternion.LookRotation(direction);
                 });
-                if (type == WeaponType.MeleeWeapon)
-                {
-                    PlayAudio("qiang_peng", hit.point);
-                }
-                else
-                {
-                    PlayAudio("Hit_Iron", hit.point);
-                }
+                //if (type == WeaponType.MeleeWeapon)
+                //{
+                //    PlayAudio("qiang_peng", hit.point);
+                //}
+                //else
+                //{
+                //    PlayAudio("Hit_Iron", hit.point);
+                //}
                 break;
             case Hurtmaterial.Meat:
                 EffectPlay.Play("Hit_routi", hit.transform, (e) => {
                     e.transform.position = hit.point;
                     e.transform.rotation = Quaternion.LookRotation(direction);
                 });
-                if (type == WeaponType.MeleeWeapon)
-                {
-                    PlayAudio("hit_peapole", hit.point);
-                }
-                else {
-                    PlayAudio("zidan_routi", hit.point);
-                }
+                //if (type == WeaponType.MeleeWeapon)
+                //{
+                //    PlayAudio("hit_peapole", hit.point);
+                //}
+                //else {
+                //    PlayAudio("zidan_routi", hit.point);
+                //}
                 break;
         }
         BattleController.GetCtrl<MonsterCtrl>().TrySensorMonster(SensorMonsterType.Shot,hit.point+(transform.position-hit.point).normalized, weaponArgs.hitSoundRange);
@@ -678,6 +683,7 @@ public class Weapon : MonoBehaviour,ILocalSave, IWeaponAnimEvent
         {
             _player.RemoveStation(Player.Station.Story);
             _player.RemoveStation(Player.Station.WeaponChanging);
+            EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, null, TimeLineType.Story);
             LocalFileMgr.SetInt("FirstGetAnim" + weaponID, 1);
         }
     }

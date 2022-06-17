@@ -226,23 +226,23 @@ public class MissionGraph : NodeGraph
         nodes.Clear();
     }
 
-    public void CheckProgress(int index)
-    {
-        for (int i = 0; i < nodes.Count; i++)
-        {
-            if (nodes[i] is TaskNode task)
-            {
-                IProgressOption[] tar = task.parentPrefab.GetComponentsInChildren<IProgressOption>();
-                for (int j = 0; j < tar.Length; j++)
-                {
-                    if (tar[j].progressOption.index == index)
-                    {
-                        Debug.Log($"{tar[j].gameObject.name}");
-                    }
-                }
-            }
-        }
-    }
+    // public void CheckProgress(int index)
+    // {
+    //     for (int i = 0; i < nodes.Count; i++)
+    //     {
+    //         if (nodes[i] is TaskNode task)
+    //         {
+    //             IProgressOption[] tar = task.parentPrefab.GetComponentsInChildren<IProgressOption>();
+    //             for (int j = 0; j < tar.Length; j++)
+    //             {
+    //                 if (tar[j].progressOption.index == index)
+    //                 {
+    //                     Debug.Log($"{tar[j].gameObject.name}");
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 #if UNITY_EDITOR
     [Button]
     public void ResetData()
@@ -264,33 +264,35 @@ public class MissionGraph : NodeGraph
     [Button]
     public void CheckProgress()
     {
-        List<PropsCreator> result = new List<PropsCreator>();
-        for (int i = 0; i < nodes.Count; i++)
-        {
-            if (nodes[i] is TaskNode task)
-            {
-                PropsCreator[] propsCreator = task.parentPrefab.transform.GetComponentsInChildren<PropsCreator>(true);
-                for (int j = 0; j < propsCreator.Length; j++)
-                {
-                    if (propsCreator[j].progressOption.index != -1)
-                    {
-                        result.Add(propsCreator[j]);
-                    }
-                }
-            }
-        }
-
-        result.Sort((a, b) => a.extuil.progress.index.CompareTo(b.extuil.progress.index));
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < result.Count; i++)
-        {
-            builder.Append(result[i].extuil.progress.index + " ==> " + result[i].id + "  " + result[i].model + "\n");
-        }
-
-        using (StreamWriter writer = new StreamWriter($"{Application.persistentDataPath}/工具/progress.txt"))
-        {
-            writer.Write(builder);
-            Process.Start($"{Application.persistentDataPath}/工具/progress.txt");
-        }
+        // List<PropsCreator> result = new List<PropsCreator>();
+        // for (int i = 0; i < nodes.Count; i++)
+        // {
+        //     if (nodes[i] is TaskNode task)
+        //     {
+        //         // BattleController.GetCtrl<ProgressCtrl>().curProgressIndex;
+        //         // task.nodeParent.progressSO.GetCreatorListByIndex();
+        //         PropsCreator[] propsCreator = task.parentPrefab.transform.GetComponentsInChildren<PropsCreator>(true);
+        //         for (int j = 0; j < propsCreator.Length; j++)
+        //         {
+        //             if (propsCreator[j].progressOption.index != -1)
+        //             {
+        //                 result.Add(propsCreator[j]);
+        //             }
+        //         }
+        //     }
+        // }
+        //
+        // result.Sort((a, b) => a.extuil.progress.index.CompareTo(b.extuil.progress.index));
+        // StringBuilder builder = new StringBuilder();
+        // for (int i = 0; i < result.Count; i++)
+        // {
+        //     builder.Append(result[i].extuil.progress.index + " ==> " + result[i].id + "  " + result[i].model + "\n");
+        // }
+        //
+        // using (StreamWriter writer = new StreamWriter($"{Application.persistentDataPath}/工具/progress.txt"))
+        // {
+        //     writer.Write(builder);
+        //     Process.Start($"{Application.persistentDataPath}/工具/progress.txt");
+        // }
     }
 }

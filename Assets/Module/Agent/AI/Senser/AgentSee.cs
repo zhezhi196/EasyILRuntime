@@ -93,6 +93,15 @@ namespace Module
                         }
                     }
                 }
+
+                for (int i = 0; i < onViewTarget.Count; i++)
+                {
+                    if (!onViewTarget[i].isSenserable)
+                    {
+                        onViewTarget.RemoveAt(i);
+                        break;
+                    }
+                }
             }
         }
 

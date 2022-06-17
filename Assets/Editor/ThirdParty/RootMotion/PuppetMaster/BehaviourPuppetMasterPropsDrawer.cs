@@ -35,7 +35,7 @@ namespace RootMotion.Dynamics {
 			EditorGUI.indentLevel = 0;
 			EditorGUI.BeginChangeCheck();
 
-			EditorGUI.PropertyField (new Rect(pos.x, pos.y, pos.width, lineHeight), prop.FindPropertyRelative ("normalMode"), new GUIContent("Normal Mode", "Active mode keeps the puppet and it's mapping active at all times. " +
+			EditorGUI.PropertyField (new Rect(pos.x, pos.y, pos.width, lineHeight), prop.FindPropertyRelative ("normalMode"), new GUIContent("Normal Mode", "Active mode keeps the puppet and its mapping active at all times. " +
 			                                                                                                                                 "Unmapped mode blends in mapping only if the puppet becomes in contact with something and blends out again later to maintain 100% animation accuracy while not in contact. " +
 	                                                                                                                                 "If Kinematic, will set the PuppetMaster.mode to Active when any of the muscles collides with something (static colliders are ignored if 'Activate On Static Collisions' is false) or is hit. PuppetMaster.mode will be set to Kinematic when all muscles are pinned and the puppet is in normal Puppet state. This will increase performance and enable you to have full animation accuracy when PuppetMaster is not needed. Note that collision events are only broadcasted if one of the Rigidbodies is not kinematic, so if you need 2 characters to wake up each other, one has to be active."));
 

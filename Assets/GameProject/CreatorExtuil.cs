@@ -6,6 +6,8 @@ public enum MapType
 {
     Main = 1,
     Door = 2,
+    Prop = 3,
+    Trigger = 4,
 }
 [Serializable]
 public struct CreatorExtuil
@@ -15,8 +17,8 @@ public struct CreatorExtuil
     [LabelText("地图类型")]
     public MapType mapType;
     [LabelText("地图ID")] 
-    public string mapId;
+    public int mapId;
     [LabelText("区域id")]
-    public string areaId;
+    public int areaId;
 
 }

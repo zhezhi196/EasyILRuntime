@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 634f500d466343747a1efc8979b33cb8, type: 3}
+  m_Name: G2ArgsConfig
+  m_EditorClassIdentifier: 
+  attckDistance: 2000
+  firstBulletCount: 5
+  getBulletCount: 5
+  attackForce: 5000
+  forceDelay: 0.3
+  animationToRagdollTime: 0.3
+  moveMul: 2
+  crouchMoveMul: 1.5
+  crouchMul: 0.5
+  maxAccurate: 120
+  fallAccurate: 400
+  Recoil: 20
+  MaxRecoil: 100
+  diffusionArea: 170
+  attackSoundRange: 80
+  hitSoundRange: 10
+  fireAudio: xiandanqiang2
+  toAimAudio: 
+  toNoAimAudio: 
+  emptyFireAuido: M1014_fire2
+  reloadAudio: M1014_change1
+  emptyReloadAudio: 

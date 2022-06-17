@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 634f500d466343747a1efc8979b33cb8, type: 3}
+  m_Name: BrickArgsConfig
+  m_EditorClassIdentifier: 
+  attckDistance: 2000
+  firstBulletCount: 1
+  getBulletCount: 1
+  moveMul: 2
+  crouchMoveMul: 1.5
+  crouchMul: 0.5
+  maxAccurate: 70
+  fallAccurate: 80
+  Recoil: 0
+  MaxRecoil: 0
+  diffusionArea: 100
+  attackSoundRange: 100
+  hitSoundRange: 10
+  fireAudio: 
+  toAimAudio: 
+  toNoAimAudio: 
+  emptyFireAuido: 
+  reloadAudio: 
+  emptyReloadAudio: 

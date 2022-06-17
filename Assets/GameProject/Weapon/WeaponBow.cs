@@ -93,11 +93,18 @@ public class WeaponBow : Weapon
             IHurtObject hurtObject = hit.collider.GetComponent<IHurtObject>();
             if (hurtObject != null)
             {
+                AssetLoad.LoadGameObject<WeaponBowBullet>(arrowPrefabPath, null, (arrow, objs) =>
+                {
+                    arrow.transform.position = hit.point;
+                    arrow.transform.LookAt(hit.point + (hit.point - firePoint.position).normalized);
+                    arrow.Hit(hurtObject);
+                });
+
                 var damage = _player.CreateDamage(this, hurtObject);
                 damage.dir = hit.point - firePoint.position;
                 if (hurtObject is MonsterPart part)
                 {
-                    //EventCenter.Dispatch(EventKey.HitMonster, (part.monster.hp - damage.hpDamage.damage) > 0, part);
+                    EventCenter.Dispatch(EventKey.HitMonster, (part.monster.hp - damage.damage) > 0, part);
                 }
                 hurtObject.OnHurt(_player, damage);
                 HitSomething(hurtObject, hit,weaponType);//特效

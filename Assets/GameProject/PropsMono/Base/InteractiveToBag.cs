@@ -18,6 +18,13 @@ public class InteractiveToBag : PropsBase, IBag, IMatch
     protected override bool OnInteractive(bool fromMonster = false)
     {
         var propsCtrl = BattleController.GetCtrl<PropsCtrl>();
+        if (entity.dropType == DropType.None)
+        {
+            RunLogicalOnSelf(RunLogicalName.Destroy);
+            entity.GetReward(count, creator.id, creator.matchInfo, 0);
+            return true;
+        }
+        
         if (entity.dropType == DropType.AlwaysShow || !propsCtrl.propPopupedMarkList.Contains(entity))
         {
             if (entity.dropType != DropType.AlwaysShow)

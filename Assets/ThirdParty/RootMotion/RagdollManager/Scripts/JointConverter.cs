@@ -11,7 +11,7 @@ namespace RootMotion.Dynamics {
 		#region Public
 
 		/// <summary>
-		/// Converts any 3D joints on the root GameObject and it's children to ConfigurableJoints
+		/// Converts any 3D joints on the root GameObject and its children to ConfigurableJoints
 		/// </summary>
 		/// <param name="root">Root.</param>
 		public static void ToConfigurable(GameObject root) {

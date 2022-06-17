@@ -59,11 +59,11 @@ namespace ProjectUI
             {
                 alaphCanvas.DOFade(1, 1).SetId(gameObject).SetUpdate(true);
             });
-            BagItem item = null;
+            BagItem matchItem = null;
             if (args.Length > 0)
             {
                 targetProp = args[0] as PropsBase;
-                item = BattleController.GetCtrl<BagPackCtrl>().Match(targetProp);
+                matchItem = BattleController.GetCtrl<BagPackCtrl>().Match(targetProp);
             }
 
             if (BattleController.GetCtrl<BagPackCtrl>().bagList.Count <= 0)
@@ -78,7 +78,7 @@ namespace ProjectUI
                 if (i < BattleController.GetCtrl<BagPackCtrl>().bagList.Count)
                 {
                     cellList[i].SetInfo(BattleController.GetCtrl<BagPackCtrl>().bagList[i], () => v.Add());
-                    if (item == BattleController.GetCtrl<BagPackCtrl>().bagList[i])
+                    if (matchItem == BattleController.GetCtrl<BagPackCtrl>().bagList[i])
                     {
                         targetItem = cellList[i].cellEntity;
                         targetCell = cellList[i];
@@ -107,6 +107,7 @@ namespace ProjectUI
                 if (cellList[0].cellEntity != null)
                 {
                     OnClickCell(cellList[0]);
+                    cellList[0].Select(true);
                     cellList[0].toggle.isOn = true;
                 }
             }
@@ -114,6 +115,10 @@ namespace ProjectUI
             {
                 toggleGroup.allowSwitchOff = false;
                 renderTexture.gameObject.OnActive(true);
+            }
+            else
+            {
+                renderTexture.gameObject.OnActive(false);
             }
         }
 
@@ -224,6 +229,7 @@ namespace ProjectUI
                 if (cellList[0].cellEntity != null)
                 {
                     OnClickCell(cellList[0]);
+                    cellList[0].Select(true);
                     cellList[0].toggle.isOn = true;
                 }
             }

@@ -33,9 +33,9 @@ public class PlayerCtrl : BattleSystem,ILocalSave
             //加载角色预制体
             AssetLoad.LoadGameObject<Player>(prefabPath, BattleController.Instance.heroRoot, (obj, arg) =>
             {
-                //if (enterType == EnterNodeType.Restart)//开始新游戏添加一个注射器
-                //    PropEntity.GetEntity(20032).GetReward(1, RewardFlag.NoAudio|RewardFlag.NoRecord);
-                BattleController.GetCtrl<BagPackCtrl>().PutToBag(PropEntity.GetEntity(20032), 1, -1, null, 0);
+                if (enterType == EnterNodeType.Restart)//开始新游戏添加一个注射器
+                    BattleController.GetCtrl<BagPackCtrl>().PutToBag(PropEntity.GetEntity(20032), 1, -1, null, 0);
+
                 player = obj;
                 player.gameObject.OnActive(false);
                 loadPlayer = null;
@@ -100,7 +100,8 @@ public class PlayerCtrl : BattleSystem,ILocalSave
                 if (timeline != null)
                 {
                     //cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject);
-                    player.timelineModel.Show(false);
+                    player.AddStation(Player.Station.Story);
+                    player.timelineModel.Show(PlayerTimelineModel.ShowModel.None);
                     player.currentWeapon.TakeBack();
                     player.transform.position = timeline.playerPoint.position;
                     player.transform.rotation = timeline.playerPoint.rotation;
@@ -110,6 +111,7 @@ public class PlayerCtrl : BattleSystem,ILocalSave
                         //player.characterController.enabled = true;
                         player.timelineModel.Hide();
                         player.currentWeapon.TakeOut();
+                        player.RemoveStation(Player.Station.Story);
                         player._cameraFllowTrans = player.currentWeapon.cameraPoint;
                         //inTimeline = false;
                         BattleController.Instance.NextFinishAction("BronAnim");
@@ -244,6 +246,23 @@ public class PlayerCtrl : BattleSystem,ILocalSave
             }));
             endSequence.NextAction();
         });
+    }
+
+    public async void DragMoveTest()
+    {
+        GameObject obj = new GameObject();
+        obj.transform.position = player.CenterPostion+ new Vector3(0,0.5f,0);
+        await Async.WaitForEndOfFrame();
+        player.StartDragMove(obj.transform,null);
+        float t = 0f;
+        while (t <= 1)
+        {
+            t += TimeHelper.deltaTime;
+            obj.transform.position += player.transform.forward * 10f * TimeHelper.deltaTime;
+            await Async.WaitForEndOfFrame();
+        }
+        GameObject.DestroyImmediate(obj);
+        player.EndDragMove();
     }
 
     private void OnGetWeapon(int id)

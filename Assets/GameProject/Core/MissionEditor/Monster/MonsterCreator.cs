@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Module;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 
 public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventReceiver, IEventSender
@@ -44,7 +43,7 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
     [LabelText("事件接受")] public List<EventReciverEditor> eventRecivers;
     [HideLabel]
     public CreatorExtuil extuil;
-    public ProgressOption progressOption => progress;
+    // public ProgressOption progressOption => progress;
 
     public bool progressIsComplete
     {
@@ -54,7 +53,7 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
             {
                 if (monster != null)
                 {
-                    return !monster.isProgressComplete;
+                    return monster.isProgressComplete;
                 }
                 else
                 {
@@ -85,7 +84,7 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
     public EventSender[] sender => _sender;
     public bool isGet { get; set; }
     public MapType mapType => extuil.mapType;
-    public string mapId => extuil.mapId;
+    public int mapId => extuil.mapId;
 
     private void Awake()
     {
@@ -288,10 +287,18 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
 
                         break;
                     case RunLogicalName.SwitchBt:
-                        if (args[0] == "Chase" && monster is AttackMonster attack)
+                        if (monster is AttackMonster attMons)
                         {
-                            attack.Chase();
+                            if (args[0] == "Chase")
+                            {
+                                attMons.Chase();
+                            }
+                            else if (args[0] == "Parallel")
+                            {
+                                monster.GetAgentCtrl<SimpleBehaviorCtrl>().SwitchBehavior(new Parallel());
+                            }
                         }
+
                         //todo 切行为树
                         //monster.GetAgentCtrl<SimpleBehaviorCtrl>().SwitchBehavior(args[0]);
                         break;
@@ -306,8 +313,23 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
                         AssetLoad.Destroy(monster.transform.gameObject);
                         break;
                     case RunLogicalName.Show:
-                        monster.gameObject.OnActive(true);
-                        monster.Born();
+                        BattleController.GetCtrl<TimelineCtrl>().GetMonsterShowTimeline(monster as AttackMonster, (timeline) =>
+                        {
+                            if (timeline != null)
+                            {
+                                //timeline.transform.position = transform.position;
+                                //timeline.transform.rotation = transform.rotation;
+                                timeline.Play(null, monster as AttackMonster, () => {
+                                    monster.gameObject.OnActive(true);
+                                    monster.Born();
+                                });
+                            }
+                            else
+                            {
+                                monster.gameObject.OnActive(true);
+                                monster.Born();
+                            }
+                        });
                         break;
                     case RunLogicalName.StopAttack:
                         monster.StopAttack();
@@ -375,14 +397,14 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
         unloadNodeID = loadNodeID + 1;
     }
 
-    private void CheckProgress()
-    {
-        NodeParent parent = transform.GetComponentInParent<NodeParent>();
-        string[] spite = parent.prefab.Split('/');
-        string path = parent.prefab.Substring(0,parent.prefab.Length - spite.Last().Length-1);
-        MissionGraph graph = UnityEditor.AssetDatabase.LoadAssetAtPath<MissionGraph>(path + ".asset");
-        graph.CheckProgress(progress.index);
-    }
+    // private void CheckProgress()
+    // {
+    //     NodeParent parent = transform.GetComponentInParent<NodeParent>();
+    //     string[] spite = parent.prefab.Split('/');
+    //     string path = parent.prefab.Substring(0,parent.prefab.Length - spite.Last().Length-1);
+    //     MissionGraph graph = UnityEditor.AssetDatabase.LoadAssetAtPath<MissionGraph>(path + ".asset");
+    //     graph.CheckProgress(progress.index);
+    // }
     
 
     private void OnDrawGizmos()
@@ -574,7 +596,7 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
         // leve.viewDistance = prefabData.viewDistance;
         // leve.hearRange = prefabData.hearRange;
         //leve.partEditor = prefabData.partEditor;
-        MonsterConfig config = AssetDatabase.LoadAssetAtPath<MonsterConfig>("Assets/Config/MonsterConfig.asset");
+        MonsterConfig config = UnityEditor.AssetDatabase.LoadAssetAtPath<MonsterConfig>("Assets/Config/MonsterConfig.asset");
         NodeParent node = transform.GetComponentInParent<NodeParent>();
         var info = config.config.Find(fd => fd.normalId == prefabData.dataId);
 
@@ -603,7 +625,7 @@ public class MonsterCreator : SerializedMonoBehaviour, IMissionEditor, IEventRec
     [Button]
     public void ReReadLevelWithConfig()
     {
-        MonsterConfig config = AssetDatabase.LoadAssetAtPath<MonsterConfig>("Assets/Config/MonsterConfig.asset");
+        MonsterConfig config = UnityEditor.AssetDatabase.LoadAssetAtPath<MonsterConfig>("Assets/Config/MonsterConfig.asset");
         NodeParent node = transform.GetComponentInParent<NodeParent>();
         var temp = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/{ConstKey.GetFolder(AssetLoad.AssetFolderType.Bundle)}/Monster/{modeName}/{modeName}.prefab");
         IMonster monster = temp.GetComponent<IMonster>();

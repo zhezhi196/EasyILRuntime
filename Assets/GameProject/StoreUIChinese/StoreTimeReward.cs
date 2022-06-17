@@ -38,7 +38,14 @@ public class StoreTimeReward : ShopItemChinese
         if (remainTime.gameObject.activeInHierarchy)
         {
             var remainTim = deadLine - TimeHelper.now;
-            remainTime.text = string.Format(Language.GetContent("1507"), Mathf.Clamp(remainTim.Hours, 0, 24), Mathf.Clamp(remainTim.Minutes, 0, 60), Mathf.Clamp(remainTim.Seconds, 0, 60));
+            if (Mathf.Clamp(remainTim.Hours, 0, 24) == 0)
+            {
+                remainTime.text = string.Format(Language.GetContent("1717"), Mathf.Clamp(remainTim.Hours, 0, 24), Mathf.Clamp(remainTim.Minutes, 0, 60), Mathf.Clamp(remainTim.Seconds, 0, 60));
+            }
+            else
+            {
+                remainTime.text = string.Format(Language.GetContent("1507"), Mathf.Clamp(remainTim.Hours, 0, 24), Mathf.Clamp(remainTim.Minutes, 0, 60), Mathf.Clamp(remainTim.Seconds, 0, 60));   
+            }
             if (remainTim.TotalSeconds <= 0)
             {
                 isGet = false;

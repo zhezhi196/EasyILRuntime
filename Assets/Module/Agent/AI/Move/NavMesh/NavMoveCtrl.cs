@@ -146,7 +146,13 @@ namespace Module
         {
             owner.onSwitchStation -= OnOwnerSwitchStation;
         }
-
+        
+        public bool MoveTo(Vector3 position, Action<NavMeshPathStatus, bool> callback)
+        {
+            this.callback = callback;
+            return PrivateMoveTo(position);
+        }
+        
         private bool PrivateMoveTo(Vector3 position)
         {
             if (!owner.navmesh.enabled) return false;
@@ -156,12 +162,6 @@ namespace Module
             owner.navmesh.SetDestination(position);
             callback?.Invoke(owner.navmesh.path.status, false);
             return true;
-        }
-        
-        public bool MoveTo(Vector3 position, Action<NavMeshPathStatus, bool> callback)
-        {
-            this.callback = callback;
-            return PrivateMoveTo(position);
         }
         
         public void StopMove()

@@ -10,11 +10,16 @@ namespace RootMotion.Dynamics {
 		/// Determines whether this ragdoll is facing up (false) or down (true).
 		/// </summary>
 		public bool IsProne() {
+            if (isQuadruped)
+            {
+                float qDot = Vector3.Dot(puppetMaster.muscles[0].transform.rotation * hipsUp, puppetMaster.targetRoot.right);
+                return qDot > 0f;
+            }
 			float dot = Vector3.Dot(puppetMaster.muscles[0].transform.rotation * hipsForward, puppetMaster.targetRoot.up);
-			return dot < 0f;
+            return dot < 0f;
 		}
 
-		// Gets the falloff value of muscle 'i' according to it's kinship degree from muscle 'muscleIndex' and the parent and child falloff values.
+		// Gets the falloff value of muscle 'i' according to its kinship degree from muscle 'muscleIndex' and the parent and child falloff values.
 		private float GetFalloff(int i, int muscleIndex, float falloffParents, float falloffChildren) {
 			if (i == muscleIndex) return 1f;
 			
@@ -24,7 +29,7 @@ namespace RootMotion.Dynamics {
 			return Mathf.Pow(isChild? falloffChildren: falloffParents, kinshipDegree);
 		}
 
-		// Gets the falloff value of muscle 'i' according to it's kinship degree from muscle 'muscleIndex' and the parent, child and group falloff values.
+		// Gets the falloff value of muscle 'i' according to its kinship degree from muscle 'muscleIndex' and the parent, child and group falloff values.
 		private float GetFalloff(int i, int muscleIndex, float falloffParents, float falloffChildren, float falloffGroup) {
 			float falloff = GetFalloff(i, muscleIndex, falloffParents, falloffChildren);
 			

@@ -215,7 +215,7 @@ namespace RootMotion.Dynamics
         /// <summary>
         /// All PropMuscles added to this PuppetMaster.
         /// </summary>
-        [SerializeField] [HideInInspector] public PropMuscle[] propMuscles = new PropMuscle[0];
+        [HideInInspector] public PropMuscle[] propMuscles = new PropMuscle[0];
 
         public delegate void UpdateDelegate();
         public delegate void MuscleDelegate(Muscle muscle);
@@ -293,7 +293,7 @@ namespace RootMotion.Dynamics
         /// Array of all Puppet Behaviours
         /// </summary>
         /// <value>The behaviours.</value>
-        public BehaviourBase[] behaviours { get; private set; } // @todo add/remove behaviours in runtime (add OnDestroy to BehaviourBase)
+        [HideInInspector][NonSerialized] public BehaviourBase[] behaviours = new BehaviourBase[0];
 
         /// <summary>
         /// Returns true if the PuppetMaster is in active mode or blending in/out of it.
@@ -322,7 +322,7 @@ namespace RootMotion.Dynamics
         /// <summary>
         /// If disabled, disconnected bones will not be mapped to disconnected ragdoll parts.
         /// </summary>
-        [SerializeField] [HideInInspector] public bool mapDisconnectedMuscles = true;
+        [HideInInspector] public bool mapDisconnectedMuscles = true;
 
         /// <summary>
         /// Normal means Animator is in Normal or Unscaled Time or Animation has Animate Physics unchecked.
@@ -784,16 +784,20 @@ namespace RootMotion.Dynamics
             onPostRebuildFlag = true;
         }
 
+        private float simulationDeltaTime;
+
         /// <summary>
         /// To be called before Physics.Simulate() if Physics.autoSimulation is false and PuppetMaster component disabled. Note that this method also updates the Animator so that is forced to disabled.
         /// </summary>
         /// <param name="deltaTime"></param>
         public void OnPreSimulate(float deltaTime)
         {
+            simulationDeltaTime = deltaTime;
+
             foreach (BehaviourBase b in behaviours)
             {
-                b.UpdateB();
-                b.FixedUpdateB();
+                b.UpdateB(deltaTime);
+                b.FixedUpdateB(deltaTime);
             }
 
             if (!initiated) return;
@@ -820,9 +824,12 @@ namespace RootMotion.Dynamics
             pinDistanceFalloff = Mathf.Max(pinDistanceFalloff, 0f);
 
             FixTargetTransforms();
-            if (targetAnimator.enabled) targetAnimator.enabled = false;
+            if (targetAnimator != null)
+            {
+                if (targetAnimator.enabled) targetAnimator.enabled = false;
 
-            targetAnimator.Update(deltaTime);
+                targetAnimator.Update(deltaTime);
+            }
 
             foreach (SolverManager solver in solvers)
             {
@@ -830,7 +837,7 @@ namespace RootMotion.Dynamics
             }
 
             if (OnRead != null) OnRead(); // Update IK
-            foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead();
+            foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead(deltaTime);
 
             Read();
 
@@ -878,7 +885,7 @@ namespace RootMotion.Dynamics
         /// </summary>
         public void OnPostSimulate()
         {
-            foreach (BehaviourBase b in behaviours) b.LateUpdateB();
+            foreach (BehaviourBase b in behaviours) b.LateUpdateB(simulationDeltaTime);
 
             if (muscles.Length <= 0) return;
 
@@ -909,7 +916,7 @@ namespace RootMotion.Dynamics
                         if (activeMode == Mode.Kinematic) MoveToTarget();
                     }
 
-                    foreach (BehaviourBase behaviour in behaviours) behaviour.OnWrite();
+                    foreach (BehaviourBase behaviour in behaviours) behaviour.OnWrite(simulationDeltaTime);
                     if (OnWrite != null) OnWrite();
 
                     StoreTargetMappedState(); //@todo no need to do this all the time
@@ -945,7 +952,7 @@ namespace RootMotion.Dynamics
 
         protected virtual void FixedUpdate()
         {
-            foreach (BehaviourBase b in behaviours) b.FixedUpdateB();
+            foreach (BehaviourBase b in behaviours) b.FixedUpdateB(Time.deltaTime);
 
             if (!initiated) return;
             if (!autoSimulate) return;
@@ -999,7 +1006,7 @@ namespace RootMotion.Dynamics
                 }
 
                 if (OnRead != null) OnRead();
-                foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead();
+                foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead(Time.deltaTime);
                 Read();
                 readInFixedUpdate = true;
             }
@@ -1046,7 +1053,7 @@ namespace RootMotion.Dynamics
 
         protected virtual void Update()
         {
-            foreach (BehaviourBase b in behaviours) b.UpdateB();
+            foreach (BehaviourBase b in behaviours) b.UpdateB(Time.deltaTime);
 
             if (!initiated) return;
             if (!autoSimulate) return;
@@ -1066,7 +1073,7 @@ namespace RootMotion.Dynamics
 
         protected virtual void LateUpdate()
         {
-            foreach (BehaviourBase b in behaviours) b.LateUpdateB();
+            foreach (BehaviourBase b in behaviours) b.LateUpdateB(Time.deltaTime);
 
             if (!autoSimulate) return;
             if (muscles.Length <= 0) return;
@@ -1091,7 +1098,7 @@ namespace RootMotion.Dynamics
         }
 
         private bool readInFixedUpdate;
-
+        
         protected virtual void OnLateUpdate()
         {
             if (!initiated) return;
@@ -1109,7 +1116,7 @@ namespace RootMotion.Dynamics
             if (animationApplied)
             {
                 if (OnRead != null) OnRead(); // Update IK
-                foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead();
+                foreach (BehaviourBase behaviour in behaviours) behaviour.OnRead(Time.deltaTime);
             }
             if (muscleRead) Read();
             
@@ -1154,7 +1161,7 @@ namespace RootMotion.Dynamics
                     if (activeMode == Mode.Kinematic) MoveToTarget();
                 }
 
-                foreach (BehaviourBase behaviour in behaviours) behaviour.OnWrite();
+                foreach (BehaviourBase behaviour in behaviours) behaviour.OnWrite(Time.deltaTime);
                 if (OnWrite != null) OnWrite();
 
                 StoreTargetMappedState(); //@todo no need to do this all the time
@@ -1171,80 +1178,7 @@ namespace RootMotion.Dynamics
             // Freezing
             if (freezeFlag) OnFreezeFlag();
         }
-
-        /*
-        protected virtual void OnLateUpdate()
-        {
-            if (!initiated) return;
-
-            if (animatorDisabled)
-            {
-                targetAnimator.enabled = true;
-                animatorDisabled = false;
-            }
-
-            // Switching states
-            SwitchStates();
-
-            // Switching modes
-            SwitchModes();
-
-            // Update modes
-            switch (updateMode)
-            {
-                case UpdateMode.FixedUpdate:
-                    if (!isActive && fixedFrame && OnRead != null) OnRead();
-                    if (!fixedFrame && !interpolated) return;
-                    break;
-                case UpdateMode.AnimatePhysics: // Legacy AnimatePhysics
-                    if (!fixedFrame && !interpolated) return;
-                    if (isActive && !fixedFrame) Read();
-                    break;
-                case UpdateMode.Normal:
-                    if (isActive) Read();
-                    else if (OnRead != null) OnRead();
-                    break;
-            }
-
-            // Below is common code for all update modes! For AnimatePhysics modes the following code will run only in fixed frames
-            fixedFrame = false;
-
-            // Mapping
-            if (!isFrozen)
-            {
-                mappingWeight = Mathf.Clamp(mappingWeight, 0f, 1f);
-                float mW = mappingWeight * mappingBlend;
-
-                if (mW > 0f)
-                {
-                    if (isActive)
-                    {
-                        for (int i = 0; i < muscles.Length; i++) muscles[i].Map(mW);
-                    }
-                }
-                else
-                {
-                    // Moving to Target when in Kinematic mode
-                    if (activeMode == Mode.Kinematic) MoveToTarget();
-                }
-
-                foreach (BehaviourBase behaviour in behaviours) behaviour.OnWrite();
-                if (OnWrite != null) OnWrite();
-
-                StoreTargetMappedState(); //@todo no need to do this all the time
-
-                foreach (Muscle m in muscles) m.CalculateMappedVelocity();
-            }
-
-            if (mapDisconnectedMuscles)
-            {
-                for (int i = 0; i < muscles.Length; i++) muscles[i].MapDisconnected();
-            }
-
-            // Freezing
-            if (freezeFlag) OnFreezeFlag();
-        }
-        */
+        
         // Moves the muscles to where their targets are.
         private void MoveToTarget()
         {

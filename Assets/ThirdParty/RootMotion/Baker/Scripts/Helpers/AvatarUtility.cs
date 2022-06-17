@@ -8,6 +8,8 @@ namespace RootMotion
 {
     public class TQ
     {
+        public TQ() { }
+
         public TQ(Vector3 translation, Quaternion rotation)
         {
             t = translation;
@@ -53,7 +55,6 @@ namespace RootMotion
 
             var goalTQ = new TQ(boneTQ.t, boneTQ.q * postRotation);
 
-
             if (avatarIKGoal == AvatarIKGoal.LeftFoot || avatarIKGoal == AvatarIKGoal.RightFoot)
             {
                 // Here you could use animator.leftFeetBottomHeight or animator.rightFeetBottomHeight rather than GetAxisLenght
@@ -74,17 +75,54 @@ namespace RootMotion
             return goalTQ;
         }
 
+        public static TQ WorldSpaceIKGoalToBone(TQ goalTQ, Avatar avatar, AvatarIKGoal avatarIKGoal)
+        {
+            int humanId = (int)HumanIDFromAvatarIKGoal(avatarIKGoal);
+            if (humanId == (int)HumanBodyBones.LastBone) throw new InvalidOperationException("Invalid human id.");
+
+            MethodInfo methodGetAxisLength = typeof(Avatar).GetMethod("GetAxisLength", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (methodGetAxisLength == null) throw new InvalidOperationException("Cannot find GetAxisLength method.");
+
+            MethodInfo methodGetPostRotation = typeof(Avatar).GetMethod("GetPostRotation", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (methodGetPostRotation == null) throw new InvalidOperationException("Cannot find GetPostRotation method.");
+
+            Quaternion postRotation = (Quaternion)methodGetPostRotation.Invoke(avatar, new object[] { humanId });
+
+            if (avatarIKGoal == AvatarIKGoal.LeftFoot || avatarIKGoal == AvatarIKGoal.RightFoot)
+            {
+                // Here you could use animator.leftFeetBottomHeight or animator.rightFeetBottomHeight rather than GetAxisLenght
+                // Both are equivalent but GetAxisLength is the generic way and work for all human bone
+                float axislength = (float)methodGetAxisLength.Invoke(avatar, new object[] { humanId });
+                Vector3 footBottom = new Vector3(axislength, 0, 0);
+                goalTQ.t -= (goalTQ.q * footBottom);
+            }
+
+            TQ boneTQ = new TQ(goalTQ.t, goalTQ.q * Quaternion.Inverse(postRotation));
+
+            return boneTQ;
+        }
+
+        public static TQ GetWorldSpaceIKGoal(BakerHumanoidQT ikQT, BakerHumanoidQT rootQT, float time, float humanScale)
+        {
+            var tq = ikQT.Evaluate(time);
+            var rTQ = rootQT.Evaluate(time);
+
+            tq.q = rTQ.q * tq.q;
+            tq.t = rTQ.t + rTQ.q * tq.t;
+            tq.t *= humanScale;
+            return tq;
+        }
+
         public static HumanBodyBones HumanIDFromAvatarIKGoal(AvatarIKGoal avatarIKGoal)
         {
-            HumanBodyBones humanId = HumanBodyBones.LastBone;
             switch (avatarIKGoal)
             {
-                case AvatarIKGoal.LeftFoot: humanId = HumanBodyBones.LeftFoot; break;
-                case AvatarIKGoal.RightFoot: humanId = HumanBodyBones.RightFoot; break;
-                case AvatarIKGoal.LeftHand: humanId = HumanBodyBones.LeftHand; break;
-                case AvatarIKGoal.RightHand: humanId = HumanBodyBones.RightHand; break;
+                case AvatarIKGoal.LeftFoot: return HumanBodyBones.LeftFoot;
+                case AvatarIKGoal.RightFoot: return HumanBodyBones.RightFoot;
+                case AvatarIKGoal.LeftHand: return HumanBodyBones.LeftHand;
+                case AvatarIKGoal.RightHand: return HumanBodyBones.RightHand;
+                default: return HumanBodyBones.LastBone;
             }
-            return humanId;
         }
     }
 }

@@ -54,7 +54,11 @@ namespace Module
 
         public static void InitAction(Action callback)
         {
-            if (info != null) return;
+            if (info != null)
+            {
+                callback?.Invoke();
+                return;
+            }
 #if UNITY_EDITOR
             var json = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/{ConstKey.GetFolder(AssetLoad.AssetFolderType.Bundle)}/{AssetOutPutPath}").text;
             info = JsonMapper.ToObject<Dictionary<string, LangInfo[]>>(EncryptionHelper.Xor(json,useKey));

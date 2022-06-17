@@ -110,7 +110,32 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
     [SerializeField, TabGroup("状态"), ReadOnly, LabelText("战斗状态")]
     private FightState _fightState;
+    [ShowInInspector,TabGroup("状态")]
+    private string behaviorName
+    {
+        get
+        {
+            if (simpleBtCtrl != null && simpleBtCtrl.currBehavior != null)
+            {
+                return simpleBtCtrl.currBehavior.ToString();
+            }
 
+            return null;
+        }
+    }
+    [ShowInInspector,TabGroup("状态")]
+    private string skillName
+    {
+        get
+        {
+            if (skillCtrl != null && skillCtrl.currActive != null)
+            {
+                return skillCtrl.currActive.name;
+            }
+
+            return null;
+        }
+    }
     [SerializeField, TabGroup("状态"), ReadOnly]
     public int seePlayerPointCount;
     [SerializeField, TabGroup("状态"),ReadOnly,LabelText("离玩家距离")] 
@@ -130,6 +155,8 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
     [TabGroup("挂点"), SerializeField] protected AgentAudio[] _agentAudio;
     [TabGroup("挂点")] public IdleStyle idleStyle;
     [TabGroup("挂点")] public Transform assPoint;
+    [TabGroup("挂点")] public CapsuleCollider collider;
+
     [LabelText("怪物类型")][TabGroup("信息"), SerializeField]
     public MonsterType monsterType;
     [LabelText("模型")] [TabGroup("信息"), SerializeField]
@@ -260,13 +287,18 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
                 ContainStation(MonsterStation.Roar) ||
                 ContainStation(MonsterStation.Wait) || ContainStation(MonsterStation.Attack) ||
                 ContainStation(MonsterStation.Alarm) || ContainStation(MonsterStation.TimeLine) ||
-                ContainStation(MonsterStation.CheckLook))
+                ContainStation(MonsterStation.CheckLook) || ContainStation(MonsterStation.WakeUp))
             {
                 return 0;
             }
 
+            if (skillCtrl.currActive is DodgeSkill dodge)
+            {
+                return dodge.dodgeSpeed;
+            }
+            
             float buffk = buffCtrl.buffList.Count == 0 ? 0 : (buffCtrl.buffList[0] as WeekBuff).moveSpeedDown;
-            if (moveStyle == MoveStyle.Run || ContainStation(MonsterStation.Dodge))
+            if (moveStyle == MoveStyle.Run)
             {
                 return currentLevel.attribute.moveSpeed * currentLevel.dbData.runMoveK * (1 - buffk);
             }
@@ -283,7 +315,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         get
         {
             if (moveSpeed == 0) return 0;
-            if (fightState == FightState.Normal) return currentLevel.attribute.rotateSpeed * 0.2f;
+            if (fightState == FightState.Normal) return currentLevel.attribute.rotateSpeed*0.5f;
             return currentLevel.attribute.rotateSpeed;
         }
     }
@@ -314,7 +346,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
     public virtual bool canHurt
     {
-        get { return isAlive && !ContainStation(MonsterStation.TimeLine) && !ContainStation(MonsterStation.Blocking); }
+        get { return isAlive && !ContainStation(MonsterStation.TimeLine) ; }
     }
 
     public virtual bool canExc
@@ -352,6 +384,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
     public virtual void OnCreat(MonsterCreator creator)
     {
         this.creator = creator;
+
         if (initStation == InitStation.UnActive)
         {
             initStation = InitStation.OnlyCreat;
@@ -374,6 +407,15 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
             if (navmesh != null)
             {
                 navmesh.avoidancePriority = BattleController.GetCtrl<MonsterCtrl>().GetMonsterProperty(monsterType);
+            }
+
+            if (collider != null)
+            {
+                var meeleAttack = skillCtrl.allSkill.Last();
+                if (meeleAttack is MeleeAttack att)
+                {
+                    this.collider.radius = att.stopMoveDistance - 0.1f;
+                }
             }
         }
         
@@ -426,7 +468,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         return hp <= damage;
     }
 
-    public virtual Damage OnHurt(Damage damage)
+    public virtual Damage OnHurt(Damage damage)  
     {
         return damage;
     }
@@ -438,9 +480,9 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
             MonsterPart part = (MonsterPart) target;
             float damageValue = damage.damage;
             float currHp = hp;
+            GameDebug.LogError(damageValue);
             if (damageValue > 0)
             {
-                RemoveStation(MonsterStation.Sleep);
                 if (damageValue >= currHp)
                 {
                     _hp = new FloatField(0);
@@ -458,6 +500,26 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         return default;
     }
 
+    public void WakeUpFromSleep(Action callback)
+    {
+        if (RemoveStation(MonsterStation.Sleep))
+        {
+            AddStation(MonsterStation.WakeUp);
+            GetAgentCtrl<AnimatorCtrl>().Play("zhuangsiqilai", 0, 0).onStationChange += st =>
+            {
+                if (st.station == AnimationPlayStation.Complete)
+                {
+                    RemoveStation(MonsterStation.WakeUp);
+                    callback?.Invoke();
+                }
+            };
+        }
+        else if (!ContainStation(MonsterStation.WakeUp))
+        {
+            callback?.Invoke();
+        }
+    }
+
 
     public virtual bool OnDead(ITarget target,DeadType deadType,Damage damage)
     {
@@ -472,7 +534,6 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
             if (Dead)
             {
                 allTransform[i].gameObject.layer = MaskLayer.deadMonster;
-                
             }
             else
             {
@@ -546,7 +607,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         {
             if ((flag & ResetFlag.Position) != 0)
             {
-                MoveToPoint(creator.transform.position);
+                FlashToPoint(creator.transform.position);
                 transform.DORotateQuaternion(creator.transform.rotation, 0.5f);
                 transform.localScale = Vector3.one;
             }
@@ -577,13 +638,21 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
     #region 回调
 
+    public IEnumerator WaitRemoveHit()
+    {
+        yield return new WaitForSeconds(5);
+        RemoveStation(MonsterStation.HitParalysis);
+    }
     /// <summary>
     /// 硬直满的逻辑
     /// </summary>
     /// <param name="type"></param>
-    public virtual void OnPartFull(MonsterPartType type,Damage damage)
+    public virtual  void OnPartFull(MonsterPartType type,Damage damage)
     {
-        AddStation(MonsterStation.HitParalysis);
+        if (AddStation(MonsterStation.HitParalysis))
+        {
+            StartCoroutine("WaitRemoveHit");
+        }
         string animation = "hit_body";
         if (damage.weapon == WeaponType.MeleeWeapon)
         {
@@ -604,13 +673,22 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         }
 
         BreakAction();
-        PlayAnimation(animation, 1).onStationChange += st =>
+        var play=PlayAnimation(animation, 1);
+        if (play != null)
         {
-            if (st.isComplete)
+            play.onStationChange += st =>
             {
-                RemoveStation(MonsterStation.HitParalysis);
-            }
-        };
+                if (st.isComplete)
+                {
+                    RemoveStation(MonsterStation.HitParalysis);
+                }
+            };
+        }
+        else
+        {
+            GameDebug.LogError("无法播放动画" + animation);
+        }
+
     }
 
     public virtual IActiveSkill RefreshReadySkill()
@@ -1039,6 +1117,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
             skillTemp.Add(GameObject.Instantiate(currentLevel.editorData.skills[i]));
         }
         GetAgentCtrl<SkillCtrl>().SetSkill(skillTemp.ToArray());
+        //GetAgentCtrl<SkillCtrl>().SetSkill(currentLevel.editorData.skills.ToArray());
         SwitchBehaviorTree(currentLevel.editorData.bornStation.behavior.ToString(), currentLevel.editorData.bornStation.Args);
 
         // eye.viewAngle = currentLevel.dbData.visualRange;
@@ -1155,7 +1234,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
     {
         get
         {
-            return canHurt && !isParalysis;
+            return canHurt && !isParalysis && !ContainStation(MonsterStation.WakeUp);
         }
     }
 
@@ -1236,17 +1315,18 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
                                 //todo 在这里有个问题,如果是寻初始化行为树是巡逻,那么走到出生点的时候巡逻会一直判断那个点是不可到的状态,这样怪物会吼一下,但是因为reset状态了,导致会漂移
                                 //这个问题现在还不知道怎么解决
-                                // if (currentLevel.editorData.resetStation.behavior == BehaviorType.Idle ||
-                                //     currentLevel.editorData.resetStation.behavior == BehaviorType.None)
-                                // {
-                                //     RoarAndReset();
-                                // }
+                                if (currentLevel.editorData.resetStation.behavior == BehaviorType.Idle ||
+                                    currentLevel.editorData.resetStation.behavior == BehaviorType.None)
+                                {
+                                    RoarAndReset();
+                                }
                             }
                         }
 
                         callback?.Invoke(status, complete);
                     }))
                 {
+                    //RoarAndReset();
                     SwitchMoveStyle(type);
                     return true;
                 }
@@ -1274,9 +1354,11 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
             ResetValue(false, ResetFlag.Hp | ResetFlag.Position);
             SwitchBehaviorTree(currentLevel.editorData.resetStation.behavior.ToString(),currentLevel.editorData.resetStation.Args);
             BreakAction();
-            GetAgentCtrl<SkillCtrl>().ClearCD();
             if (creator.loadHide) gameObject.OnActive(false);
-
+            if (!creator.notNav && navmesh != null)
+            {
+                navmesh.enabled = true;
+            }
         }
     }
     
@@ -1304,7 +1386,6 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
                     LookAtPoint(creator.transform.forward + creator.transform.position);
                     SwitchBehaviorTree(currentLevel.editorData.resetStation.behavior.ToString(),currentLevel.editorData.resetStation.Args);
                     BreakAction();
-                    GetAgentCtrl<SkillCtrl>().ClearCD();
                     SwitchStation(currentLevel.editorData.resetStation.bornStation);
                     callback?.Invoke();
                 }
@@ -1335,7 +1416,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
 
 
-    public void MoveToPoint(Vector3 point)
+    public void FlashToPoint(Vector3 point)
     {
         if (navmesh != null)
         {
@@ -1366,15 +1447,18 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
         get { return !isAlive; }
     }
 
+
     public virtual void LookAtPoint(Vector3 point)
     {
         point = new Vector3(point.x, transform.position.y, point.z);
         if (lookTweener != null && lookTweener.IsActive())
         {
+            //lookTweener.SetTarget(point);
             lookTweener.Kill();
         }
+        lookTweener = transform.DOLookAt(point, 100 / currentLevel.attribute.rotateSpeed);
 
-        lookTweener = transform.DOLookAt(point, 3 /  currentLevel.attribute.rotateSpeed);
+
     }
 
     #endregion
@@ -1410,6 +1494,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
                 return GetAgentCtrl<AnimatorCtrl>().Play(animationKey[i].animation, layer, flag);
             }
         }
+
 
         return null;
     }
@@ -1569,7 +1654,7 @@ public abstract class Monster : MonoBehaviour,IStationObject<MonsterStation>, IP
 
     public bool isSenserable
     {
-        get { return isAlive; }
+        get { return isAlive && !gameObject.IsNullOrDestroyed(); }
     }
 
     // private void OnDisable()

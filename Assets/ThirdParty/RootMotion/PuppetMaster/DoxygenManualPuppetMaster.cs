@@ -36,14 +36,16 @@ PuppetMaster contains a very easy to use visual ragdoll creation tool for biped 
 When the BipedRagdollCreator.cs component is enabled on a character, the ragdoll components will be destroyed and recreated each time you change the references or options. 
 This enables for fast and intuitive live editing.
 
-<b>Getting started</b>
+<BR>
+<h1>Getting started</h1>
 	- Drag a character model to the scene and attach the BipedRagdollCreator.cs component. Biped bone references will be filled in automatically if it is a Humanoid character. In other cases, they can be filled in manually. 
 	- Click on "Create a Ragdoll" to start live-updating and editing the ragdoll. You should then see the Rigidbody, Collider and Joint components added to the character. 
 	- Note that with all adjustments to the parameters of BipedRagdollCreator the ragdoll components will be deleted and recreated, so do not make any references to them until the BipedRagdollCreator has been removed.
 	- Only ConfigurableJoints are supported by the PuppetMaster at this time so use "Configurable" as "Joints".
 	- Once you are happy with the basic Collider and Joint types and other settings in the "Options", click on "Start Editing Manually" to make final manual adjustments using the RagdollEditor. This will remove the BipedRagdollCreator component.
 
-<b>Component variables:</b>
+<BR>
+<h1>Component variables:</h1>
 	- <b>references</b> - references to the biped bones.
 	- <b>weight</b> - the total weight of the character. Will be distributed biometrically between the ragdoll Rigidbodies.
 	- <b>spine</b> - toggle the spine bone included in the ragdoll.
@@ -62,7 +64,8 @@ This enables for fast and intuitive live editing.
 
 \image html BipedRagdollCreator2.png
 
-<b>Creating ragdolls in runtime:</b>
+<BR>
+<h1>Creating ragdolls in runtime:</h1>
 
 \code
 		[Tooltip("The character prefab/FBX.")]
@@ -107,13 +110,15 @@ RagdollEditor is an intuitive visualized and Scene View tool for editing Collide
 
 \image html RagdollEditorScene.png
 
-<b>Getting started</b>
+<BR>
+<h1>Getting started</h1>
 	- Add the RagdollEditor.cs component to the root of the ragdoll.
 	- Click on the green buttons on the Colliders/Joints to select them. 
 	- Use the Move/Scale handles to edit the Colliders and Joints in the Scene View.
 	- Remove the component when you are done.
 
-<b>Component interface:</b>
+<BR>
+<h1>Component interface:</h1>
 	- <b>Mass Multiplier</b> - multiplies the mass of all the Rigidbodies with the value.
 	- <b>Set All Kinematic</b> - set all Rigidbodies kinematic.
 	- <b>Set All Non-Kinematic</b> - set all Rigidbodies non-kinematic.
@@ -122,7 +127,8 @@ RagdollEditor is an intuitive visualized and Scene View tool for editing Collide
 
 \image html RagdollEditor.png
 
-<b>Collider tool:</b>
+<BR>
+<h1>Collider tool:</h1>
 	- <b>Select GameObject</b> - changes Unity selection to the currently edited Collider's GameObject
 	- <b>Edit Mode</b> - switch to Joint editing mode.
 	- <b>Symmetry</b> - enables symmetric editing. Symmetry works for the closest Collider (within a threshold) on the other side of the ZY plane (local space of the GameObject of RagdollEditor).
@@ -132,7 +138,8 @@ RagdollEditor is an intuitive visualized and Scene View tool for editing Collide
 
 \image html RagdollEditorColliders.png
 
-<b>Joint tool:</b>
+<BR>
+<h1>Joint tool:</h1>
 	- <b>Select GameObject</b> - changes Unity selection to the currently edited Joint's GameObject
 	- <b>Edit Mode</b> - switch to Collider editing mode.
 	- <b>Symmetry</b> - enables symmetric editing. Symmetry works for the closest Joint (within a threshold) on the other side of the ZY plane (local space of the GameObject of RagdollEditor).
@@ -151,8 +158,7 @@ RagdollEditor is an intuitive visualized and Scene View tool for editing Collide
 \htmlonly <iframe width="854" height="480" src="https://www.youtube.com/embed/on7wAz0fsGg" frameborder="0" allowfullscreen></iframe>\endhtmlonly
 
 <br>
-<b>Terminology</b>
-<br>
+<h1>Terminology</h1>
 	PuppetMaster uses a <b>"Dual Rig"</b> that consists of the normal animated character (from hereby: <b>"Target"</b>) and the simplified ragdoll structure (<b>"Puppet"</b>). 
 	The main purpose of PuppetMaster is to make the Puppet ragdoll physically follow the motion and animation of the animated Target character. 
 	It will do so by two means, first is articulating the joints (<b>"Muscles"</b>), the other is pinning the rigidbodies to their targets using AddForce commands (<b>"Pins"</b>).
@@ -160,50 +166,50 @@ RagdollEditor is an intuitive visualized and Scene View tool for editing Collide
 	The dual rig and the Behaviours will share a common parent GameObject (<b>"Root"</b>) that serves as a container for the PuppetMaster character rig.
 	The kinematic Target character will be mapped to the dynamic Puppet ragdoll by the means of <b>"Mapping"</b>, which can also be smoothly blended in and out for the entire character or for each Muscle separately.
 
-<b>Dual Rig</b>
-<br>
+<BR>
+<h1>Dual Rig</h1>
 	\image html DualRigExplained.png
 	The main advantage of using a dual rig over a single character setup is performance. It is much less expensive mostly due to not having the necessity of performing costly transformations with objects that have Colliders attached.
 	The performance win becomes even greater when having to do IK/FK procedures on the target pose. The PuppetMaster can be smoothly blended to run in Kinematic or Disabled mode. The former will simply make the ragdoll kinematic and match it with the target, the latter will completely deactivate the ragdoll when you don't need it.
 	The dual rig also allows for choosing between flat or tree hierarchy modes for the ragdoll (click "Flat/Tree Hierarhcy" from the PuppetMaster's context menu) and will allow for sharing ragdolls between multiple characters in a future release of PuppetMaster.
 	The PuppetMaster will automatically set up the dual rig for you when provided with a reference to a traditional ragdoll character.
 
-<b>Target</b>
-<br>
+<BR>
+<h1>Target</h1>
 	\image html Target.png
 	The Target can be thought of as the normal animated character that you would see in any game, it usually has a character controller and any other gameplay components attached. 
 	Each frame, PuppetMaster will read the pose of the Target and feed it to the Muscles of the Puppet for following. 
 	After physics has solved, the Target will be mapped to the pose of the Puppet based on the mapping settings and stay there until animation overwrites it the next frame.
 
-<b>Puppet</b>
-<br>
+<BR>
+<h1>Puppet</h1>
 	\image html Puppet.png
 	The simplified ragdoll structure (Puppet) is essentially a duplicate of the Target, but with ragdoll Components attached and all other Components and GameObjects unrelated to physics stripped.
 	The PuppetMaster requires for the ragdoll to be set up using ConfigurableJoints only. Any other Joint can be converted to a ConfigurableJoint by selecting the (root) GameObject and clicking on "GameObject/Convert to ConfigurableJoints" from the menu bar.
 	The Puppet ragdoll can be set up in tree or flat hierarchy modes (click "Flat/Tree Hierarhcy" from the PuppetMaster's context menu). 
 
-<b>Muscles</b>
-<br>
+<BR>
+<h1>Muscles</h1>
 	\image html Muscles.png
-	The PuppetMaster will turn each ConfigurableJoint of the Puppet into a Muscle that maintains a reference to it's animated target and automatically calculates Joint target rotations, pinning forces and other values.
+	The PuppetMaster will turn each ConfigurableJoint of the Puppet into a Muscle that maintains a reference to its animated target and automatically calculates Joint target rotations, pinning forces and other values.
 	When the Puppet is unpinned, the ragdoll will follow the animation in muscle space and the result is physically authentic and accurate. 
 	When pinned, the pinning forces will move the ragdoll bones to the world space position of their targets, they can be imagined as spring joints pulling each ragdoll bone towards their animated target.
 	Pinning is therefore an unnatural force that can be managed to make the ragdoll simulate game character motion that physically would be almost unachievable. 
 	The Muscles are listed in the PuppetMaster's inspector, each having individual properties, enabling you to specify the physical behaviour of each Muscle or Muscle Group.
 
-<b>Modes</b>
-<br>
+<BR>
+<h1>Modes</h1>
 	\image html Modes.png
-	The PuppetMaster can run in 3 Modes. <b>Active</b> is the active ragdoll mode that makes the Puppet physically follow it's Target by employing the muscle forces, pins or both at the same time. The Puppet is able to collide with and be affected by objects in the scene.
+	The PuppetMaster can run in 3 Modes. <b>Active</b> is the active ragdoll mode that makes the Puppet physically follow its Target by employing the muscle forces, pins or both at the same time. The Puppet is able to collide with and be affected by objects in the scene.
 	The <b>Kinematic</b> mode makes the Rigidbodies of the Puppet kinematic and the Muscles will not be used anymore. The Puppet is still able to collide with objects and receive raycast hits.
-	The <b>Disabled</b> mode completely deactivates the Puppet along with it's Rigidbodies and Colliders. In Disabled mode the PuppetMaster will not have any effect on the performance. All modes can be blended in/out smoothly in respect to the "Blend Time" parameter.
+	The <b>Disabled</b> mode completely deactivates the Puppet along with its Rigidbodies and Colliders. In Disabled mode the PuppetMaster will not have any effect on the performance. All modes can be blended in/out smoothly in respect to the "Blend Time" parameter.
 
-<b>Puppet Behaviours</b>
-<br>
+<BR>
+<h1>Puppet Behaviours</h1>
 	\image html Behaviours2.png
 	The Puppet Behaviours are classes that inherit from the abstract BehaviourBase.cs and that's main idea is to provide a pattern for developing functionalities that dynamically adjust muscle and pin weights, strength and other properties or make kinematic adjustments to the target pose.
 	The most important Puppet Behaviour is the BehaviourPuppet.cs that handles the pinning of Puppets to target animation, releasing those pins in case of collision and re-tightening them when getting up from the ground.
-	The Puppet Behaviours can be switched, for example when the BehaviourPuppet looses balance, it can theoretically switch to BehaviourCatchFall or BehaviourWindmill (both missing from the initial release, but will be developed in the future).
+	The Puppet Behaviours can be switched, for example when the BehaviourPuppet loses balance, it can theoretically switch to BehaviourCatchFall or BehaviourWindmill (both missing from the initial release, but will be developed in the future).
 	The Puppet Behaviours are designed so tha they would not contain a single external object reference. That means they can be simply duplicated and moved to another Puppet.
 
 */
@@ -224,8 +230,8 @@ Make sure collisions between the two layers are disabled in the Edit/Project Set
 
 \image html PuppetMasterSetup.png
 
-<b>Creating puppets in run-time</b>
-<br>
+<BR>
+<h1>Creating puppets in run-time</h1>
 	The procedure and code for setting up puppets in run-time is demonstrated in the "Creating Puppets In Runtime" demo scene and CreatePuppetInRuntime.cs script.
 	It requires for the character to be already set up with ragdoll components.
 
@@ -251,14 +257,15 @@ Make sure collisions between the two layers are disabled in the Edit/Project Set
 
 \htmlonly <iframe width="854" height="480" src="https://www.youtube.com/embed/LYusqeqHAUc" frameborder="0" allowfullscreen></iframe>\endhtmlonly
 
-<b>Simulation</b>
+<BR>
+<h1>Simulation</h1>
 	- <b>state</b> - sets/sets the state of the puppet (Alive, Dead or Frozen). Frozen means the ragdoll will be deactivated once it comes to stop in dead state.
 	- <b>stateSettings</b> - settings for killing and freezing the puppet.
 	<BR><b>killDuration</b> - how much does it take to weigh out muscle weight to deadMuscleWeight?
 	<BR><b>deadMuscleWeight</b> - the muscle weight mlp while the puppet is Dead.
 	<BR><b>deadMuscleDamper</b> - the muscle damper add while the puppet is Dead.
 	<BR><b>maxFreezeSqrVelocity</b> - the max square velocity of the ragdoll bones for freezing the puppet.
-	<BR><b>freezePermanently</b> - if true, PuppetMaster, all it's behaviours and the ragdoll will be destroyed when the puppet is frozen.
+	<BR><b>freezePermanently</b> - if true, PuppetMaster, all its behaviours and the ragdoll will be destroyed when the puppet is frozen.
 	<BR><b>enableAngularLimitsOnKill</b> - if true, will enable angular limits when killing the puppet.
 	<BR><b>enableInternalCollisionsOnKill</b> - if true, will enable internal collisions when killing the puppet.
 	- <b>mode</b> - Active mode means all muscles are active and the character is physically simulated. Kinematic mode sets rigidbody.isKinematic to true for all the muscles and simply updates their position/rotation to match the target's. Disabled mode disables the ragdoll. Switching modes is done by simply changing this value, blending in/out will be handled automatically by the PuppetMaster.
@@ -267,12 +274,14 @@ Make sure collisions between the two layers are disabled in the Edit/Project Set
 	- <b>solverIterationCount</b> - Rigidbody.solverIterationCount for the muscles of this Puppet.
 	- <b>visualizeTargetPose</b> - if true, will draw the target's pose as green lines in the Scene view. This runs in the Editor only. If you wish to profile PuppetMaster, switch this off.
 
-<b>Master Weights</b>
+<BR>
+<h1>Master Weights</h1>
 	- <b>mappingWeight</b> - the weight of mapping the animated character to the ragdoll pose.
 	- <b>pinWeight</b> - the weight of pinning the muscles to the position of their animated targets using simple AddForce.
 	- <b>muscleWeight</b> - the normalized strength of the muscles.
 
-<b>Joint and Muscle Settings</b>
+<BR>
+<h1>Joint and Muscle Settings</h1>
 	- <b>muscleSpring</b> - the positionSpring of the ConfigurableJoints' Slerp Drive.
 	- <b>muscleDamper</b> - the positionDamper of the ConfigurableJoints' Slerp Drive.
 	- <b>pinPow</b> - adjusts the slope of the pinWeight curve. Has effect only while interpolating pinWeight from 0 to 1 and back.
@@ -282,13 +291,14 @@ Make sure collisions between the two layers are disabled in the Edit/Project Set
 	- <b>angularLimits</b> - should the joints use angular limits? If the PuppetMaster fails to match the target's pose, it might be because the joint limits are too stiff and do not allow for such motion. Uncheck this to see if the limits are clamping the range of your puppet's animation. Since the joints are actuated, most PuppetMaster simulations will not actually require using joint limits at all.
 	- <b>internalCollisions</b> - should the muscles collide with each other? Consider leaving this off while the puppet is pinned for performance and better accuracy.  Since the joints are actuated, most PuppetMaster simulations will not actually require internal collisions at all.
 
-<b>Individual Muscle Settings:</b>
+<BR>
+<h1>Individual Muscle Settings:</h1>
 	- <b>joint</b> - the ConfigurableJoint used by this muscle.
 	- <b>target</b> - the target Transform that this muscle tries to follow.
 	- <b>props</b> - the main properties of the muscle.
 	<BR><b>group</b> - which body part does this muscle belong to? This might be used by some behaviours (BehaviourPuppet).
 	<BR><b>mappingWeight</b> - the weight (multiplier) of mapping this muscle's target to the muscle.
-	<BR><b>pinWeight</b> - the weight (multiplier) of pinning this muscle to it's target's position using a simple AddForce command.
+	<BR><b>pinWeight</b> - the weight (multiplier) of pinning this muscle to its target's position using a simple AddForce command.
 	<BR><b>muscleWeight</b> - the muscle strength (multiplier).
 	<BR><b>muscleDamper</b> - multiplier of the positionDamper of the ConfigurableJoints' Slerp Drive.
 	<BR><b>mapPosition</b> - if true, will map the target to the world space position of the muscle. Normally this should be true for only the root muscle (the hips).
@@ -303,14 +313,14 @@ PuppetMaster includes a helpful tool for attaching, detatching and managing phys
 PropMuscle is a special type of muscle that the PuppetMasterProp objects can be attached to.
 For an example of prop usage, please see the "Prop" and "Melee" demo scenes.
 
-<b>Getting Started:</b>
+<BR>
+<h1>Getting Started:</h1>
 
 \htmlonly <iframe width="854" height="480" src="https://www.youtube.com/embed/Bkw1gmrDr1I" frameborder="0" allowfullscreen></iframe>\endhtmlonly
 
-
-<b>Prop Setup:</b>
-
-Because of the dual rig structure, the prop needs to be set up so that it's root GameObject is the Muscle with the Rigidbody and ConfigurableJoint components and parented to it the Target along with it's mesh and renderer(s).
+<BR>
+<h1>Prop Setup:</h1>
+Because of the dual rig structure, the prop needs to be set up so that its root GameObject is the Muscle with the Rigidbody and ConfigurableJoint components and parented to it the Target along with its mesh and renderer(s).
 When the prop is picked up, the prop will be split up so that the "Mesh Root" will be parented to the Target root hierarchy and the rest of the prop with colliders to the Prop Muscle. When the prop is dropped, original hierarchy will be restored.
 
 When the prop is picked up, the Rigidbody component on it will be destroyed as the PropMuscle already has a Rigidbody. The colliders of the prop will act as compound colliders for the PropMuscle Rigidbody. When the prop is dropped, the original Rigidbody will be restored.
@@ -318,9 +328,8 @@ When the prop is picked up, the Rigidbody component on it will be destroyed as t
 \image html Prop.png
 \image html PropScene.png
 
-<br>
-<b>PropMuscle component:</b>
-
+<BR>
+<h1>PropMuscle component:</h1>
 PropMuscle is a special type of muscle, which all prop objects can be attached to. You can create a PropMuscle in the Editor by selecting the PuppetMaster GameObject and clicking on "Add Prop Muscle" on the bottom of the PuppetMaster component. 
 Click on the blue button in the scene representing the PropMuscle and move/rotate it to where you need it to be.
 If your puppet does not have hand muscles and the PropMuscle was attached to the forearm muscle, find the Prop Muscle Target GameObject in the Target Root hierarchy and parent it to the hand bone.
@@ -342,10 +351,10 @@ If you set currentProp to null, any props held by the PropMuscle will be dropped
 		propMuscle.currentProp = myProp;
 \endcode
 
-When a prop is attached to the PropMuscle, it's localPosition and localRotation are set to zero/identity, so the best practice to adjust prop holding pivot would be to parent the prop to the PropMuscle, set localPosition/Rotation to zero and adjust the positions of the mesh and colliders until they fit perfectly at hand.
+When a prop is attached to the PropMuscle, its localPosition and localRotation are set to zero/identity, so the best practice to adjust prop holding pivot would be to parent the prop to the PropMuscle, set localPosition/Rotation to zero and adjust the positions of the mesh and colliders until they fit perfectly at hand.
 
-<br>
-<b>PuppetMasterProp component:</b>
+<BR>
+<h1>PuppetMasterProp component:</h1>
     - <b>meshRoot</b> - Mesh Root will be parented to Prop Muscle's target when this prop is picked up. To make sure the mesh and the colliders match up, Mesh Root's localPosition/Rotation must be zero.
     - <b>muscleProps</b> - the muscle properties that will be applied to the Prop Muscle when this prop is picked up.
     - <b>internalCollisionIgnores</b> - defines which muscles or muscle groups internal collisions will always be ignored with regardless of PuppetMaster.internalCollisions state.
@@ -356,16 +365,16 @@ When a prop is attached to the PropMuscle, it's localPosition and localRotation 
     - <b>pickedUpMaterial</b> - if assigned, sets prop colliders to this PhysicMaterial when picked up. If no materials assigned here, will maintain the original PhysicMaterial.
 	- <b>additionalPinOffsetAdd</b> - adds this to Prop Muscle's 'Additional Pin Offset' when this prop is picked up.
 	- <b>additionalPinWeight</b> - the pin weight of the additional pin. Increasing this weight will make the prop follow animation better, but will increase jitter when colliding with objects.
-	- <b>additionalPinMass</b> - multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so it's mass is not used while picked up.
+	- <b>additionalPinMass</b> - multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so its mass is not used while picked up.
 
 \image html PuppetMasterProp.png
 
-<br>
-<b>Melee Props:</b>
+<BR>
+<h1>Melee Props:</h1>
 
 Lengthy melee props are a huge challenge to the PuppetMaster. Swinging them rapidly requires a lot of muscle force and solver iterations to fight the inertia and keep the ragdoll chain intact.
 The longer the chain of Joints linked together, the more inaccurate/unstable the simulation and unfortunatelly those melee props tend to be exactly at the ends of very long Joint chains (pelvis/spine/chest/upper arm/forearm/hand/sword).
-Besides that, as the props are swinged, they have a lot of linear and angular velocity, a very thin collider and therefore can easily skip the victim when it's collider happens to be at the position between two fixed frames.
+Besides that, as the props are swinged, they have a lot of linear and angular velocity, a very thin collider and therefore can easily skip the victim when its collider happens to be at the position between two fixed frames.
 It usually takes quite a lot of tweaking and some tricks to get the melee props working right. PropMuscles have the "Additional Pin" functionality which can be used to add another pinning point to the prop, helping to better pin it to high angular velocity animation.
 
 - make the collider thicker when hitting to decrease collider skipping.
@@ -396,7 +405,8 @@ PuppetMaster can be used together with Unity's own built-in Animator IK as well 
 The former is limited to Humanoids only and can be used to alter the target pose programmatically before the PuppetMaster reads it for following.
 Final IK opens up much more possibilities such as modifying the pose with full body IK or applying an IK pass on top of the physical simulation for cosmetic corrections or accurate aiming.
 
-<b>Final IK:</b>
+<BR>
+<h1>Final IK:</h1>
 
 To use PuppetMaster with Final IK, import  both packages to the project, then import also "Plugins/RootMotion/PuppetMaster/_Integration/Final-IK.unitypackage".
 The package comes with scenes and scripts demonstrating the application of IK both before and after PuppetMaster solves.
@@ -498,20 +508,20 @@ Final IK components can be updated whenever necessary and in this case we need t
 
 The Puppet Behaviours are classes that inherit from the abstract BehaviourBase.cs and that's main idea is to provide a pattern for developing functionalities that dynamically adjust muscle and pin weights, strength and other properties or make kinematic adjustments to the target pose.
 The most important Puppet Behaviour is the BehaviourPuppet.cs that handles the pinning of Puppets to target animation, releasing those pins in case of collision and re-tightening them when getting up from the ground.
-The Puppet Behaviours can be switched, for example when the BehaviourPuppet looses balance, it can theoretically switch to BehaviourCatchFall or BehaviourWindmill (both missing from the initial release, but will be developed in the future).
+The Puppet Behaviours can be switched, for example when the BehaviourPuppet loses balance, it can theoretically switch to BehaviourCatchFall or BehaviourWindmill (both missing from the initial release, but will be developed in the future).
 The Puppet Behaviours are designed so tha they would not contain a single external object reference. That means they can be simply duplicated and moved to another Puppet.
 
 \image html Behaviours2.png
 
-<b>Switching Behaviours:</b>
-
+<BR>
+<h1>Switching Behaviours:</h1>
 When working with multiple Behaviours, keep only the one that is supposed to run first enabled in the Editor. 
 For example when you have the BehaviourPuppet and BehaviourFall, keep the former enabled and the latter disabled if you wish for the Puppet to start from normal animated state, not falling.
 
 Switching between behaviours by code must be done by calling <b>BehaviourBase.Activate();</b> on the Behaviour you wish to switch to. All other Behaviours will be disabled.
 
-<b>Events</b>
-
+<BR>
+<h1>Events</h1>
 Behaviours trigger events on certain occasions (such as losing balance). They can be used to get a message through to your own scripts or switching behaviours.
 	- <b>switchToBehaviour</b> - another Puppet Behaviour to switch to on this event. This must be the exact Type of the the Behaviour, careful with spelling.
 	- <b>animations</b> - animations to cross-fade to on this event. This is separate from the UnityEvent below because UnityEvents can't handle calls with more than one parameter such as Animator.CrossFade.
@@ -519,15 +529,15 @@ Behaviours trigger events on certain occasions (such as losing balance). They ca
 
 \image html PuppetEvent.png
 
-<b>Sub-Behaviours:</b>
-
+<BR>
+<h1>Sub-Behaviours:</h1>
 Sub-behaviours are reusable self-contained chunks of functionaly that can be easily shared between multiple Puppet Behaviours.
 For example SubBehaviourCOM is a module that automatically calculates and updates center of mass related information for the Puppet - data such as center or pressure, direction and angle of the COM vector and detect if the Puppet is grounded or not.
 This prevents the necessity to duplicate code for all the Behaviours that need to make COM calculations.
 To see how to use a sub-behaviour like that, take a look at the section below and the BehaviourTemplate.cs class.
 
-<b>Creating Custom Behaviours:</b>
-
+<BR>
+<h1>Creating Custom Behaviours:</h1>
 PuppetMaster has been built from start up with customization and extendibility in mind. 
 To create reusable behaviours of your own, make a class that extends the BehaviourBase abstract class or just make a copy or BehaviourTemplate.cs 
 and start adding functionality following the pattern at hand.
@@ -540,18 +550,21 @@ The BehaviourPuppet handles pinning and unpinning puppets when they collide with
 
 \image html Puppet.gif
 
-<b>Getting Started</b>
+<BR>
+<h1>Getting Started</h1>
 	- Copy the entire gameobject of the BehaviourPuppet from the demo character in "Melee" scene to your own Puppet (parent to the Behaviours root).
 	- Collision resistance depends on many things, also the mass of your Rigidbodies, if the Puppet is too easy or difficult to unbalance, tweak the "Collision Resistance" value first.
 
-<b>Troubleshooting</b>
+<BR>
+<h1>Troubleshooting</h1>
 	- <b>The Puppet never falls over, has "snake feet"</b> - decrease "Collision Resistance".
 	- <b>The Puppet loses balance on slightest contact</b> - increase "Collision Resistance" and/or "Regain Pin Speed". Increase "Knock Out Distance".
 	- <b>The Puppet tries to get up, but repeatedly fails</b> - increase "Get Up Collision Resistance" and/or "Get Up Regain Pin Speed Mlp" and/or "Get Up Knock Out Distance".
 	- <b>The Puppet's muscles are too stiff when unbalanced</b> - decrease "Unpinned Muscle Weight Mlp".
 	- <b>The Puppet doesn't lose balance when hit hard to the legs</b> - find the group override for the "Hips" and "Leg" and the "Foot" group. Increasing "Unping Parents", "Unpin Children" and "Unpin Group" makes the collisions propagate more heavily to the other body parts. Also try decreasing "Knock Out Distance".
 
-<b>Collision And Recovery</b>
+<BR>
+<h1>Collision And Recovery</h1>
 	- <b>normalMode</b> - how does the puppet behave when currently not in contact with anything? Active mode keeps the PuppetMaster Active and mapped at all times. Unmapped blends out mapping to maintain 100% animation quality. Kenamatic keeps the PuppetMaster in Kinematic mode until there is a collision.
 	- <b>mappingBlendSpeed</b> - the speed of blending in mapping in case of contact when in Unmapped normal mode.
 	- <b>activateOnStaticCollisions</b> - if false, static colliders will not activate the puppet when they collide with the muscles. Note that the static colliders need to have a kinematic Rigidbody attached for this to work. Used only in Kinematic normal mode.
@@ -566,7 +579,8 @@ The BehaviourPuppet handles pinning and unpinning puppets when they collide with
 	- <b>muscleRelativeToPinWeight</b> - Muscle weight multiplier relative to pin weight. It can be used to make muscles weaker/stronger when they are more/less unpinned while in the normal Puppet state.
 	- <b>boostFalloff</b> - Boosting is a term used for making muscles temporarily immune to collisions and/or deal more damage to the muscles of other characters. That is done by increasing Muscle.State.immunity and Muscle.State.impulseMlp. For example when you set muscle.state.immunity to 1, boostFalloff will determine how fast this value will fall back to normal (0). Use BehaviourPuppet.BoostImmunity() and BehaviourPuppet.BoostImpulseMlp() for boosting from your own scripts. It is helpful for making the puppet stronger and deliever more punch while playing a melee hitting/kicking animation.
 
-<b>Muscle Group Properties</b>
+<BR>
+<h1>Muscle Group Properties</h1>
 	- <b>defaults</b> - the default muscle properties. If there are no 'Group Overrides', this will be used for all muscles.
 	<BR><b>unpinParents</b> - how much will collisions with muscles of this group unpin parent muscles?
 	<BR><b>unpinChildren</b> - how much will collisions with muscles of this group unpin child muscles?
@@ -576,19 +590,20 @@ The BehaviourPuppet handles pinning and unpinning puppets when they collide with
 	<BR><b>disableColliders</b> - if true, muscles of this group will have their colliders disabled while in puppet state (not unbalanced nor getting up).
 	<BR><b>regainPinSpeed</b> - how fast will muscles of this group regain their pin weight (multiplier)?
 	<BR><b>collisionResistance</b> - smaller value means more unpinning from collisions (multiplier).
-	<BR><b>knockOutDistance</b> - if the distance from the muscle to it's target is larger than this value, the character will be knocked out.
+	<BR><b>knockOutDistance</b> - if the distance from the muscle to its target is larger than this value, the character will be knocked out.
 	<BR><b>puppetMaterial</b> - the PhysicsMaterial applied to the muscles while the character is in Puppet or GetUp state. Using a lower friction material reduces the risk of muscles getting stuck and pulled out of their joints.
 	<BR><b>unpinnedMaterial</b> - the PhysicsMaterial applied to the muscles while the character is in Unpinned state.
 
 	- <b>groupOverrides</b> - overriding default muscle properties for some muscle groups (for example making the feet stiffer or the hands looser).
 
-<b>Losing Balance</b>
-	- <b>knockOutDistance</b> - if the distance from the muscle to it's target is larger than this value, the character will be knocked out.
+<BR>
+<h1>Losing Balance</h1>
+	- <b>knockOutDistance</b> - if the distance from the muscle to its target is larger than this value, the character will be knocked out.
 	- <b>unpinnedMuscleWeightMlp</b> - smaller value makes the muscles weaker when the puppet is knocked out.
 	- <b>dropProps</b> - if true, all muscles of the 'Prop' group will be detached from the puppet when it loses balance.
 
-
-<b>Getting Up</b>
+<BR>
+<h1>Getting Up</h1>
 	- <b>canGetUp</b> - if true, GetUp state will be triggerred automatically after 'Get Up Delay' and when the velocity of the hip muscle is less than 'Max Get Up Velocity'.
 	- <b>getUpDelay</b> - minimum delay for getting up after loosing balance. After that time has passed, will wait for the velocity of the hip muscle to come down below 'Max Get Up Velocity' and then switch to the GetUp state.
 	- <b>blendToAnimationTime</b> - the duration of blending the animation target from the ragdoll pose to the getting up animation once the GetUp state has been triggered.
@@ -600,7 +615,8 @@ The BehaviourPuppet handles pinning and unpinning puppets when they collide with
 	- <b>getUpOffsetProne</b> - offset of the target character (in character rotation space) from the hip bone when initiating getting up animation from a prone pose. Tweak this value if your character slides a bit when starting to get up.
 	- <b>getUpOffsetSupine</b> - offset of the target character (in character rotation space) from the hip bone when initiating getting up animation from a supine pose. Tweak this value if your character slides a bit when starting to get up.
 
-<b>Events</b>
+<BR>
+<h1>Events</h1>
 	- <b>onGetUpProne</b> - called when the character starts getting up from a prone pose (facing down).
 	- <b>onGetUpSupine</b> - called when the character starts getting up from a supine pose (facing up).
 	- <b>onLoseBalance</b> - called when the character is knocked out (loses balance). Doesn't matter from which state.
@@ -624,11 +640,12 @@ You can copy the blend tree from the AnimatorController in the "Falling" demo sc
 
 \image html BehaviourFallAnimator.png
 
-<b>Component Variables</b>
+<BR>
+<h1>Component Variables</h1>
 	- <b>stateName</b> - Animation State to crossfade to when this behaviour is activated.
 	- <b>transitionDuration</b> - the duration of crossfading to stateName. Value is in seconds.
 	- <b>layer</b> - layer index containing the destination state. If no layer is specified or layer is -1, the first state that is found with the given name or hash will be played.
-	- <b>fixedTime</b> - start time of the current destination state. Value is in seconds. If no explicit fixedTime is specified or fixedTime value is float.NegativeInfinity, the state will either be played from the start if it's not already playing, or will continue playing from its current time and no transition will happen.
+	- <b>fixedTime</b> - start time of the current destination state. Value is in seconds. If no explicit fixedTime is specified or fixedTime value is float.NegativeInfinity, the state will either be played from the start if its not already playing, or will continue playing from its current time and no transition will happen.
 	- <b>raycastLayers</b> - the layers that will be raycasted against to find colliding objects.
 	- <b>blendParameter</b> - the parameter in the Animator that blends between catch fall and writhe animations.
 	- <b>writheHeight</b> - the height of the pelvis from the ground at which will blend to writhe animation.
@@ -659,7 +676,8 @@ Baker is a universal tool for recording Humanoid, Generic and Legacy animation c
    - bake motion capture
    - reduce animation memory footprint with Baker's advanced keyframe reduction tools
 
-<b>Getting started:</b>
+<BR>
+<h1>Getting started:</h1>
 
 \htmlonly <iframe width="854" height="480" src="https://www.youtube.com/embed/uakZqX1hju0" frameborder="0" allowfullscreen></iframe>\endhtmlonly
    - Add the HumanoidBaker or GenericBaker component to the same GameObject as your character's Animator.
@@ -667,19 +685,23 @@ Baker is a universal tool for recording Humanoid, Generic and Legacy animation c
    - Play the scene.
    - Click on the bake button.
 
-<b>Animation Clips Mode</b>
-<BR>AnimationClips mode can be used to bake a batch of AnimationClips directly without the need of setting up an AnimatorController. 
+<BR>
+<h1>Animation Clips Mode</h1>
+AnimationClips mode can be used to bake a batch of AnimationClips directly without the need of setting up an AnimatorController. 
 <BR>Set the Baker to "Animation Clips" mode and add some animation clips to the "Animation Clips" array. "Append Name" is a string that will be added to each clip's name for the saved clip. For example if your animation clip names were 'Idle' and 'Walk', then with '_Baked' as Append Name, the Baker will create 'Idle_Baked' and 'Walk_Baked' animation clips.
 
-<b>Animation States Mode</b>
-<BR>AnimationStates mode can be used to bake a batch of Mecanim Animation States. This is useful for when you need to set up a more complex rig with layers and AvatarMasks in Mecanim.
+<BR>
+<h1>Animation States Mode</h1>
+AnimationStates mode can be used to bake a batch of Mecanim Animation States. This is useful for when you need to set up a more complex rig with layers and AvatarMasks in Mecanim.
 <BR>Set the Baker to "Animation States" mode and add the Animation State names (only from the base layer) you wish to bake to the "Animation States" array. "Append Name" is a string that will be added to each state's name for the saved clip. For example if your animation state names were 'Idle' and 'Walk', then with '_Baked' as Append Name, the Baker will create 'Idle_Baked' and 'Walk_Baked' animation clips.
 
-<b>Playable Director Mode</b>
-<BR>Bakes a PlayableDirector with a Timeline asset. Set the Baker to "Playable Director" mode and make sure the GameObject has a valid PlayableDirector.
+<BR>
+<h1>Playable Director Mode</h1>
+Bakes a PlayableDirector with a Timeline asset. Set the Baker to "Playable Director" mode and make sure the GameObject has a valid PlayableDirector.
 
-<b>Realtime Mode</b>
-<BR>Useful for baking an arbitrary range of animation, such as ragdoll simulation or an InteractionSystem interaction, in real-time.
+<BR>
+<h1>Realtime Mode</h1>
+Useful for baking an arbitrary range of animation, such as ragdoll simulation or an InteractionSystem interaction, in real-time.
 
 \code
 using RootMotion;
@@ -705,9 +727,9 @@ public class MyBakingTool {
 }
 \endcode
 
-
-<b>Keyframe Reduction</b>
-<BR> While developing a mobile game and running low on RAM, the quality of your animation will suffer a lot should you try to increase the keyframe reduction error thresholds in animation import settings.
+<BR>
+<h1>Keyframe Reduction</h1>
+While developing a mobile game and running low on RAM, the quality of your animation will suffer a lot should you try to increase the keyframe reduction error thresholds in animation import settings.
 The most noticable problem will be with the feet starting to float around in idle animations as there are not enough keyframes to make them appear properly planted. Idle animations are also usually the longest and most memory consuming.
 Unity actually already contains a solution for this problem, but it is simply not implemented in the keyframe reduction options. That solution is the humanoid "Foot IK" system ("Foot IK" toggle in the Animator, previewable by enabling the "IK" toggle in the Animation Preview Window), that is normally used for fixing Humanoid retargeting problems.
 Foot IK works by storing position and rotation channels of the foot bottoms from the original animation clip, then running a pass of IK on the legs of the retargeted character (that has different leg bone lenghts) to properly plant the feet.
@@ -720,10 +742,12 @@ The same technique can be used for hand IK, making sure your 2-handed prop anima
 
 \htmlonly <iframe width="854" height="480" src="https://www.youtube.com/embed/sH7OnpOQCg8" frameborder="0" allowfullscreen></iframe>\endhtmlonly
 
-<b>Changing AnimationClipSettings</b>
-<BR> When you first bake an animation clip, Baker will apply the default settings. If you modified the settings of the animation clip manually and baked again, Baker will maintain those modified settings so you will not have to apply them again.
+<BR>
+<h1>Changing AnimationClipSettings</h1>
+When you first bake an animation clip, Baker will apply the default settings. If you modified the settings of the animation clip manually and baked again, Baker will maintain those modified settings so you will not have to apply them again.
 
-<b>HumanoidBaker variables</b>
+<BR>
+<h1>HumanoidBaker variables</h1>
    - <b>frameRate</b> - in AnimationClips, AnimationStates or PlayableDirector mode - the frame rate at which the animation clip will be sampled. In Realtime mode - the frame rate at which the pose will be sampled. With the latter, the frame rate is not guaranteed if the player is not able to reach it.
    - <b>keyReductionError</b> - maximum allowed error for keyframe reduction.
    - <b>IKKeyReductionError</b> - max keyframe reduction error for the Root.Q/T, LeftFoot IK and RightFoot IK channels. Having a larger error value for 'Key Reduction Error' and a smaller one for this enables you to optimize clip data size without the floating feet effect by enabling 'Foot IK' in the Animator.
@@ -738,7 +762,8 @@ The same technique can be used for hand IK, making sure your 2-handed prop anima
 
 \image html HumanoidBakerComponent.png
 
-<b>GenericBaker variables</b>
+<BR>
+<h1>GenericBaker variables</h1>
    - <b>frameRate</b> - in AnimationClips, AnimationStates or PlayableDirector mode - the frame rate at which the animation clip will be sampled. In Realtime mode - the frame rate at which the pose will be sampled. With the latter, the frame rate is not guaranteed if the player is not able to reach it.
    - <b>keyReductionError</b> - maximum allowed error for keyframe reduction.
    - <b>markAsLegacy</b> - if true, produced AnimationClips will be marked as Legacy and usable with the Legacy animation system.
@@ -755,8 +780,8 @@ The same technique can be used for hand IK, making sure your 2-handed prop anima
 
 \image html GenericBakerComponent.png
 
-
-<b>Script References:</b>
+<BR>
+<h1>Script References:</h1>
    - <a href="http://www.root-motion.com/finalikdox/html/class_root_motion_1_1_humanoid_baker.html">HumanoidBaker</a> 
    - <a href="http://www.root-motion.com/finalikdox/html/class_root_motion_1_1_generic_baker.html">GenericBaker</a> 
 */

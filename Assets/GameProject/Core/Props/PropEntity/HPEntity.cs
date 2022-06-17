@@ -33,6 +33,11 @@ public class HPEntity : PropEntity
 
     public override bool IsShowButton(IMatch prop, BagItem currCell)
     {
+        if (prop != null)
+        {
+            return false;
+        }
+        
         return Player.player.hp < Player.player.playerAtt.hp;
     }
 }

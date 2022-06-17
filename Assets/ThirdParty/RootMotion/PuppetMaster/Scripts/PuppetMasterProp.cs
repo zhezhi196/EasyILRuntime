@@ -63,9 +63,9 @@ namespace RootMotion.Dynamics
         /// </summary>
         [Range(0f, 1f)] public float additionalPinWeight = 1f;
 
-        [Tooltip("Multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so it's mass is not used while picked up.")]
+        [Tooltip("Multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so its mass is not used while picked up.")]
         /// <summary>
-        /// Multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so it's mass is not used while picked up.
+        /// Multiplies the mass of the additional pin by this value when this prop is picked up. The Rigidbody on this prop will be destroyed on pick-up and reattached on drop, so its mass is not used while picked up.
         /// </summary>
         public float additionalPinMass = 1f;
 
@@ -83,6 +83,9 @@ namespace RootMotion.Dynamics
             if (isPickedUp) return propMuscle.rigidbody;
             return null;
         }
+
+        public Vector3 inertiaTensor { get; private set; }
+        public Vector3 localCenterOfMass { get; private set; }
 
         protected virtual void OnPickUp(PuppetMaster puppetMaster, int propMuscleIndex) { }
         protected virtual void OnDrop(PuppetMaster puppetMaster, int propMuscleIndex) { }
@@ -244,6 +247,9 @@ namespace RootMotion.Dynamics
         {
             if (r == null) return;
 
+            inertiaTensor = r.inertiaTensor;
+            localCenterOfMass = r.centerOfMass;
+            
             _mass = r.mass;
             _drag = r.drag;
             _angularDrag = r.angularDrag;

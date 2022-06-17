@@ -32,7 +32,7 @@ public class WeaponHandgun : Weapon
     {
         get
         {
-            if (bulletCount <= (isDouble? maxBulletCount*2:maxBulletCount)
+            if (bulletCount <= (isDouble? maxBulletCount*2+1:maxBulletCount)
                 && !_player.ContainStation(Player.Station.Reloading)
                 && !_player.ContainStation(Player.Station.WeaponChanging)
                 && bullet.bagCount > 0)
@@ -98,7 +98,13 @@ public class WeaponHandgun : Weapon
     {
         if (bulletCount <= 0)//子弹小于0不能射击
             return;
-        //EffectPlay.Play(fireEffect, firePoint);//射击特效
+        if (isDouble)
+        {
+            EffectPlay.Play(fireEffect, d_firePoss[attackCount % 2]);//射击特效
+        }
+        else {
+            EffectPlay.Play(fireEffect, firePoint);//射击特效
+        }
         _player.RemoveStation(Player.Station.WaitingAttack);
         Vector2 random = Vector2.zero;
         if (allGrow > 0)
@@ -114,7 +120,14 @@ public class WeaponHandgun : Weapon
             {
                 var damage = _player.CreateDamage(this, hurtObject);
                 damage.hitPoint = hit.point;
-                damage.dir = hit.point - firePoint.position;
+                if (isDouble)
+                {
+                    damage.dir = hit.point - d_firePoss[attackCount % 2].position;
+                }
+                else
+                {
+                    damage.dir = hit.point - firePoint.position;
+                }
                 if (hurtObject is MonsterPart part)
                 {
                     EventCenter.Dispatch(EventKey.HitMonster, (part.monster.hp - damage.damage) > 0, part);
@@ -125,7 +138,7 @@ public class WeaponHandgun : Weapon
             GameDebug.DrawLine(_player.evCamera.ScreenToWorldPoint(FireRayPos + random), hit.point, Color.red,2f);
         }
         BulletChange(-1);
-        cd = showInterval;
+        cd = isDouble ? showInterval / 2f : showInterval;
         if (allGrow < weaponArgs.maxAccurate)
             allGrow += weaponAttribute.recoilForce;
         if (bulletCount <= 0)
@@ -162,10 +175,10 @@ public class WeaponHandgun : Weapon
         if (isDouble)//双枪，弹夹有一个子弹+1，超过一个+2，空弹夹不增加
         {
             getCount = bullet.Get(bulletCount <= 0 ? maxBulletCount*2 :
-                (maxBulletCount*2 - bulletCount + (bulletCount ==1?1:2)));
+                (maxBulletCount * 2+2 - bulletCount ));
         }
         else {
-            getCount = bullet.Get(bulletCount <= 0?maxBulletCount: (maxBulletCount - bulletCount + 1));
+            getCount = bullet.Get(bulletCount <= 0?maxBulletCount: (maxBulletCount+1 - bulletCount));
         }
         BulletChange(getCount);
         CloseEnmptyAnim();

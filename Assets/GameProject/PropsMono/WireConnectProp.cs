@@ -10,7 +10,9 @@ public class WireConnectProp : OnlyInteractiveOpenUI
 {
     [LabelText("配置文件名称")]
     public int configId;
-    
+
+    public override bool showBiling => canInteractive;
+
     public override bool canInteractive
     {
         get
@@ -18,9 +20,15 @@ public class WireConnectProp : OnlyInteractiveOpenUI
             return ContainStation(PropsStation.Locked) && base.canInteractive;
         }
     }
-    
-    
-    
+
+    public override bool progressIsComplete
+    {
+        get
+        {
+            return creator.isGet && !ContainStation(PropsStation.Locked);
+        }
+    }
+
     /// <summary>
     /// 小游戏解锁成功
     /// </summary>

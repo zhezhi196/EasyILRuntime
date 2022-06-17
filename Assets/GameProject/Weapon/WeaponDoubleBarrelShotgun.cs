@@ -91,7 +91,7 @@ public class WeaponDoubleBarrelShotgun : Weapon
             return;
         fireCount += 1;
         _player.RemoveStation(Player.Station.WaitingAttack);
-        //EffectPlay.Play(fireEffect, firePoint);//射击特效
+        EffectPlay.Play(fireEffect, firePoint);//射击特效
         //todo--射线检测
         for (int i = 0; i < attackCount; i++)
         {
@@ -108,10 +108,12 @@ public class WeaponDoubleBarrelShotgun : Weapon
                 if (hurtObject != null)
                 {
                     var damage = _player.CreateDamage(this, hurtObject);
-                    //damage.hpDamage.damage /= attackCount;
+                    damage.dir = hit.point - firePoint.position;
+                    damage.damage /= attackCount;
+                    damage.lagDamage /= attackCount;
                     if (hurtObject is MonsterPart part)
                     {
-                        //EventCenter.Dispatch(EventKey.HitMonster, (part.monster.hp - damage.hpDamage.damage) > 0, part);
+                        EventCenter.Dispatch(EventKey.HitMonster, (part.monster.hp - damage.damage) > 0, part);
                     }
                     hurtObject.OnHurt(_player, damage);
                     HitSomething(hurtObject, hit, weaponType);//特效

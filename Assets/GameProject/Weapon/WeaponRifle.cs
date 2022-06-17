@@ -69,7 +69,7 @@ public class WeaponRifle : Weapon
         {
             _player.RemoveStation(Player.Station.WaitingAttack);
         }
-        //EffectPlay.Play(fireEffect, firePoint);//射击特效
+        EffectPlay.Play(fireEffect, firePoint);//射击特效
         _animator.ResetTrigger(WeaponrAnimaKey.Fire);
         Vector2 random = Vector2.zero;
         if (allGrow > 0)

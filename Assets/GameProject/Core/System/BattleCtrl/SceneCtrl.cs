@@ -25,6 +25,10 @@ public class SceneCtrl : BattleSystem
 
     public void SwitchFog(TaskNode tak,int index,float fadeTime)
     {
+        if (index > tak.nodeSetting.frog.Length)
+        {
+            return;
+        }
         fogSetting setting = tak.nodeSetting.frog[index];
         RenderSettings.fog = setting.fog;
 

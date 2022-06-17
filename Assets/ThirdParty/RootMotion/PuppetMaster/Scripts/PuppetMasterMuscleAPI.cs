@@ -46,7 +46,7 @@ namespace RootMotion.Dynamics {
 		}
 
 		/// <summary>
-		/// Sets the muscle weights for the muscle with the specified target and all it's child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb). 
+		/// Sets the muscle weights for the muscle with the specified target and all its child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb). 
 		/// </summary>
 		public void SetMuscleWeightsRecursive(Transform target, float muscleWeight, float pinWeight = 1f, float mappingWeight = 1f, float muscleDamper = 1f) {
 			if (!CheckIfInitiated()) return;
@@ -60,7 +60,7 @@ namespace RootMotion.Dynamics {
 		}
 
 		/// <summary>
-		/// Sets the muscle weights for the muscle of the specified muscle index and all it's child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb).
+		/// Sets the muscle weights for the muscle of the specified muscle index and all its child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb).
 		/// </summary>
 		public void SetMuscleWeightsRecursive(int muscleIndex, float muscleWeight, float pinWeight = 1f, float mappingWeight = 1f, float muscleDamper = 1f) {
 			if (!CheckIfInitiated()) return;
@@ -74,7 +74,7 @@ namespace RootMotion.Dynamics {
 		}
 
 		/// <summary>
-		/// Sets the muscle weights for the muscle that has the humanBodyBone target (works only with a Humanoid avatar) and all it's child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb).
+		/// Sets the muscle weights for the muscle that has the humanBodyBone target (works only with a Humanoid avatar) and all its child muscles (when called on the upper arm, will set weights for the upper arm, forearm and hand of the same limb).
 		/// </summary>
 		public void SetMuscleWeightsRecursive(HumanBodyBones humanBodyBone, float muscleWeight, float pinWeight = 1f, float mappingWeight = 1f, float muscleDamper = 1f) {
 			if (!CheckIfInitiated()) return;
@@ -147,7 +147,7 @@ namespace RootMotion.Dynamics {
 			if (!CheckIfInitiated()) return -1;
 			
 			if (targetAnimator == null) {
-				Debug.LogWarning("PuppetMaster 'Target Root' has no Animator component on it nor on it's children.", transform);
+				Debug.LogWarning("PuppetMaster 'Target Root' has no Animator component on it nor on its children.", transform);
 				return -1;
 			}
 			if (!targetAnimator.isHuman) {

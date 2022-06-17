@@ -64,12 +64,12 @@ public class GameUIPlayerState : MonoBehaviour
     public void Refesh()
     {
         //新体力能量槽
-        maxLife.fillAmount = Player.player.playerAtt.hp / iMaxLife;
-        currentLife.fillAmount = Player.player.playerAtt.hp / iMaxLife;
-        maxlifeLine.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, 180, 1 - Player.player.playerAtt.hp / (iMaxLife * 0.5f)));
-        maxEnergy.fillAmount = Player.player.playerAtt.strength / iMaxEnergy;
-        currentEnergy.fillAmount = Player.player.playerAtt.strength / iMaxEnergy;
-        maxEnergyLine.localEulerAngles = new Vector3(0, 0, -Mathf.Lerp(0, 180, 1 - Player.player.playerAtt.strength / (iMaxEnergy * 0.5f)));
+        maxLife.fillAmount = Player.player.MaxHp / iMaxLife;
+        currentLife.fillAmount = Player.player.hp / iMaxLife;
+        maxlifeLine.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, 180, 1 - Player.player.MaxHp / (iMaxLife * 0.5f)));
+        maxEnergy.fillAmount = Player.player.MaxStrength / iMaxEnergy;
+        currentEnergy.fillAmount = Player.player.strength / iMaxEnergy;
+        maxEnergyLine.localEulerAngles = new Vector3(0, 0, -Mathf.Lerp(0, 180, 1 - Player.player.MaxStrength / (iMaxEnergy * 0.5f)));
         //重新打开Gameui是数值改变刷新
         float hV = Player.player.hp / iMaxLife;
         if (currentLife.fillAmount != hV)

@@ -35,20 +35,9 @@ namespace RootMotion.Dynamics {
 				return false;
 			}
 
+            /*
 			if (targetRoot.position != transform.position) {
 				if (log) Debug.LogError("The position of the animated character (Target) must match with the position of the PuppetMaster when initiating PuppetMaster. If you are creating the Puppet in runtime, make sure you don't move the Target to another position immediatelly after instantiation. Move the Root Transform instead.");
-				return false;
-			}
-
-			/*
-			if (targetRoot.root != transform.root) {
-				if (log) Debug.LogWarning("Target Root is not parented to the same root Transform as the PuppetMaster.", transform);
-				return false;
-			}
-			*/
-
-			if (targetRoot == null) {
-				if (log) Debug.LogError("Invalid PuppetMaster setup. (targetRoot not found)", transform);
 				return false;
 			}
 
@@ -62,8 +51,16 @@ namespace RootMotion.Dynamics {
 					}
 				}
 			}
-			
-			if (muscles[0].joint.connectedBody != null && muscles.Length > 1) {
+            */
+
+            transform.position = targetRoot.position;
+            foreach (Muscle m in muscles)
+            {
+                m.joint.transform.SetPositionAndRotation(m.target.position, m.target.rotation);
+            }
+            Physics.SyncTransforms();
+
+            if (muscles[0].joint.connectedBody != null && muscles.Length > 1) {
 				for (int i = 1; i < muscles.Length; i++) {
 					if (muscles[i].joint.GetComponent<Rigidbody>() == muscles[0].joint.connectedBody) {
 						if (log) Debug.LogError("The first muscle needs to be the one that all the others are connected to (the hips).", transform);
@@ -74,7 +71,7 @@ namespace RootMotion.Dynamics {
 
 			for (int i = 0; i < muscles.Length; i++) {
 				if (Vector3.SqrMagnitude(muscles[i].joint.transform.position - muscles[i].target.position) > 0.001f) {
-					if (log) Debug.LogError("The position of each muscle needs to match with the position of it's target. Muscle '" + muscles[i].joint.name + "' position does not match with it's target. Right-click on the PuppetMaster component's header and select 'Fix Muscle Positions' from the context menu.", muscles[i].joint.transform);
+					if (log) Debug.LogError("The position of each muscle needs to match with the position of its target. Muscle '" + muscles[i].joint.name + "' position does not match with its target. Right-click on the PuppetMaster component's header and select 'Fix Muscle Positions' from the context menu.", muscles[i].joint.transform);
 					return false;
 				}
 			}

@@ -16,5 +16,6 @@ public abstract class AgentSensorPoint : MonoBehaviour, ISensorTarget
     //     onDisable?.Invoke(this);
     // }
     public bool isVisiable { get; }
+
     public Vector3 targetPoint => transform.position;
 }

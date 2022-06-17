@@ -1,4 +1,5 @@
-﻿using Module;
+﻿using System;
+using Module;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -30,12 +31,48 @@ public class Confrontation : SimpleBehavior
         get { return Player.player.chasePoint - monster.transform.position; }
     }
 
+    public static int GetMoveDir(bool isBack,float distance, NavMeshAgent agent)
+    {
+        NavMeshHit leftHit;
+        NavMeshHit rightHit;
+        bool left = agent.Raycast(-agent.transform.right * distance, out leftHit);
+        bool right = agent.Raycast(agent.transform.right * distance, out rightHit);
+        int result = 0;
+        if (left && right)
+        {
+            result = -(leftHit.distance.CompareTo(rightHit.distance));
+
+        }
+        else if (left && !right)
+        {
+            result = -1;
+        }
+        else if (!left && right)
+        {
+            result = 1;
+        }
+        else
+        {
+            result = RandomHelper.RandomSymbol();
+        }
+
+        if (isBack)
+        {
+            return -result;
+        }
+        else
+        {
+            return result;
+        }
+    }
+
     public override void OnStart(ISimpleBehaviorObject owner, object[] args)
     {
         base.OnStart(owner, args);
+        isEnd = false;
         monster = (AttackMonster) owner;
         standTime = 0;
-        _moveDir = RandomHelper.RandomSymbol();
+        _moveDir = GetMoveDir(isBack, 5, monster.navmesh);
         switchCount = 0;
         if (this.dodge == null)
         {
@@ -45,6 +82,7 @@ public class Confrontation : SimpleBehavior
                 if (skillCtrl.allSkill[i] is IConfrontationSkill dodge)
                 {
                     this.dodge = dodge;
+                    this.dodge.behavior = this;
                 }
             }
         }
@@ -63,15 +101,14 @@ public class Confrontation : SimpleBehavior
             Quaternion rotation = Quaternion.LookRotation(new Vector3(faceDir.x, 0, faceDir.z));
             Vector3 dir = (Quaternion.Inverse(rotation) * moveDir).normalized;
             dir = new Vector3(-dir.x, 0, dir.z);
-            SmoothDampToDir(dir, 0.1f);
+            SmoothDampToDir(dir);
         }
         else
         {
-            SmoothDampToDir(new Vector3(0, 0, 1), 0.1f);
+            SmoothDampToDir(new Vector3(0, 0, 1));
         }
 
-
-        if (this.dodge.isWanted)
+        if (this.dodge.station == SkillStation.Ready && this.dodge.isWanted)
         {
             skillCtrl.TryRelease(dodge, null);
         }
@@ -89,10 +126,12 @@ public class Confrontation : SimpleBehavior
         {
             if (monster.toPlayerDistance <= monster.currentLevel.dbData.standMin - 0.4f)
             {
+                //往后走
                 return GetMinWallPoint(Vector3.zero);
             }
             else
             {
+                //往左或者往右走
                 return GetMinWallPoint(dir);
             }
         }
@@ -169,9 +208,7 @@ public class Confrontation : SimpleBehavior
     private Vector3 GetOriPoint(Vector3 monsterPoint, Vector3 playerPoint)
     {
         float distance = monsterPoint.Distance(playerPoint);
-        Vector3 minPoint = (monsterPoint - playerPoint).normalized * Mathf.Clamp(distance,
-                               monster.currentLevel.dbData.standMin, monster.currentLevel.dbData.standMax) +
-                           playerPoint;
+        Vector3 minPoint = (monsterPoint - playerPoint).normalized * Mathf.Clamp(distance, monster.currentLevel.dbData.standMin, monster.currentLevel.dbData.standMax) + playerPoint;
         return minPoint;
     }
 
@@ -180,23 +217,27 @@ public class Confrontation : SimpleBehavior
         //Gizmos.DrawIcon(standPostion + Vector3.up, "duizhi");
     }
 
+    public bool isEnd;
+
     public override void OnEnd()
     {
-        Async.StopAsync(this);
+        switchCount = 0;
         monster.animator.SetFloat("moveFoward", -1);
         monster.animator.SetFloat("moveLeft", 0);
+        isEnd = true;
+        Async.StopAsync(this);
     }
 
-    private void SmoothDampToDir(Vector3 dir, float time)
+    private void SmoothDampToDir(Vector3 dir)
     {
-        if (monster.smoothDampToDir)
+        if (monster.smoothDampToDir&&!isEnd)
         {
             float ttt = 0.01f;
             float fow = monster.animator.GetFloat("moveFoward");
             float left = monster.animator.GetFloat("moveLeft");
 
 
-            var temp = Vector3.SmoothDamp(new Vector3(left, 0, fow), dir, ref smothFoward, time);
+            var temp = Vector3.SmoothDamp(new Vector3(left, 0, fow), dir, ref smothFoward, monster.smoothDampTime);
             float forResult = temp.z;
             monster.animator.SetFloat("moveFoward", temp.z);
             //monster.animator.SetFloat("moveLeft", fow > ttt ? -temp.x : temp.x);

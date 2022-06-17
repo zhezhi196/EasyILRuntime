@@ -5,8 +5,10 @@ public class BlackProcedure : BattleProcedure
     public BlackProcedure(Mission mission, Action callback) : base(mission, callback)
     {
         AppendCtrl(new SceneCtrl());
-        AppendCtrl(new PlayerCtrl());
+        AppendCtrl(new BlackPlayerCtrl());
         AppendCtrl(new PropsCtrl());
+        AppendCtrl(new GiftCtrl());
+        AppendCtrl(new TimelineCtrl());
     }
 
     public override GameMode mode => GameMode.Black;
@@ -19,12 +21,13 @@ public class BlackProcedure : BattleProcedure
     {
         AddAction(BattleController.GetCtrl<SceneCtrl>().loadScene);
         AddAction(BattleController.GetCtrl<SceneCtrl>().unloadScene);
-        AddAction(BattleController.GetCtrl<PlayerCtrl>().loadPlayer);
-        AddAction(BattleController.GetCtrl<PlayerCtrl>().bronPlayer);
+        AddAction(BattleController.GetCtrl<BlackPlayerCtrl>().loadPlayer);
+        AddAction(BattleController.GetCtrl<BlackPlayerCtrl>().bronPlayer);
+        AddAction(BattleController.GetCtrl<GiftCtrl>().initGift);
         AddAction(BattleController.GetCtrl<PropsCtrl>().loadPros);
         AddAction(BattleController.GetCtrl<SceneCtrl>().LoadComplete);
-        AddAction(BattleController.GetCtrl<PlayerCtrl>().bronAnim);
-        AddAction(BattleController.GetCtrl<PlayerCtrl>().openGameUi);
+        AddAction(BattleController.GetCtrl<BlackPlayerCtrl>().bronAnim);
+        AddAction(BattleController.GetCtrl<BlackPlayerCtrl>().openGameUi);
     }
 
 }

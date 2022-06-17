@@ -24,12 +24,17 @@ public class ArtUI : UIViewBase
     public Vector2 endPos;
     public float speed = 5;
     private Tweener nameListTweener;
+    [Header("进入梦境")] public UIBtnBase enterDream;
+    public GameObject lockIcon;
+    public Text otherLable;
+    public GameObject otherLableLight;
 
     protected override void OnChildStart()
     {
         backBtn.AddListener(OnClickBackBtn);
         artBtn.AddListener(OpenArtPanel);
         artBackBtn.AddListener(CloseArtPanel);
+        enterDream.AddListener(EnterDreamBtn);
 
         productionBtn.AddListener(OpenNameList);
         for (int i = 0; i < items.Length; i++)
@@ -40,11 +45,30 @@ public class ArtUI : UIViewBase
                 ViewItem(index);
             });
         }
+        if (Mission.missionList.Find(m => m.dbData.ID == 17003).isComplete)
+        {
+            lockIcon.OnActive(false);
+            otherLable.SetAlpha(1f);
+            otherLableLight.OnActive(true);
+        }
     }
 
     private void OnClickBackBtn()
     {
         UIController.Instance.Back();
+    }
+
+    private void EnterDreamBtn()
+    {
+        if (Mission.missionList.Find(m => m.dbData.ID == 17003).isComplete)
+        {
+            BattleController.Instance.EnterBattle(Mission.missionList.Find(m => m.dbData.ID == 17004), EnterNodeType.Restart);   
+        }
+        else
+        {
+            CommonPopup.Popup(Language.GetContent("701"), Language.GetContent("727"), null,
+                new PupupOption(null, Language.GetContent("702")));
+        }
     }
 
     private void OpenArtPanel()

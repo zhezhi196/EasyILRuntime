@@ -150,12 +150,23 @@ public class BulletEntity : PropEntity
             bagCtrl.PutToBag(this, count, 0,null, PutBagFlag.NotAudio);
         }
         
-        if (BattleController.Instance.ctrlProcedure.isStartFight)
-        {
-            BattleController.Instance.Save(0);
-        }
+        // if (BattleController.Instance.ctrlProcedure.isStartFight)
+        // {
+        //     BattleController.Instance.Save(0);
+        // }
         onBulletCountChanged?.Invoke(this, count);
 #endif
        
+    }
+
+    public int GetAllBulletCount()
+    {
+        int ret = bagCount;
+        if (weapon != null && weapon.entity.isGet)
+        {
+            ret += weapon.bulletCount;
+        }
+
+        return ret;
     }
 }

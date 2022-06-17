@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SupplyBox
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 0
+      compressionQuality: 0
+      maxTextureSize: 0
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 1024
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: b5fb3f3f1dc2939428d2aa301d66819e, type: 3}
+    - {fileID: 21300000, guid: e90fcffa0ab1ec84ab446a034aac8111, type: 3}
+    - {fileID: 21300000, guid: 4f75846cf301d0446b22a79ab3ccf1e2, type: 3}
+    - {fileID: 21300000, guid: 13996e2e94b0d5947b5bcb96703a8106, type: 3}
+    - {fileID: 21300000, guid: 3557c4cc80c8c9c4a9f9035281a1f8ca, type: 3}
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e90fcffa0ab1ec84ab446a034aac8111, type: 3}
+  - {fileID: 21300000, guid: 4f75846cf301d0446b22a79ab3ccf1e2, type: 3}
+  - {fileID: 21300000, guid: 3557c4cc80c8c9c4a9f9035281a1f8ca, type: 3}
+  - {fileID: 21300000, guid: 13996e2e94b0d5947b5bcb96703a8106, type: 3}
+  - {fileID: 21300000, guid: b5fb3f3f1dc2939428d2aa301d66819e, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - BuJi_BG
+  - BuJi_BOX
+  - HeJin_XianShi
+  - tianfulibao
+  - LJicon_3
+  m_Tag: SupplyBox
+  m_IsVariant: 0

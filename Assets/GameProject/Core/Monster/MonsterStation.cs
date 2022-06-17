@@ -47,14 +47,17 @@ public enum MonsterStation
     ResetToBorn = 1 << 11,
 
     /// <summary>
-    /// 闪避
+    /// 醒来
     /// </summary>
-    Dodge = 1 << 12,
+    WakeUp = 1 << 12,
 
     /// <summary>
     /// 是否看到玩家躲藏
     /// </summary>
     IsSeePlayHide = 1 << 13,
+    /// <summary>
+    /// 闪避,这个没用了,下次给删了
+    /// </summary>
     Blocking = 1 << 14,
     Jump = 1 << 15,
     Sleep = 1 << 16

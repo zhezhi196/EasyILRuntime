@@ -33,7 +33,7 @@ public class UIInteractionNode : UIBtnBase, IPoolObject
         if (lookPoint != null && lookPoint.canInteractive)
         {
             lookPoint.Interactive();
-            if (!lookPoint.interactiveTips.IsNullOrEmpty())
+            if (lookPoint != null && !lookPoint.interactiveTips.IsNullOrEmpty())
             {
                 failTips.gameObject.OnActive(true);
                 failTips.text.text = lookPoint.interactiveTips;

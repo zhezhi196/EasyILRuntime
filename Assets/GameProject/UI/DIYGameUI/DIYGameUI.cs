@@ -115,14 +115,14 @@ public class DIYGameUI : UIViewBase, ILocationSettingUI
     public override void Refresh(params object[] args)
     {
         bg.SetAlpha((float)args[0]);
-        // if (args[0].ToString() == "半透")
-        // {
-        //     bg.SetAlpha(0.9f);
-        // }
-        // else
-        // {
-        //     bg.SetAlpha(1);
-        // }
+         /*if (args[0].ToString() == "半透")
+         {
+             bg.SetAlpha(0.9f);
+         }
+         else
+         {
+             bg.SetAlpha(1);
+         }*/
         for (int i = 0; i < write.Length; i++)
         {
             write[i].ResetValue();

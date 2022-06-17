@@ -13,7 +13,10 @@ public class Tumour: AttackMonster
     private Thorns _thorns;
 
     public Transform fogFirePoint;
-
+    public GameObject duwu01;
+    public GameObject[] rollingEffet;
+    public Transform tuciAttackPoint;
+    public Transform tuciXuewu;
     public override float rotateToMove => 180;
 
     public TuCi tuci
@@ -77,6 +80,15 @@ public class Tumour: AttackMonster
 
         fog_thornWeight[0] = fog.dbData.weight;
         fog_thornWeight[1] = thorns.dbData.weight;
+    }
+
+    protected override void OnMosterEndTimeLine(AttackMonster obj, TimeLineType type)
+    {
+        base.OnMosterEndTimeLine(obj, type);
+        if (type == TimeLineType.GetOut && obj == this)
+        {
+            Roar(null);
+        }
     }
 
     public override float seePlayerFightTime

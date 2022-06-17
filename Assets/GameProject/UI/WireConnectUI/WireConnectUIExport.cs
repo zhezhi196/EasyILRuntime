@@ -4,23 +4,24 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Module;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class WireConnectUIExport : MonoBehaviour
 {
-    public List<Transform> batteryList;
+    [FormerlySerializedAs("batteryList")] public List<Transform> exportList;
     public void SetBatteryCount(int count)
     {
-        for (int i = 0; i < batteryList.Count; i++)
+        for (int i = 0; i < exportList.Count; i++)
         {
-            batteryList[i].gameObject.OnActive(false);
+            exportList[i].gameObject.OnActive(false);
         }
         
         for (int i = 0; i < count; i++)
         {
-            batteryList[i].gameObject.OnActive(true);
-            batteryList[i].transform.GetChild(0).gameObject.OnActive(false);
-            batteryList[i].transform.GetChild(1).gameObject.OnActive(false);
+            exportList[i].gameObject.OnActive(true);
+            exportList[i].transform.GetChild(0).gameObject.OnActive(false);
+            exportList[i].transform.GetChild(1).gameObject.OnActive(false);
         }
     }
 
@@ -36,24 +37,26 @@ public class WireConnectUIExport : MonoBehaviour
 
     public void SetHighlightCount(int count)
     {
-        for (int i = 0; i < batteryList.Count; i++)
+        for (int i = 0; i < exportList.Count; i++)
         {
-            batteryList[i].transform.GetChild(0).gameObject.OnActive(false);
+            exportList[i].transform.GetChild(0).gameObject.OnActive(true);
+            exportList[i].transform.GetChild(1).gameObject.OnActive(false);
         }
         
         for (int i = 0; i < count; i++)
         {
-            batteryList[i].transform.GetChild(0).gameObject.OnActive(true);
+            exportList[i].transform.GetChild(0).gameObject.OnActive(false);
+            exportList[i].transform.GetChild(1).gameObject.OnActive(true);
         }
     }
 
     public void ChangeToGreen()
     {
         //黄光变绿光
-        for (int i = 0; i < batteryList.Count; i++)
+        for (int i = 0; i < exportList.Count; i++)
         {
-            batteryList[i].transform.GetChild(0).gameObject.OnActive(false);
-            batteryList[i].transform.GetChild(1).gameObject.OnActive(true);
+            exportList[i].transform.GetChild(0).gameObject.OnActive(false);
+            exportList[i].transform.GetChild(1).gameObject.OnActive(true);
         }
     }
 
@@ -62,9 +65,9 @@ public class WireConnectUIExport : MonoBehaviour
         var seq = DOTween.Sequence();
         seq.SetUpdate(true);
         
-        for (int i = 0; i < batteryList.Count; i++)
+        for (int i = 0; i < exportList.Count; i++)
         {
-            var img = batteryList[i].transform.GetChild(1).GetComponent<Image>();
+            var img = exportList[i].transform.GetChild(1).GetComponent<CanvasGroup>();
             seq.Insert(0,img.DOFade(0.2f, 0.3f));
             seq.Insert(0.3f,img.DOFade(1, 0.3f));
             seq.Insert(0.6f,img.DOFade(0.2f, 0.3f));

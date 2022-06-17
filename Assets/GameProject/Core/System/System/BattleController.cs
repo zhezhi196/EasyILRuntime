@@ -193,7 +193,7 @@ public class BattleController : Singleton<BattleController>
 
     private void OnOpenUI(string name)
     {
-        if (name != "GameUI")
+        if (name != "GameUI" && name != "BlackGameUI")
         {
             Pause(name);
         }
@@ -303,6 +303,8 @@ public class BattleController : Singleton<BattleController>
         //todo 场景存档 物品存档 节点存档 掉落存档 怪物死亡存档 地图区域存档 背包存档 黄点进度存档
         if (ctrlProcedure != null)
         {
+            if (ctrlProcedure.mode == GameMode.Black)
+                return;
             ctrlProcedure.Save();
         }
 
@@ -387,4 +389,10 @@ public class BattleController : Singleton<BattleController>
 
     private int mouseCount;
     private float mouseTime;
+
+
+    public Mission GetCurMission()
+    {
+        return ctrlProcedure.mission;
+    }
 }

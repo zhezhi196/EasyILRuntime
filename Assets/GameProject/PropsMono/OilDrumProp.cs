@@ -42,11 +42,12 @@ public class OilDrumProp : OnlyReceiveEventProp , IHurtObject
             o.GetComponent<Collider>().isTrigger = true;
         }
         o.transform.localScale = new Vector3(radius,radius,radius);
+        o.transform.position = transform.position;
         Destroy(o,3f);
         
         var d = new Damage() {damage = this.damage, weapon = WeaponType.OilDrum};
-        
-        var monsterParent = transform.GetComponentInParent<MonsterParent>();
+
+        var monsterParent = transform.GetComponentInParent<NodeParent>().GetComponentInChildren<MonsterParent>();//transform.GetComponentInParent<MonsterParent>();
         var creators = monsterParent.GetComponentsInChildren<MonsterCreator>();
         for (int i = 0; i < creators.Length; i++)
         {

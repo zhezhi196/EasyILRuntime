@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 public class DeathStoryTimeline : TimelineController
 {
     public Camera _camera;
-    public override void Play(Player player, Monster enemy, UnityAction callBack, params object[] args)
+    public override void Play(Player player, AttackMonster enemy, UnityAction callBack, params object[] args)
     {
         base.Play(player, enemy, callBack, args);
         Player.player.gameObject.OnActive(false);

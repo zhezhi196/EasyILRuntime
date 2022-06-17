@@ -27,12 +27,19 @@ public class Dog: AttackMonster
         get
         {
             if (moveSpeed == 0) return 0;
-            if (fightState == FightState.Normal) return currentLevel.attribute.rotateSpeed * 0.3f;
+            if (fightState == FightState.Normal) return currentLevel.attribute.rotateSpeed*0.3f;
             return currentLevel.attribute.rotateSpeed;
         }
     }
 
-    public override float rotateToMove => 30;
+    public override float rotateToMove
+    {
+        get
+        {
+            if (fightState == FightState.Normal) return 1;
+            return 90;
+        }
+    }
 
     public override string GetLayerDefaultAnimation(int layer)
     {
@@ -46,17 +53,17 @@ public class Dog: AttackMonster
         }
     }
     
-    // public override float GetLayerFadeTime(int type, string name)
-    // {
-    //     if (name == "AssDie" || name == "ExcDog")
-    //     {
-    //         return 0;
-    //     }
-    //     else
-    //     {
-    //         return base.GetLayerFadeTime(type, name);
-    //     }
-    // }
+    public override float GetLayerFadeTime(int type, string name)
+    {
+        if (name == "AssDie" || name == "ExcDog")
+        {
+            return 0;
+        }
+        else
+        {
+            return base.GetLayerFadeTime(type, name);
+        }
+    }
     
     public override float GetTranslateTime(string name)
     {
@@ -68,12 +75,6 @@ public class Dog: AttackMonster
         {
             return base.GetTranslateTime(name);
         }
-    }
-
-    protected override void Update()
-    {
-        base.Update();
-
     }
 
     public override bool MoveTo(MoveStyle type, Vector3 point, Action<NavMeshPathStatus, bool> callback)

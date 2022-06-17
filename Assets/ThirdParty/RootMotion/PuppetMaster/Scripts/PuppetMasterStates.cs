@@ -29,7 +29,7 @@ namespace RootMotion.Dynamics {
 			[TooltipAttribute("The max square velocity of the ragdoll bones for freezing the puppet.")]
 			public float maxFreezeSqrVelocity;
 
-			[TooltipAttribute("If true, PuppetMaster, all it's behaviours and the ragdoll will be destroyed when the puppet is frozen.")]
+			[TooltipAttribute("If true, PuppetMaster, all its behaviours and the ragdoll will be destroyed when the puppet is frozen.")]
 			public bool freezePermanently;
 
 			[TooltipAttribute("If true, will enable angular limits when killing the puppet.")]
@@ -56,7 +56,7 @@ namespace RootMotion.Dynamics {
 		}
 
 		/// <summary>
-		/// Returns true if PuppetMaster is in the middle of switching states. Don't deactivate the PuppetMaster nor any of it's behaviours while it returns true.
+		/// Returns true if PuppetMaster is in the middle of switching states. Don't deactivate the PuppetMaster nor any of its behaviours while it returns true.
 		/// </summary>
 		public bool isSwitchingState {
 			get {
@@ -224,7 +224,7 @@ namespace RootMotion.Dynamics {
 
 		private void OnFreezeFlag() {
 			if (!CanFreeze()) return;
-
+				//todo 这里我魔改了
 			SetAnimationEnabled(false);
 
 			foreach (Muscle m in muscles) {

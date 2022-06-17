@@ -13,6 +13,7 @@ public class TimelineCtrl : BattleSystem
     public List<TimelineController> reviveTimeline = new List<TimelineController>();
     private const string deathStoryKey = "DeathTimeline";
     public TimelineController deathStory;
+    public RunTimeAction deathTimeline;
 
     public override void BattlePrepare(EnterNodeType enterType)
     {
@@ -20,6 +21,10 @@ public class TimelineCtrl : BattleSystem
         AssetLoad.PreloadAsset<PlayerTimelineConfig>(configPath, (go) =>
         {
             timelineConfig = go.Result;
+        });
+        deathTimeline = new RunTimeAction(() => {
+            GetDeathStory(null);
+            BattleController.Instance.NextFinishAction("deathTimeline");
         });
     }
 
@@ -31,14 +36,15 @@ public class TimelineCtrl : BattleSystem
     public void GetDeathStory(Action<TimelineController> callback)
     {
         //死亡剧情动画初始化
-        int index = LocalFileMgr.GetInt(deathStoryKey);
+        int index = LocalFileMgr.GetInt(BattleController.Instance.ctrlProcedure.mission.difficulte.ToString() + deathStoryKey);
         if (index < timelineConfig.deathStory.Length)
         {
             AssetLoad.LoadGameObject<TimelineController>(timelineConfig.deathStory[index], BattleController.Instance.timelineRoot, (line, obj) =>
             {
+                deathStory = line;
                 line.gameObject.OnActive(false);
                 callback?.Invoke(line);
-                LocalFileMgr.SetInt(deathStoryKey, index + 1);
+                //LocalFileMgr.SetInt(deathStoryKey, index + 1);
             });
         }
         else {
@@ -46,23 +52,28 @@ public class TimelineCtrl : BattleSystem
         }
     }
 
-    //public void NextDeathStory()
-    //{
-    //    //死亡剧情动画初始化
-    //    deathStory = null;
-    //    int index = LocalFileMgr.GetInt(deathStoryKey);
-    //    LocalFileMgr.SetInt(deathStoryKey,index + 1);
-    //    if (index+1 < timelineConfig.deathStory.Length)
-    //    {
-    //        AssetLoad.LoadGameObject<TimelineController>(timelineConfig.deathStory[index], BattleController.Instance.timelineRoot, (line, obj) =>
-    //        {
-    //            line.gameObject.OnActive(false);
-    //            deathStory = line;
-    //        });
-    //    }
-    //}
+    public void NextDeathStory()
+    {
+        //死亡剧情动画查找下一个
+        if (deathStory != null)
+        {
+            //GameObject.Destroy(deathStory);
+            AssetLoad.Destroy(deathStory.gameObject);
+        }
+        deathStory = null;
+        int index = LocalFileMgr.GetInt(BattleController.Instance.ctrlProcedure.mission.difficulte.ToString() + deathStoryKey);
+        LocalFileMgr.SetInt(BattleController.Instance.ctrlProcedure.mission.difficulte.ToString()+ deathStoryKey, index + 1);
+        if (index + 1 < timelineConfig.deathStory.Length)
+        {
+            AssetLoad.LoadGameObject<TimelineController>(timelineConfig.deathStory[index+1], BattleController.Instance.timelineRoot, (line, obj) =>
+            {
+                line.gameObject.OnActive(false);
+                deathStory = line;
+            });
+        }
+    }
 
-    public void GetAssTimeline(Monster m, bool isKill, Action<TimelineController> callback)
+    public void GetAssTimeline(AttackMonster m, bool isKill, Action<TimelineController> callback)
     {
         string path = "";
         PlayerTimelineConfig.AssMonsterConfig config = timelineConfig.assMonsterConfigs.Find(c => c.monster == m.modelName);
@@ -99,7 +110,7 @@ public class TimelineCtrl : BattleSystem
         }
     }
 
-    public void GetExcuteTimeline(Monster m, Action<TimelineController> callback)
+    public void GetExcuteTimeline(AttackMonster m, Action<TimelineController> callback)
     {
         string path = "";
         PlayerTimelineConfig.ExcuteMonsterConfig config = timelineConfig.excuteMonsterConfigs.Find(c => c.monster == m.modelName);
@@ -129,7 +140,7 @@ public class TimelineCtrl : BattleSystem
         }
     }
 
-    public void GetGetoutTimeline(Monster m, Action<TimelineController> callback)
+    public void GetGetoutTimeline(AttackMonster m, Action<TimelineController> callback)
     {
         string path = "";
         PlayerTimelineConfig.GetOutConfig config = timelineConfig.getoutConfigs.Find(c => c.monster == m.modelName);
@@ -159,7 +170,7 @@ public class TimelineCtrl : BattleSystem
         }
     }
 
-    public void GetDeathTimeline(Monster m, Action<TimelineController> callback)
+    public void GetDeathTimeline(AttackMonster m, Action<TimelineController> callback)
     {
         string path = "";
         PlayerTimelineConfig.DeathConfig config = timelineConfig.deathConfigs.Find(c => c.monster == m.modelName);
@@ -189,7 +200,7 @@ public class TimelineCtrl : BattleSystem
         }
     }
 
-    public void GetMonsterShowTimeline(Monster m, Action<TimelineController> callback)
+    public void GetMonsterShowTimeline(AttackMonster m, Action<TimelineController> callback)
     {
         string path = "";
         PlayerTimelineConfig.MonserShowConfig config = timelineConfig.monsterShowConfigs.Find(c => c.monster == m.modelName);

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5593e213090bd204d8780727a2db6e8a, type: 3}
+  m_Name: 11001
+  m_EditorClassIdentifier: 
+  lockNum: 3
+  moveSpeed: 10.6
+  areas:
+  - pos: {x: 0.12513846, y: 0.6954596}
+    moveSpeed: 8.7
+  - pos: {x: 0, y: 0.3189369}
+    moveSpeed: 10.3
+  - pos: {x: 0.14174975, y: 0.47951275}
+    moveSpeed: 9.6
+  adGive: 1

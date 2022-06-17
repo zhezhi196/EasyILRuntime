@@ -11,7 +11,7 @@ public abstract class MonsterSkill: Skill, IActiveSkill
     public static Color minDamageDistanceColor = new Color(1, 0.5f, 0.5f);
     public MonsterStation addStation = MonsterStation.Attack;
     
-    public AttackMonster monster
+    public virtual AttackMonster monster
     {
         get { return owner as AttackMonster; }
     }
@@ -39,6 +39,9 @@ public abstract class MonsterSkill: Skill, IActiveSkill
                 {
                     damages[i] = new PlayerDamage(mm);
                     damages[i].damage = mm.currentLevel.dbData.att * dam[i].ToFloat() * (1 - att);
+                    damages[i].attackType = dbData.iconHurt;
+                    damages[i].excuteAnim = dbData.excuteAnim == 1;
+                    damages[i].outAnim = dbData.outAnim == 1;
                 }
             }
         }
@@ -85,9 +88,16 @@ public abstract class MonsterSkill: Skill, IActiveSkill
 
     public virtual void UpdateTry()
     {
-        if (monster.target != null)
+        if (monster != null && monster.target != null)
         {
-            monster.MoveTo(MoveStyle.Walk, Player.player.chasePoint, null);
+            if (station == SkillStation.Ready)
+            {
+                monster.MoveTo(MoveStyle.Walk, Player.player.chasePoint, null);
+            }
+            else
+            {
+                GameDebug.LogError($"技能状态{GetType().Name}的状态为{station}");
+            }
         }
     }
 }

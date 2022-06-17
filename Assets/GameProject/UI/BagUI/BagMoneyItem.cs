@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class BagMoneyItem : UIBtnBase
 {
     public MoneyType type;
-    public Text numberText;
+    public Text moneyNumberText;
     public Transform lackTrans;
     private Tweener lackTweener;
     public AnimationCurve lackCurve;
@@ -39,16 +39,20 @@ public class BagMoneyItem : UIBtnBase
     
     private void OnMoneyChanged(MoneyType arg1, int arg2)
     {
-        if (type == arg1)
+        if (moneyNumberText == null)
         {
-            numberText.text = arg2.ToString();
+            GameDebug.LogError("moneyNumberText == null");
+        }
+        if (type == arg1 && moneyNumberText != null)
+        {
+            moneyNumberText.text = MoneyInfo.GetMoneyEntity(type).count.ToString();
         }
     }
 
     protected override void OnEnable()
     {
         base.OnEnable();
-        numberText.text = MoneyInfo.GetMoneyEntity(type).count.ToString();
+        moneyNumberText.text = MoneyInfo.GetMoneyEntity(type).count.ToString();
     }
     
         
@@ -81,5 +85,10 @@ public class BagMoneyItem : UIBtnBase
 
         lackTrans.gameObject.OnActive(false);
         isOpenLack = false;
+    }
+    
+    private void OnDestroy()
+    {
+        MoneyInfo.onMoneyChanged -= OnMoneyChanged;
     }
 }

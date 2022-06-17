@@ -199,7 +199,7 @@ namespace RootMotion.Dynamics {
 				muscles[i] = new Muscle();
 				muscles[i].joint = joints[i];
 				muscles[i].name = joints[i].name;
-				muscles[i].props = new Muscle.Props(1f, 1f, 1f, 1f, muscles[i].joint.connectedBody == null);
+				muscles[i].props = new Muscle.Props(1f, 1f, 1f, 1f);
 				if (muscles[i].joint.connectedBody == null && hipIndex == -1) hipIndex = i;
 
 				foreach (Transform c in children) {
@@ -207,10 +207,6 @@ namespace RootMotion.Dynamics {
 						muscles[i].target = c;
 						if (animator != null) {
 							muscles[i].props.group = FindGroup(animator, muscles[i].target);
-
-							if (muscles[i].props.group == Muscle.Group.Hips || muscles[i].props.group == Muscle.Group.Leg || muscles[i].props.group == Muscle.Group.Foot) {
-								muscles[i].props.mapPosition = true;
-							}
 						}
 						break;
 					}

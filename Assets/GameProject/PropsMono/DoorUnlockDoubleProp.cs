@@ -32,10 +32,6 @@ public class DoorUnlockDoubleProp : DoorLocked
             }
             rightTween = rightDoor.transform.DOLocalRotate(new Vector3(0,OpenAngle,0), openDoorTime).SetEase(curve).OnComplete(() =>
             {
-                if (navObstacle != null)
-                {
-                    navObstacle.enabled = false;
-                }
                 IsAnimating = false;
                 openTween = null;
                 moveAudio.Stop();
@@ -63,10 +59,6 @@ public class DoorUnlockDoubleProp : DoorLocked
             }
             rightTween = rightDoor.transform.DOLocalRotate(new Vector3(0,0,0), openDoorTime).SetEase(curve).OnComplete(() =>
             {
-                if (navObstacle != null)
-                {
-                    navObstacle.enabled = true;
-                }
                 IsAnimating = false;
                 // occlusion.open = false;
                 openTween = null;

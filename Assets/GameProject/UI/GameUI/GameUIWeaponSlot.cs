@@ -29,6 +29,7 @@ public class GameUIWeaponSlot : MonoBehaviour
         if (slot.weapon == null ||(slot.weapon.weaponType == WeaponType.Thrown&&slot.weapon.bulletCount ==0))//燃烧瓶为0表现为未获取
         {
             toggle.interactable = false;
+            weaponName.gameObject.OnActive(false);
             bulletRoot.OnActive(false);
             callBack?.Invoke();
             //if(norSprite!=null)
@@ -51,6 +52,7 @@ public class GameUIWeaponSlot : MonoBehaviour
             });
             weaponIcon.SetAlpha(1f);
             weaponName.text = Language.GetContent(slot.weapon.weaponName);
+            weaponName.gameObject.OnActive(true);
             bulletCount.text = slot.weapon.bulletCount.ToString();
             bulletBagCount.text = slot.weapon.bullet==null?"1":slot.weapon.bullet.bagCount.ToString();
             bulletRoot.OnActive(weapon.weaponType != WeaponType.MeleeWeapon);//需求修改：近战武器不显示子弹

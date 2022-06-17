@@ -8,10 +8,71 @@ namespace RootMotion {
 	/// </summary>
 	public static class V3Tools {
 
-		/// <summary>
-		/// Optimized Vector3.Lerp
-		/// </summary>
-		public static Vector3 Lerp(Vector3 fromVector, Vector3 toVector, float weight) {
+        /// <summary>
+        /// Returns yaw angle (-180 - 180) of 'forward' vector.
+        /// </summary>
+        public static float GetYaw(Vector3 forward)
+        {
+            return Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns pitch angle (-90 - 90) of 'forward' vector.
+        /// </summary>
+        public static float GetPitch(Vector3 forward)
+        {
+            forward = forward.normalized; // Asin range -1 - 1
+            return -Mathf.Asin(forward.y) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns bank angle (-180 - 180) of 'forward' and 'up' vectors.
+        /// </summary>
+        public static float GetBank(Vector3 forward, Vector3 up)
+        {
+            Quaternion q = Quaternion.Inverse(Quaternion.LookRotation(Vector3.up, forward));
+            up = q * up;
+            return Mathf.Atan2(up.x, up.z) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns yaw angle (-180 - 180) of 'forward' vector relative to rotation space defined by spaceForward and spaceUp axes.
+        /// </summary>
+        public static float GetYaw(Vector3 spaceForward, Vector3 spaceUp, Vector3 forward)
+        {
+            Quaternion space = Quaternion.Inverse(Quaternion.LookRotation(spaceForward, spaceUp));
+            Vector3 dirLocal = space * forward;
+            return Mathf.Atan2(dirLocal.x, dirLocal.z) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns pitch angle (-90 - 90) of 'forward' vector relative to rotation space defined by spaceForward and spaceUp axes.
+        /// </summary>
+        public static float GetPitch(Vector3 spaceForward, Vector3 spaceUp, Vector3 forward)
+        {
+            Quaternion space = Quaternion.Inverse(Quaternion.LookRotation(spaceForward, spaceUp));
+            Vector3 dirLocal = space * forward;
+            return -Mathf.Asin(dirLocal.y) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns bank angle (-180 - 180) of 'forward' and 'up' vectors relative to rotation space defined by spaceForward and spaceUp axes.
+        /// </summary>
+        public static float GetBank(Vector3 spaceForward, Vector3 spaceUp, Vector3 forward, Vector3 up)
+        {
+            Quaternion space = Quaternion.Inverse(Quaternion.LookRotation(spaceForward, spaceUp));
+            forward = space * forward;
+            up = space * up;
+
+            Quaternion q = Quaternion.Inverse(Quaternion.LookRotation(spaceUp, forward));
+            up = q * up;
+            return Mathf.Atan2(up.x, up.z) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Optimized Vector3.Lerp
+        /// </summary>
+        public static Vector3 Lerp(Vector3 fromVector, Vector3 toVector, float weight) {
 			if (weight <= 0f) return fromVector;
 			if (weight >= 1f) return toVector;
 
@@ -28,24 +89,36 @@ namespace RootMotion {
 			return Vector3.Slerp(fromVector, toVector, weight);
 		}
 
-		/// <summary>
-		/// Returns vector projection on axis multiplied by weight.
-		/// </summary>
-		public static Vector3 ExtractVertical(Vector3 v, Vector3 verticalAxis, float weight) {
-			if (weight == 0f) return Vector3.zero;
-			return Vector3.Project(v, verticalAxis) * weight;
-		}
+        /// <summary>
+        /// Returns vector projection on axis multiplied by weight.
+        /// </summary>
+        public static Vector3 ExtractVertical(Vector3 v, Vector3 verticalAxis, float weight)
+        {
+            if (weight <= 0f) return Vector3.zero;
+            if (verticalAxis == Vector3.up) return Vector3.up * v.y * weight;
+            return Vector3.Project(v, verticalAxis) * weight;
+        }
 
-		/// <summary>
-		/// Returns vector projected to a plane and multiplied by weight.
-		/// </summary>
-		public static Vector3 ExtractHorizontal(Vector3 v, Vector3 normal, float weight) {
-			if (weight == 0f) return Vector3.zero;
-			
-			Vector3 tangent = v;
-			Vector3.OrthoNormalize(ref normal, ref tangent);
-			return Vector3.Project(v, tangent) * weight;
-		}
+        /// <summary>
+        /// Returns vector projected to a plane and multiplied by weight.
+        /// </summary>
+        public static Vector3 ExtractHorizontal(Vector3 v, Vector3 normal, float weight)
+        {
+            if (weight <= 0f) return Vector3.zero;
+            if (normal == Vector3.up) return new Vector3(v.x, 0f, v.z) * weight;
+            Vector3 tangent = v;
+            Vector3.OrthoNormalize(ref normal, ref tangent);
+            return Vector3.Project(v, tangent) * weight;
+        }
+
+        /// <summary>
+        /// Flattens a vector on a plane defined by 'normal'.
+        /// </summary>
+        public static Vector3 Flatten(Vector3 v, Vector3 normal)
+        {
+            if (normal == Vector3.up) return new Vector3(v.x, 0f, v.z);
+            return v - Vector3.Project(v, normal);
+        }
 
         /// <summary>
         /// Clamps the direction to clampWeight from normalDirection, clampSmoothing is the number of sine smoothing iterations applied on the result.
@@ -197,5 +270,29 @@ namespace RootMotion {
         {
             return Quaternion.Inverse(t.rotation) * (point - t.position);
         }
-	}
+
+        /// <summary>
+        /// Same as Transform.InverseTransformPoint();
+        /// </summary>
+        public static Vector3 InverseTransformPoint(Vector3 tPos, Quaternion tRot, Vector3 tScale, Vector3 point)
+        {
+            return Div(Quaternion.Inverse(tRot) * (point - tPos), tScale);
+        }
+
+        /// <summary>
+        /// Same as Transform.TransformPoint()
+        /// </summary>
+        public static Vector3 TransformPoint(Vector3 tPos, Quaternion tRot, Vector3 tScale, Vector3 point)
+        {
+            return tPos + Vector3.Scale(tRot * point, tScale);
+        }
+
+        /// <summary>
+        /// Divides the values of v1 by the values of v2.
+        /// </summary>
+        public static Vector3 Div(Vector3 v1, Vector3 v2)
+        {
+            return new Vector3(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
+        }
+    }
 }

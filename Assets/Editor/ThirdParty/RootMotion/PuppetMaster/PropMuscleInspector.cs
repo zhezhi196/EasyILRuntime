@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 namespace RootMotion.Dynamics
 {
@@ -69,6 +70,8 @@ namespace RootMotion.Dynamics
 
                     PuppetMasterInspector.DestroyImmediateSafe(target.gameObject);
                     PuppetMasterInspector.DestroyImmediateSafe(script.gameObject);
+
+                    EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                     return;
                 }
             }
@@ -84,6 +87,7 @@ namespace RootMotion.Dynamics
                     if (GUILayout.Button("Add Additional Pin"))
                     {
                         AddAdditionalPin();
+                        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                     }
                 }
                 else
@@ -91,6 +95,7 @@ namespace RootMotion.Dynamics
                     if (GUILayout.Button("Remove Additional Pin"))
                     {
                         RemoveAdditionalPin();
+                        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                     }
                 }
 

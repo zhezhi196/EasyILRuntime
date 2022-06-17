@@ -29,32 +29,39 @@ public class FlyingObject : MonoBehaviour, IPoolObject
 
     protected virtual void FixedUpdate()
     {
-        if (isFire && Player.player != null)
+        if (isFire )
         {
-            flyTime += TimeHelper.fixedDeltaTime;
-            transform.position += (dir.normalized * (skill.moveSpeed * TimeHelper.deltaTime));
-            if (flyTime >= returnTime)
+            if (Player.player != null && Player.player.IsAlive)
             {
-                ObjectPool.ReturnToPool(this);
-            }
-            else
-            {
-                if (skill.monster.HurtPlayer(skill.GetDamage(), damageBounds, transform))
+                flyTime += TimeHelper.fixedDeltaTime;
+                transform.position += (dir.normalized * (skill.moveSpeed * TimeHelper.deltaTime));
+                if (flyTime >= returnTime)
                 {
                     ObjectPool.ReturnToPool(this);
                 }
                 else
                 {
-                    RaycastHit hit;
-                    if (Physics.Raycast(new Ray(transform.position, dir), out hit,
-                        TimeHelper.fixedDeltaTime * skill.moveSpeed, obstacal))
+                    if (skill.monster.HurtPlayer(skill.GetDamage(), damageBounds, transform))
                     {
-                        if (hit.collider.gameObject.layer != MaskLayer.Playerlayer)
+                        ObjectPool.ReturnToPool(this);
+                    }
+                    else
+                    {
+                        RaycastHit hit;
+                        if (Physics.Raycast(new Ray(transform.position, dir), out hit,
+                                TimeHelper.fixedDeltaTime * skill.moveSpeed, obstacal))
                         {
-                            ObjectPool.ReturnToPool(this);
+                            if (hit.collider.gameObject.layer != MaskLayer.Playerlayer)
+                            {
+                                ObjectPool.ReturnToPool(this);
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                ObjectPool.ReturnToPool(this);
             }
         }
     }

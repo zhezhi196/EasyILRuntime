@@ -8,11 +8,11 @@ namespace RootMotion.Dynamics {
 		/// <summary>
 		/// The PuppetMaster that this muscle belongs to.
 		/// </summary>
-		[SerializeField][HideInInspector] public PuppetMaster puppetMaster;
+		[HideInInspector] public PuppetMaster puppetMaster;
 		/// <summary>
 		/// The index of this muscle in the PuppetMaster.muscles array.
 		/// </summary>
-		[SerializeField][HideInInspector] public int muscleIndex;
+		[HideInInspector] public int muscleIndex;
 
 		void OnJointBreak() {
 			if (!enabled) return;

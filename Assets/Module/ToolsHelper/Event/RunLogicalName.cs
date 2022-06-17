@@ -35,6 +35,9 @@ public enum RunLogicalName
     
     [LabelText("强制上锁")]ForceLock,
     [LabelText("解除强制上锁")]RemoveForceLock,
+    
+    [LabelText("怪掉落道具")]MonsterDrop,
+    [LabelText("收枪")]HoldGun,
 
 }
 

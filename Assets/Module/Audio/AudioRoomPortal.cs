@@ -4,7 +4,10 @@ using System.Linq;
 using DG.Tweening;
 using Module;
 using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class AudioRoomPortal : MonoBehaviour
 {
@@ -32,6 +35,10 @@ public class AudioRoomPortal : MonoBehaviour
     private Tween t;
 
     private const string eventKey = "OnOpenCloseRoomPortal";
+
+    [ReadOnly]
+    public bool showGizmos;
+    
     private void OnEnable()
     {
         _soundPassRate = enable ? enableSoundPassRate : 0;
@@ -43,20 +50,40 @@ public class AudioRoomPortal : MonoBehaviour
     {
         EventCenter.UnRegister<int,bool>(eventKey , EventOpen);
     }
-    
-    
+
+
+    [Button("显示线框")]
+    private void OnClickShowGizmos()
+    {
+        showGizmos = !showGizmos;
+    }
+
+    [Button("隐藏该场景所有线框")]
+    private void HideAllGizmos()
+    {
+        var portals = GetComponentInParent<AudioRoom>().transform.parent.GetComponentsInChildren<AudioRoomPortal>();
+        for (int i = 0; i < portals.Length; i++)
+        {
+            portals[i].showGizmos = false;
+        }
+    }
 
     private void OnDrawGizmos()
     {
-        RightPoint.transform.localPosition = new Vector3(portalWidth / 2,0,0);
-        LeftPoint.transform.localPosition = new Vector3(-portalWidth / 2,0,0);
-        if (LeftPoint && RightPoint)
+        if (showGizmos)
         {
-            DrawTools.DrawBounds(new Bounds((LeftPoint.position + RightPoint.position) / 2, new Vector3((LeftPoint.position - RightPoint.position).magnitude,1,0.2f)),Quaternion.identity,Color.red);
-            // Debug.DrawLine(LeftPoint.position,RightPoint.position,Color.blue);
+            RightPoint.transform.localPosition = new Vector3(portalWidth / 2,0,0);
+            LeftPoint.transform.localPosition = new Vector3(-portalWidth / 2,0,0);
+            if (LeftPoint && RightPoint)
+            {
+                DrawTools.DrawBounds(new Bounds((LeftPoint.position + RightPoint.position) / 2, new Vector3((LeftPoint.position - RightPoint.position).magnitude,1,0.2f)),Quaternion.identity,Color.red);
+                // Debug.DrawLine(LeftPoint.position,RightPoint.position,Color.blue);
+            }
+            
+            DrawTools.DrawSector(transform.position,Quaternion.Euler(-90,180 - transform.rotation.eulerAngles.y,90),portalDetectRangeMin,180,Color.magenta);
+            DrawTools.DrawSector(transform.position,Quaternion.Euler(-90,180 - transform.rotation.eulerAngles.y,90),portalDetectRangeMax,180,Color.yellow);
         }
-        DrawTools.DrawSector(transform.position,Quaternion.Euler(-90,180 - transform.rotation.eulerAngles.y,90),portalDetectRangeMin,180,Color.magenta);
-        DrawTools.DrawSector(transform.position,Quaternion.Euler(-90,180 - transform.rotation.eulerAngles.y,90),portalDetectRangeMax,180,Color.yellow);
+
     }
 
     public float GetCurSoundRate()

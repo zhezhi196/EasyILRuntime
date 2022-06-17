@@ -14,7 +14,8 @@ public class MonsterRun : MonsterSkill
 
     public override bool isWanted
     {
-        get { return monster.toPlayerDistance >= minDistance && monster.toPlayerDistance <= maxDistance; }
+        get {
+            return this.station == SkillStation.Ready &&  monster.toPlayerDistance <= maxDistance&&monster.toPlayerDistance >= minDistance; }
     }
 
     public override void OnInit(ISkillObject owner)
@@ -40,4 +41,7 @@ public class MonsterRun : MonsterSkill
         get { return _stopMoveDistance; }
     }
 
+    // public override void UpdateTry()
+    // {
+    // }
 }

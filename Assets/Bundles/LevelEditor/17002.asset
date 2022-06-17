@@ -1,0 +1,572 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9082210347338886575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be00fd597378e494e83b0da6de2d2c2b, type: 3}
+  m_Name: Task Start
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -616, y: -72}
+  ports:
+    keys:
+    - outPort
+    values:
+    - _fieldName: outPort
+      _node: {fileID: -9082210347338886575}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: -8517653847094729152}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: -6758040243446399472}
+  outPort: 0
+--- !u!114 &-8517653847094729152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 01 Confinement
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -200, y: -200}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: -8517653847094729152}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: -6758040243446399472}
+        reroutePoints: []
+      - fieldName: outPort
+        node: {fileID: -9082210347338886575}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: -8517653847094729152}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: -1439512421153408248}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: -1439512421153408248}
+  inPort: 0
+  outPort: 0
+  id: 1
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 2
+    - runtimeLoad: 1
+      sceneName: 1
+    unloadScene: []
+    bgm: 
+    frog:
+    - fog: 0
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0, g: 0, b: 0, a: 0}
+      fogMode: 1
+      Start: 0
+      End: 0
+      density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 2
+  mapID: 1
+  parentPrefab: {fileID: 3927493152564921261, guid: 011672153f7346d4bb96f3297b425566,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &-6758040243446399472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 00 Dream
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -440, y: -40}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: -6758040243446399472}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: -6758040243446399472}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: -8517653847094729152}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: -8517653847094729152}
+  inPort: 0
+  outPort: 0
+  id: 0
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 1
+    - runtimeLoad: 1
+      sceneName: 2
+    unloadScene: []
+    bgm: 
+    frog: []
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate: []
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 2
+  mapID: 
+  parentPrefab: {fileID: 4017792780059107426, guid: 42387ed3f1d2f294fb7238dec7bf77aa,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &-1439512421153408248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 02 Cell
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 72, y: -200}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: -1439512421153408248}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: -8517653847094729152}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: -1439512421153408248}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: 6377745497586983518}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: 6377745497586983518}
+  inPort: 0
+  outPort: 0
+  id: 2
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 3
+    unloadScene: []
+    bgm: 
+    frog:
+    - fog: 0
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0, g: 0, b: 0, a: 0}
+      fogMode: 1
+      Start: 0
+      End: 0
+      density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 123
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 2
+  mapID: 2
+  parentPrefab: {fileID: 6331798287007978309, guid: a8358fd27e9ab5f408050eae390f545f,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d947154bcbbca2c40842eb0ae9b3369b, type: 3}
+  m_Name: 17002
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -9082210347338886575}
+  - {fileID: -6758040243446399472}
+  - {fileID: 4794670778259781627}
+  - {fileID: -8517653847094729152}
+  - {fileID: -1439512421153408248}
+  - {fileID: 6377745497586983518}
+  - {fileID: 8976002804917806648}
+  - {fileID: 7003042421688404588}
+--- !u!114 &4794670778259781627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972c393c27e69194bb7d7509fc57206e, type: 3}
+  m_Name: Task End
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 1160, y: -120}
+  ports:
+    keys:
+    - inPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: 4794670778259781627}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: 7003042421688404588}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode: []
+  inPort: 0
+  taskPredicate:
+    tag: 
+    enterPredicate:
+    - predicate: 3
+      arg:
+      - 500
+--- !u!114 &6377745497586983518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 03 Canteen
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 360, y: -184}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: 6377745497586983518}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: -1439512421153408248}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: 6377745497586983518}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: 8976002804917806648}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: 4794670778259781627}
+  inPort: 0
+  outPort: 0
+  id: 3
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 4
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 2
+    bgm: 
+    frog:
+    - fog: 0
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0, g: 0, b: 0, a: 0}
+      fogMode: 1
+      Start: 0
+      End: 0
+      density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 230
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 2
+  mapID: 3
+  parentPrefab: {fileID: 4768191952336027918, guid: 5763449857b66da40a2d784276829718,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &7003042421688404588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 05boss
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 888, y: -152}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: 7003042421688404588}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: 8976002804917806648}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: 7003042421688404588}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: 4794670778259781627}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode: []
+  inPort: 5
+  outPort: 0
+  id: 5
+  nodeSetting:
+    loadScene: []
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 4
+    bgm: 
+    frog:
+    - fog: 0
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0, g: 0, b: 0, a: 0}
+      fogMode: 1
+      Start: 0
+      End: 0
+      density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 437
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 0
+  mapID: 5
+  parentPrefab: {fileID: 1472204909509878904, guid: 9fa36378391ebc34a9a45e8898b4c7dd,
+    type: 3}
+  nodeParent: {fileID: 0}
+--- !u!114 &8976002804917806648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7305ec6a323776b47adbfe87bf2ad6bc, type: 3}
+  m_Name: 04 Sewer
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 632, y: -168}
+  ports:
+    keys:
+    - inPort
+    - outPort
+    values:
+    - _fieldName: inPort
+      _node: {fileID: 8976002804917806648}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: outPort
+        node: {fileID: 6377745497586983518}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: outPort
+      _node: {fileID: 8976002804917806648}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: inPort
+        node: {fileID: 7003042421688404588}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  nextNode:
+  - {fileID: 4794670778259781627}
+  inPort: 0
+  outPort: 0
+  id: 4
+  nodeSetting:
+    loadScene:
+    - runtimeLoad: 1
+      sceneName: 5
+    unloadScene:
+    - runtimeLoad: 1
+      sceneName: 3
+    bgm: 
+    frog:
+    - fog: 0
+      fadeCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      fogColor: {r: 0, g: 0, b: 0, a: 0}
+      fogMode: 1
+      Start: 0
+      End: 0
+      density: 0
+  successPredicate:
+    tag: "\u6210\u529F\u6761\u4EF6"
+    enterPredicate:
+    - predicate: 2
+      arg:
+      - 330
+  failPredicate:
+    tag: "\u5931\u8D25\u6761\u4EF6"
+    enterPredicate: []
+  station: 0
+  mapID: 4
+  parentPrefab: {fileID: 5206307626824420585, guid: 6d8e73bddfa0cb048bcea861a3f57092,
+    type: 3}
+  nodeParent: {fileID: 0}

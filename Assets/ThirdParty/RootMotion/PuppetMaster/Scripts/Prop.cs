@@ -47,9 +47,9 @@ namespace RootMotion.Dynamics {
 
 		[LargeHeader("Additional Pin")]
 
-		[Tooltip("Optinal additional pin, useful for long melee weapons that would otherwise require a lot of muscle force and solver iterations to be swinged quickly. Should normally be without any colliders attached. The position of the pin, it's mass and the pin weight will effect how the prop will handle.")]
+		[Tooltip("Optinal additional pin, useful for long melee weapons that would otherwise require a lot of muscle force and solver iterations to be swinged quickly. Should normally be without any colliders attached. The position of the pin, its mass and the pin weight will effect how the prop will handle.")]
 		/// <summary>
-		/// Optinal additional pin, useful for long melee weapons that would otherwise require a lot of muscle force and solver iterations to be swinged quickly. Should normally be without any colliders attached. The position of the pin, it's mass and the pin weight will effect how the prop will handle.
+		/// Optinal additional pin, useful for long melee weapons that would otherwise require a lot of muscle force and solver iterations to be swinged quickly. Should normally be without any colliders attached. The position of the pin, its mass and the pin weight will effect how the prop will handle.
 		/// </summary>
 		public ConfigurableJoint additionalPin;
 		
@@ -138,7 +138,7 @@ namespace RootMotion.Dynamics {
             Debug.LogWarning("PropRoot and Prop system is deprecated. Please see the 'Prop' demo to learn about the new easier and much more performance-efficient PropMuscle and PuppetMasterProp system.", transform);
 
             if (transform.position != muscle.transform.position) {
-				Debug.LogError("Prop target position must match exactly with it's muscle's position!", transform);
+				Debug.LogError("Prop target position must match exactly with its muscle's position!", transform);
 			}
 
 			xMotion = muscle.xMotion;

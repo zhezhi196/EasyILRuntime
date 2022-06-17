@@ -17,7 +17,8 @@ public class GameUITips : MonoBehaviour
     public enum TextTipType
     { 
         Bullet,
-        Energy
+        Energy,
+        Dodge
     }
     [System.Serializable]
     public class TextTip
@@ -131,10 +132,10 @@ public class GameUITips : MonoBehaviour
         {
             return;
         }
-        if (propIcon != null && propInfos[0].sp != null)
+        if (propIcon != null)
         {
             propIcon.sprite = propInfos[0].sp;
-            propIcon.transform.parent.OnActive(true);
+            propIcon.transform.parent.OnActive(propInfos[0].sp!=null);
         }
         propText.text = propInfos[0].str;
         propTip.OnActive(true);

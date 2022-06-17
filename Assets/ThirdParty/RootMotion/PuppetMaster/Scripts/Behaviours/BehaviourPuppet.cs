@@ -11,8 +11,15 @@ namespace RootMotion.Dynamics {
 	[AddComponentMenu("Scripts/RootMotion.Dynamics/PuppetMaster/Behaviours/BehaviourPuppet")]
 	public partial class BehaviourPuppet : BehaviourBase {
 
-		// Open the User Manual URL
-		[ContextMenu("User Manual")]
+        protected override string GetTypeSpring()
+        {
+            return typeSpring;
+        }
+
+        private const string typeSpring = "BehaviourPuppet";
+
+        // Open the User Manual URL
+        [ContextMenu("User Manual")]
 		void OpenUserManual() {
 			Application.OpenURL("http://root-motion.com/puppetmasterdox/html/page10.html");
 		}
@@ -128,9 +135,9 @@ namespace RootMotion.Dynamics {
 			/// </summary>
 			public float collisionResistance;
 
-			[TooltipAttribute("If the distance from the muscle to it's target is larger than this value, the character will be knocked out.")]
+			[TooltipAttribute("If the distance from the muscle to its target is larger than this value, the character will be knocked out.")]
 			/// <summary>
-			/// If the distance from the muscle to it's target is larger than this value, the character will be knocked out.
+			/// If the distance from the muscle to its target is larger than this value, the character will be knocked out.
 			/// </summary>
 			public float knockOutDistance;
 
@@ -256,9 +263,9 @@ namespace RootMotion.Dynamics {
 
 		[LargeHeader("Losing Balance")]
 
-		[Tooltip("If the distance from the muscle to it's target is larger than this value, the character will be knocked out.")]
+		[Tooltip("If the distance from the muscle to its target is larger than this value, the character will be knocked out.")]
 		/// <summary>
-		/// If the distance from the muscle to it's target is larger than this value, the character will be knocked out.
+		/// If the distance from the muscle to its target is larger than this value, the character will be knocked out.
 		/// </summary>
 		[Range(0.001f, 10f)] public float knockOutDistance = 1f;
 
@@ -274,9 +281,9 @@ namespace RootMotion.Dynamics {
 		/// </summary>
 		public float maxRigidbodyVelocity = 10f;
 
-		[Tooltip("If a muscle has drifted farther than 'Knock Out Distance', will only unpin the puppet if it's pin weight is less than this value. Lowering this value will make puppets less likely to lose balance on minor collisions.")]
+		[Tooltip("If a muscle has drifted farther than 'Knock Out Distance', will only unpin the puppet if its pin weight is less than this value. Lowering this value will make puppets less likely to lose balance on minor collisions.")]
 		/// <summary>
-		/// If a muscle has drifted farther than 'Knock Out Distance', will only unpin the puppet if it's pin weight is less than this value. Lowering this value will make puppets less likely to lose balance on minor collisions.
+		/// If a muscle has drifted farther than 'Knock Out Distance', will only unpin the puppet if its pin weight is less than this value. Lowering this value will make puppets less likely to lose balance on minor collisions.
 		/// </summary>
 		[Range(0f, 1f)] public float pinWeightThreshold = 1f;
 
@@ -354,19 +361,25 @@ namespace RootMotion.Dynamics {
 		/// </summary>
 		public Vector3 getUpOffsetSupine;
 
+        [Tooltip("If enabled, onGetUpProne will be called when laying on the right side and onGetUpSupine when on the left side.")]
+        /// <summary>
+		/// If enabled, onGetUpProne will be called when laying on the right side and onGetUpSupine when on the left side.
+		/// </summary>
+        public bool isQuadruped;
+
 		[LargeHeader("Events")]
 
-		[Tooltip("Called when the character starts getting up from a prone pose (facing down).")]
-		/// <summary>
-		/// Called when the character starts getting up from a prone pose (facing down).
-		/// </summary>
-		public PuppetEvent onGetUpProne;
+		[Tooltip("Called when the character starts getting up from a prone pose (facing down) or from the right side when 'Is Quadruped' is enabled.")]
+        /// <summary>
+        /// Called when the character starts getting up from a prone pose (facing down) or from the right side when 'Is Quadruped' is enabled.
+        /// </summary>
+        public PuppetEvent onGetUpProne;
 
-		[Tooltip("Called when the character starts getting up from a supine pose (facing up).")]
-		/// <summary>
-		/// Called when the character starts getting up from a supine pose (facing up).
-		/// </summary>
-		public PuppetEvent onGetUpSupine;
+		[Tooltip("Called when the character starts getting up from a supine pose (facing up) or from the left side when 'Is Quadruped' is enabled.")]
+        /// <summary>
+        /// Called when the character starts getting up from a supine pose (facing up) or from the left side when 'Is Quadruped' is enabled.
+        /// </summary>
+        public PuppetEvent onGetUpSupine;
 
 		[Tooltip("Called when the character is knocked out (loses balance). Doesn't matter from which state.")]
 		/// <summary>
@@ -420,7 +433,6 @@ namespace RootMotion.Dynamics {
 			getUpTimer = 0f;
 			unpinnedTimer = 0f;
 			getupAnimationBlendWeight = 0f;
-			getupAnimationBlendWeightV = 0f;
 			getUpTargetFixed = false;
 
 			getupDisabled = puppetMaster.state != RootMotion.Dynamics.PuppetMaster.State.Alive;
@@ -446,7 +458,6 @@ namespace RootMotion.Dynamics {
 			getUpPosition = pivot + deltaRotation * (getUpPosition - pivot) + deltaPosition;
 			if (moveToTarget) {
 				getupAnimationBlendWeight = 0f;
-				getupAnimationBlendWeightV = 0f;
 			}
 		}
 
@@ -456,7 +467,7 @@ namespace RootMotion.Dynamics {
 		private float getUpTimer;
 		private Vector3 hipsForward;
 		private Vector3 hipsUp;
-		private float getupAnimationBlendWeight, getupAnimationBlendWeightV;
+		private float getupAnimationBlendWeight;
 		private bool getUpTargetFixed;
 		private NormalMode lastNormalMode;
 		private int collisions;
@@ -473,7 +484,7 @@ namespace RootMotion.Dynamics {
 				}
 			}
 
-			/* // What if the puppet needs to be grounded to a collisin object during getting up?
+            /* // What if the puppet needs to be grounded to a collisin object during getting up?
 			int[] groundLayerIndexes = LayerMaskExtensions.MaskToNumbers(groundLayers);
 			for (int i = 0; i < groundLayerIndexes.Length; i++) {
 				if (LayerMaskExtensions.Contains(collisionLayers, groundLayerIndexes[i])) {
@@ -482,14 +493,25 @@ namespace RootMotion.Dynamics {
 			}
 			*/
 
+            int numberOfHipMuscles = 0;
+
 			foreach (Muscle m in puppetMaster.muscles) {
 				if (m.joint.gameObject.layer == puppetMaster.targetRoot.gameObject.layer) {
-					Debug.LogWarning("One of the ragdoll bones is on the same layer as the animated character. This might make the ragdoll collide with the character controller.");
+					Debug.LogError("One of the ragdoll bones is on the same layer as the animated character. This might make the ragdoll collide with the character controller.");
 				}
 					
 				if (!Physics.GetIgnoreLayerCollision(m.joint.gameObject.layer, puppetMaster.targetRoot.gameObject.layer)) {
-					Debug.LogWarning("The ragdoll layer (" + m.joint.gameObject.layer + ") and the character controller layer (" + puppetMaster.targetRoot.gameObject.layer + ") are not set to ignore each other in Edit/Project Settings/Physics/Layer Collision Matrix. This might cause the ragdoll bones to collide with the character controller.");
+					Debug.LogError("The ragdoll layer (" + m.joint.gameObject.layer + ") and the character controller layer (" + puppetMaster.targetRoot.gameObject.layer + ") are not set to ignore each other in Edit/Project Settings/Physics/Layer Collision Matrix. This might cause the ragdoll bones to collide with the character controller.");
 				}
+
+                if (m.props.group == Muscle.Group.Hips)
+                {
+                    numberOfHipMuscles++;
+                }
+                if (numberOfHipMuscles > 1)
+                {
+                    Debug.LogError("BehaviourPuppet found more than 1 muscle with 'Hips' group. Please expand the 'Muscles' array on the bottom of PuppetMaster and assign all muscles to the appropriate groups.", transform);
+                }
 			}
 
 			hipsForward = Quaternion.Inverse(puppetMaster.muscles[0].transform.rotation) * puppetMaster.targetRoot.forward;
@@ -503,7 +525,7 @@ namespace RootMotion.Dynamics {
 		protected override void OnActivate() {
 			// Start with unpinned on puppet state
 			bool unpinned = true;
-            if (puppetMaster.pinWeight >= 1f)
+            if (puppetMaster.pinWeight > 0f)
             {
                 foreach (Muscle m in puppetMaster.muscles)
                 {
@@ -548,7 +570,6 @@ namespace RootMotion.Dynamics {
 				getUpTimer = Mathf.Infinity;
 				unpinnedTimer = Mathf.Infinity;
 				getupAnimationBlendWeight = 0f;
-				getupAnimationBlendWeightV = 0f;
 				
 				foreach (Muscle m in puppetMaster.muscles) {
 					m.state.pinWeightMlp = 0f;
@@ -560,7 +581,7 @@ namespace RootMotion.Dynamics {
 			state = State.Unpinned;
 		}
 
-		protected override void OnFixedUpdate() {
+		protected override void OnFixedUpdate(float deltaTime) {
 			collisions = 0;
 
 			if (dropPropFlag) {
@@ -585,7 +606,7 @@ namespace RootMotion.Dynamics {
                     if (!m.state.isDisconnected)
                     {
                         m.state.pinWeightMlp = 0f;
-                        m.state.mappingWeightMlp = Mathf.MoveTowards(m.state.mappingWeightMlp, 1f, Time.deltaTime * 5f);
+                        m.state.mappingWeightMlp = Mathf.MoveTowards(m.state.mappingWeightMlp, 1f, deltaTime * 5f);
                     }
 				}
 				return;
@@ -596,15 +617,15 @@ namespace RootMotion.Dynamics {
 				foreach (Muscle m in puppetMaster.muscles) {
                     if (!m.state.isDisconnected)
                     {
-                        m.state.immunity = Mathf.MoveTowards(m.state.immunity, 0f, Time.deltaTime * boostFalloff);
-                        m.state.impulseMlp = Mathf.Lerp(m.state.impulseMlp, 1f, Time.deltaTime * boostFalloff);
+                        m.state.immunity = Mathf.MoveTowards(m.state.immunity, 0f, deltaTime * boostFalloff);
+                        m.state.impulseMlp = Mathf.Lerp(m.state.impulseMlp, 1f, deltaTime * boostFalloff);
                     }
 				}
 			}
 
 			// Getting up and making sure the puppet stays unpinned and mapped
 			if (state == State.Unpinned) {
-				unpinnedTimer += Time.deltaTime;
+				unpinnedTimer += deltaTime;
 
 				if (unpinnedTimer >= getUpDelay && canGetUp && !getupDisabled && puppetMaster.muscles[0].rigidbody.velocity.magnitude < maxGetUpVelocity) {
 					SetState(State.GetUp);
@@ -615,7 +636,7 @@ namespace RootMotion.Dynamics {
                     if (!m.state.isDisconnected)
                     {
                         m.state.pinWeightMlp = 0f;
-                        m.state.mappingWeightMlp = Mathf.MoveTowards(m.state.mappingWeightMlp, 1f, Time.deltaTime * masterProps.mappingBlendSpeed);
+                        m.state.mappingWeightMlp = Mathf.MoveTowards(m.state.mappingWeightMlp, 1f, deltaTime * masterProps.mappingBlendSpeed);
                     }
 				}
 			}
@@ -623,7 +644,8 @@ namespace RootMotion.Dynamics {
 			// In PUPPET and GETUP states...
 			if (state != State.Unpinned && !puppetMaster.isKilling) {
 				if (knockOutDistance != lastKnockOutDistance) {
-					knockOutDistanceSqr = Mathf.Sqrt(knockOutDistance);
+                    knockOutDistanceSqr = Mathf.Sqrt(knockOutDistance);
+                    //knockOutDistanceSqr = knockOutDistance * knockOutDistance; // This is the correct math, but the fix would require everyone to recalibrate their knockOutDistance
 					lastKnockOutDistance = knockOutDistance;
 				}
 
@@ -662,7 +684,7 @@ namespace RootMotion.Dynamics {
                             float speedF = 1f;
                             if (state == State.GetUp) speedF = Mathf.Lerp(getUpRegainPinSpeedMlp, 1f, m.state.pinWeightMlp);
 
-                            m.state.pinWeightMlp += Time.deltaTime * props.regainPinSpeed * regainPinSpeed * speedF;
+                            m.state.pinWeightMlp += deltaTime * props.regainPinSpeed * regainPinSpeed * speedF;
                         }
                     }
 				}
@@ -681,7 +703,7 @@ namespace RootMotion.Dynamics {
 
 			// Ending GetUp
 			if (state == State.GetUp) {
-				getUpTimer += Time.deltaTime;
+				getUpTimer += deltaTime;
 
 				if (getUpTimer > minGetUpDuration) {
 					getUpTimer = 0f;
@@ -690,7 +712,7 @@ namespace RootMotion.Dynamics {
 			}
 		}
 
-		protected override void OnLateUpdate() {
+		protected override void OnLateUpdate(float deltaTime) {
 			// Used in PuppetMasterModes
 			forceActive = state != State.Puppet;
 
@@ -716,7 +738,7 @@ namespace RootMotion.Dynamics {
                     bool to = puppetMaster.pinWeight < 1f;
                         
 					for (int i = 0; i < puppetMaster.muscles.Length; i++) {
-						BlendMuscleMapping(i, ref to);
+						BlendMuscleMapping(i, ref to, deltaTime);
 					}
 				}
 				break;
@@ -744,13 +766,11 @@ namespace RootMotion.Dynamics {
 		}
 
 		// Called when the PuppetMaster reads
-		protected override void OnReadBehaviour() {
+		protected override void OnReadBehaviour(float deltaTime) {
 			if (!enabled) return;
 
-			if (!puppetMaster.isFrozen) {
-                if (state == State.Unpinned && puppetMaster.isActive && !puppetMaster.isBlending && !puppetMaster.muscles[0].state.isDisconnected) {
-                //if (state == State.Unpinned && puppetMaster.isActive && !puppetMaster.muscles[0].state.isDisconnected) { 
-
+            if (!puppetMaster.isFrozen) {
+                if (state == State.Unpinned && puppetMaster.isActive && !puppetMaster.isBlending && !puppetMaster.muscles[0].state.isDisconnected && puppetMaster.muscles[0].state.mappingWeightMlp >= 1f) {
                     MoveTarget(puppetMaster.muscles[0].rigidbody.position);
 					GroundTarget(groundLayers);
 					getUpPosition = puppetMaster.targetRoot.position;
@@ -758,7 +778,9 @@ namespace RootMotion.Dynamics {
 			}
 
             // Prevents root motion from snapping the target to another position
-            if (state == State.GetUp && getUpTimer < minGetUpDuration * 0.1f)
+            bool targetFixedForGettingUp = (state == State.GetUp && getUpTimer < minGetUpDuration * 0.1f) || getupAnimationBlendWeight > 0f;
+
+            if (targetFixedForGettingUp)
             {
                 Vector3 y = Vector3.Project(puppetMaster.targetRoot.position - getUpPosition, puppetMaster.targetRoot.up);
                 getUpPosition += y;
@@ -766,27 +788,30 @@ namespace RootMotion.Dynamics {
             }
 
             if (getupAnimationBlendWeight > 0f) {
-				Vector3 y = Vector3.Project(puppetMaster.targetRoot.position - getUpPosition, puppetMaster.targetRoot.up);
-				getUpPosition += y;
-				MoveTarget(getUpPosition);
-
-				getupAnimationBlendWeight = Mathf.SmoothDamp(getupAnimationBlendWeight, 0f, ref getupAnimationBlendWeightV, blendToAnimationTime);
+				getupAnimationBlendWeight = Mathf.MoveTowards(getupAnimationBlendWeight, 0f, deltaTime);
 				if (getupAnimationBlendWeight < 0.01f) getupAnimationBlendWeight = 0f;
 				
 				// Lerps the target pose to last sampled mapped pose. Starting off from the ragdoll pose
-				puppetMaster.FixTargetToSampledState(getupAnimationBlendWeight);
+				puppetMaster.FixTargetToSampledState(Interp.Float(getupAnimationBlendWeight, InterpolationMode.InOutCubic));
 			}
 
 			getUpTargetFixed = true;
 		}
 
-		private void BlendMuscleMapping(int muscleIndex, ref bool to) {
-			if (puppetMaster.muscles[muscleIndex].state.pinWeightMlp < 1) to = true;
+		private void BlendMuscleMapping(int muscleIndex, ref bool to, float deltaTime) {
+            // If the muscle is not fully pinned to animation, we will have to enable mapping (notice the ref - means it will be enabled for child muscles too)
+            if (puppetMaster.muscles[muscleIndex].state.pinWeightMlp < 1) to = true;
 
+            // Get the group override props for this muscle
 			var props = GetProps(puppetMaster.muscles[muscleIndex].props.group);
+
+            // Calculate mapping weight target
+            // If blending in, move towards max mapping weight while in Puppet state and 1 while ragdolled or getting.
+            // If blending out, move towards min mapping weight
 			float target = to? (state == State.Puppet? props.maxMappingWeight: 1f): props.minMappingWeight;
 
-			puppetMaster.muscles[muscleIndex].state.mappingWeightMlp = Mathf.MoveTowards(puppetMaster.muscles[muscleIndex].state.mappingWeightMlp, target, Time.deltaTime * masterProps.mappingBlendSpeed);
+            // Blend
+			puppetMaster.muscles[muscleIndex].state.mappingWeightMlp = Mathf.MoveTowards(puppetMaster.muscles[muscleIndex].state.mappingWeightMlp, target, deltaTime * masterProps.mappingBlendSpeed);
 		}
 
 		public override void OnMuscleAdded(Muscle m) {

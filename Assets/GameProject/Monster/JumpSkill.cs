@@ -22,11 +22,12 @@ public abstract class JumpSkill : MonsterSkill
 
     public abstract Vector3 jumpTarget { get; }
     public abstract Vector3 damagePoint { get; }
-    
+    public AnimationAction jumpAnimation;
     public override void OnInit(ISkillObject owner)
     {
         base.OnInit(owner);
-        PushAction(new AnimationAction(animationName, 0, owner));
+        jumpAnimation = new AnimationAction(animationName, 0, owner);
+        PushAction(jumpAnimation);
     }
     public override bool isReadyRelease
     {
@@ -44,10 +45,11 @@ public abstract class JumpSkill : MonsterSkill
     protected override void OnReleaseStart()
     {
         Vector3 tar = jumpTarget;
+        jumpAnimation.play.SetDuationTime(jumpTime + 0.1f);
         lineTrack = new LineTrack(monster.transform.position, tar, jumpTime);
         AnimationCurve xlineCurve = AnimationCurve.Linear(0, 0, 1, 0);
         lineTrack.offset = new XYZOffset(xlineCurve, xlineCurve, xlineCurve);
-        lineTrack.onComplete += JumpComplete;
+
         if (monster.navmesh)
         {
             monster.navmesh.enabled = false;
@@ -55,13 +57,14 @@ public abstract class JumpSkill : MonsterSkill
         monster.AddStation(addStation);
     }
 
-    public virtual void JumpComplete()
+    protected override void OnReleaseEnd(bool complete)
     {
+        base.OnReleaseEnd(complete);
         if (monster.navmesh)
         {
             monster.navmesh.enabled = true;
         }
-        monster.HurtPlayer(GetDamage(), damageRadius, damagePoint);
+
         monster.RemoveStation(addStation);
     }
     

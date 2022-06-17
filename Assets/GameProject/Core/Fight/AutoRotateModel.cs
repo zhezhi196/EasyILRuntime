@@ -5,7 +5,7 @@ using UnityEngine;
 public class AutoRotateModel : MonoBehaviour
 {
     public float speed = 20;
-    void Update()
+    public void Update()
     {
         for (int i = 0; i < transform.childCount; i++)
         {

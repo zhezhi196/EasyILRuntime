@@ -532,12 +532,25 @@ MonoBehaviour:
   animationClips: []
   animationStates:
   - Clip 1
-  loop: 1
   saveToFolder: Assets/Plugins/RootMotion/Baker/_DEMOS/Baked Clips
   appendName: _Baked
   saveName: Baked Clip
   animator: {fileID: 1694551984}
   director: {fileID: 0}
+  inheritClipSettings: 0
+  clipSettings:
+    loopTime: 1
+    loopBlend: 0
+    cycleOffset: 0
+    loopBlendOrientation: 1
+    basedUponRotation: 0
+    orientationOffsetY: 0
+    loopBlendPositionY: 1
+    basedUponY: 0
+    level: 0
+    loopBlendPositionXZ: 0
+    basedUponXZ: 1
+    mirror: 0
   bakeHandIK: 1
   IKKeyReductionError: 0
   muscleFrameRateDiv: 1

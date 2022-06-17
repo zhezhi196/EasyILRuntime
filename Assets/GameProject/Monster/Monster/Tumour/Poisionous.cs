@@ -33,6 +33,11 @@ public class Poisionous : MonoBehaviour,IPoolObject
     {
         if (isFire)
         {
+            if (Player.player == null || !Player.player.IsAlive)
+            {
+                ObjectPool.ReturnToPool(this);
+                return;
+            }
             exitTime += TimeHelper.fixedDeltaTime;
             if (exitTime <= maxExitTime)
             {

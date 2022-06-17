@@ -95,6 +95,7 @@ public class PlayerCreator : SerializedMonoBehaviour, IEventReceiver, IEventSend
         switch (predicate)
         {
             case SendEventCondition.Dead:
+            case SendEventCondition.PlayerBorn:
                 return true;
             case SendEventCondition.AddStation:
             case SendEventCondition.RemoveStation:

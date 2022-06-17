@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39f35b3fa874f45a9e447b4aa02faa4, type: 3}
+  m_Name: Rolling
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: dbData
+      Entry: 6
+      Data: 
+  addStation: 0
+  dbId: 26019
+  minWantedDistance: 6
+  maxWantedDistance: 999
+  chargeSpeed: 7.5
+  maxChargeDistance: 50
+  damageBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 2, y: 2, z: 2.5}
+  OnTriggerAnimation: tumour@Impact
+  stopPoint: {x: 0, y: 0, z: 0}
+  isHurtPlayer: 0
+  isCompleteCharge: 0
+  hasObstacle: 0

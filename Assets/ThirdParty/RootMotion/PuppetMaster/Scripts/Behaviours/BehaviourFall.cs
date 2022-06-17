@@ -11,8 +11,15 @@ namespace RootMotion.Dynamics {
 	[AddComponentMenu("Scripts/RootMotion.Dynamics/PuppetMaster/Behaviours/BehaviourFall")]
 	public class BehaviourFall : BehaviourBase {
 
-		// Open the User Manual URL
-		[ContextMenu("User Manual")]
+        protected override string GetTypeSpring()
+        {
+            return typeSpring;
+        }
+
+        private const string typeSpring = "BehaviourFall";
+
+        // Open the User Manual URL
+        [ContextMenu("User Manual")]
 		void OpenUserManual() {
 			Application.OpenURL("http://root-motion.com/puppetmasterdox/html/page11.html");
 		}
@@ -158,17 +165,17 @@ namespace RootMotion.Dynamics {
 			}
 		}
 		
-		protected override void OnFixedUpdate() {
+		protected override void OnFixedUpdate(float deltaTime) {
 			if (raycastLayers == -1) Debug.LogWarning("BehaviourFall has no layers to raycast to.", transform);
 
 			// Blending between catch fall and writhe animations
 			float blendTarget = GetBlendTarget(GetGroundHeight());
-			float blend = Mathf.MoveTowards(puppetMaster.targetAnimator.GetFloat(blendParameter), blendTarget, Time.deltaTime * blendSpeed);
+			float blend = Mathf.MoveTowards(puppetMaster.targetAnimator.GetFloat(blendParameter), blendTarget, deltaTime * blendSpeed);
 
 			puppetMaster.targetAnimator.SetFloat(blendParameter, blend);
 
 			// Ending conditions
-			timer += Time.deltaTime;
+			timer += deltaTime;
 
 			if (!endTriggered && canEnd && timer >= minTime && !puppetMaster.isBlending && puppetMaster.muscles[0].rigidbody.velocity.magnitude < maxEndVelocity) {
 				endTriggered = true;
@@ -177,7 +184,11 @@ namespace RootMotion.Dynamics {
 			}
 		}
 
-		protected override void OnLateUpdate() {
+		protected override void OnLateUpdate(float deltaTime) {
+            if (puppetMaster.muscles[0].state.mappingWeightMlp < 1f) return;
+            if (puppetMaster.muscles[0].rigidbody.isKinematic) return;
+            if (puppetMaster.isBlending) return;
+
 			puppetMaster.targetRoot.position += puppetMaster.muscles[0].transform.position - puppetMaster.muscles[0].target.position;
 			GroundTarget(raycastLayers);
 		}

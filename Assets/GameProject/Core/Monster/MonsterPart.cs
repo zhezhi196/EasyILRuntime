@@ -59,8 +59,7 @@ public abstract class MonsterPart : MonoBehaviour, IHurtObject,ITarget
                     //paralysisCtrl.AddParalysis(partType, 1, damage);
                 }
             }
-
-
+            
             return monster.OnHurt(this, damage);
         }
 

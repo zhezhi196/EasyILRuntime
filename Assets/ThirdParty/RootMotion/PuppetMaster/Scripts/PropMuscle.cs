@@ -9,7 +9,7 @@ namespace RootMotion.Dynamics
     /// </summary>
     public class PropMuscle : MonoBehaviour
     {
-        [SerializeField] [HideInInspector] public PuppetMaster puppetMaster;
+        [HideInInspector] public PuppetMaster puppetMaster;
 
         [Tooltip("The PuppetMasterProp currently held by this Prop Muscle. To pick up a prop, just assign it as propMuscle.currentProp. To drop, set propMuscle.currentProp to null. Replacing this value with another prop drops any previously held props.")]
         /// <summary>
@@ -57,7 +57,6 @@ namespace RootMotion.Dynamics
 
         private Muscle _muscle;
         private PuppetMasterProp lastProp;
-        private Vector3 targetDefaultLocalPos;
         private Vector3 lastAdditionalPinOffset;
 
         /// <summary>
@@ -182,7 +181,12 @@ namespace RootMotion.Dynamics
 
                     // Pick up the new prop
                     currentProp.PickUp(puppetMaster, muscle.index);
-                    muscle.rigidbody.ResetInertiaTensor();
+
+                    muscle.rigidbody.centerOfMass = currentProp.localCenterOfMass;
+                    muscle.rigidbody.inertiaTensor = currentProp.inertiaTensor;
+                    //muscle.rigidbody.ResetInertiaTensor(); // This seems to have a bug, inertia tensor increases with every pick-up.
+                    
+                    
                     activeProp = currentProp;
 
                     if (OnPickUpProp != null) OnPickUpProp(currentProp);
@@ -229,6 +233,7 @@ namespace RootMotion.Dynamics
 
             if (muscle.target == null) return;
             //muscle.target.gameObject.hideFlags = HideFlags.None;
+
             muscle.target.position = transform.position;
             muscle.target.rotation = transform.rotation;
 

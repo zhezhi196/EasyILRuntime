@@ -10,13 +10,13 @@ public class AssExcuteTimeline : TimelineController
     {
         startHide = false;
     }
-    public override void Play(Player player, Monster enemy, UnityAction callBack, params object[] args)
+    public override void Play(Player player, AttackMonster enemy, UnityAction callBack, params object[] args)
     {
         base.Play(player,enemy,callBack,args);
         playable.gameObject.OnActive(true);
         onFinishEvent = callBack;
         playable.Play();
-        UIController.Instance.canPhysiceback = false;
+        //UIController.Instance.canPhysiceback = false;
         if (bindingDict.ContainsKey("PlayerAnim") && player != null)
             playable.SetGenericBinding(bindingDict["PlayerAnim"].sourceObject, player.timelineModel._anim);
         if (bindingDict.ContainsKey("MonsterAnim") && enemy != null)

@@ -23,11 +23,23 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         {
             if (_player == null)
             {
-                PlayerCtrl ctrl = BattleController.GetCtrl<PlayerCtrl>();
-                if (ctrl != null)
+
+                if (BattleController.Instance.ctrlProcedure.mode == GameMode.Main)
                 {
-                    _player = BattleController.GetCtrl<PlayerCtrl>().player;
+                    PlayerCtrl ctrl = BattleController.GetCtrl<PlayerCtrl>();
+                    if (ctrl != null)
+                    {
+                        _player = BattleController.GetCtrl<PlayerCtrl>().player;
+                    }
                 }
+                else {
+                    BlackPlayerCtrl ctrl = BattleController.GetCtrl<BlackPlayerCtrl>();
+                    if (ctrl != null)
+                    {
+                        _player = BattleController.GetCtrl<BlackPlayerCtrl>().player;
+                    }
+                }
+               
             }
             return _player;
         }
@@ -57,6 +69,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         TimeCtrl = 1 << 17,//时间控制
         ShotGunReload = 1 << 18,//时间控制
         Dodge = 1 << 19,//闪避
+        DragMove = 1<<20,//怪物技能抓钩
     }
     #endregion
 
@@ -172,9 +185,17 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     [ReadOnly] public IntField maxHpUp;
     [ReadOnly] public float strength = 0;//体力
     private float maxStrength = 0;
+    public float MaxStrength
+    {
+        get { return maxStrength; }
+    }
     [ReadOnly] public IntField maxStrengthUp;
     [ReadOnly] public float energy = 0;//能量
     private float maxEnergy = 0;
+    public float MaxEnergy
+    {
+        get { return maxEnergy; }
+    }
     private Weapon lastWeapon;
     public bool IsAlive
     {
@@ -224,7 +245,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     /// </summary>
     public bool NotMove
     {
-        get { return impactMove || ContainStation(Station.Ass) || ContainStation(Station.Excute) || ContainStation(Station.Death) || inTimeline || ContainStation(Station.Dodge) || ContainStation(Station.Hiding); }
+        get { return impactMove || inTimeline || ContainStation(Station.Ass) || ContainStation(Station.Excute) || ContainStation(Station.Death) ||  ContainStation(Station.Story)
+                || ContainStation(Station.Dodge) || ContainStation(Station.Hiding); }
     }
     /// <summary>
     /// 不可旋转
@@ -455,22 +477,19 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             if (inputType != EInputType.UI)
             {
                 Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-                if (moveInput.x != 0 || moveInput.y != 0)
+                if (moveInput.x != 0 || moveInput.y != 0 )
                 {
-                    if (!this.moveInput && inputType == EInputType.None)
+                    if (!NotMove)
                     {
-                        StartMove(EInputType.KeyBoard);
+                        if (!this.moveInput && inputType == EInputType.None)
+                        {
+                            StartMove(EInputType.KeyBoard);
+                        }
+                        if (inputType == EInputType.KeyBoard)
+                        {
+                            Movement(new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")), EInputType.KeyBoard);
+                        }
                     }
-                    if (inputType == EInputType.KeyBoard)
-                    {
-                        Movement(new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")), EInputType.KeyBoard);
-                    }
-                    //Run
-                    //if (Input.GetKeyDown(KeyCode.LeftShift))
-                    //{
-                    //    IsRun = true;
-                    //}
-
                 }
                 else
                 {
@@ -567,6 +586,13 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             else impactMove = false;
             impact = Vector3.Lerp(impact, Vector3.zero, forveMoveTime * TimeHelper.unscaledDeltaTime);
         }
+
+        if (dragMoveing && dragTarget!=null)
+        {
+            transform.position = dragTarget.position - characterController.center;
+            return;
+        }
+
         if (characterController.enabled && !characterController.isGrounded)
             characterController.Move(new Vector3(0, mGravity, 0) * TimeHelper.unscaledDeltaTime);//*Time.deltaTime
 
@@ -622,7 +648,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
 #endif
     #endregion
 
-    #region 属性改变,属性计算,伤害计算
+    #region 属性改变,属性计算,伤害计算,使用注射器
     [Button("刷新属性")]
     public void RefeshAttribute()
     {
@@ -751,9 +777,13 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             if (hp <= 0)
             {
                 //柜子处决
+                ExitHideProp();
+                OnPlayerDeath(damage.monster, damage.excuteAnim);//死亡动画
             }
-            else { 
+            else {
                 //柜子受击
+                ExitHideProp();
+                GetoutMonster(damage.monster as AttackMonster);
             }
             return;
         }
@@ -762,9 +792,12 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         {
             OnPlayerDeath(damage.monster, damage.excuteAnim);//死亡动画
         }
+        else if (damage.outAnim)//挣脱
+        {
+            GetoutMonster(damage.monster as AttackMonster);
+        }
         else //普通受击
         {
-            //GetoutMonster(damage.monster);
             if (t_hurt <= 0)
             {
                 t_hurt = argConfig.hurtAudioTime;
@@ -797,15 +830,31 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         EventCenter.Dispatch(EventKey.OnPlayerHurt, type);
     }
     //使用吗啡注射器
-    public void UseMorphine(float f)
+    public async void UseMorphine(float f)
     {
         if (maxRestore)//紧急治疗天赋恢复满生命
         {
             ChangeHp(MaxHp);
         }
-        else {
+        else
+        {
             ChangeHp(f);
         }
+        inTimeline = true;
+        UIController.Instance.canPhysiceback = false;
+        AddStation(Station.Story);
+        currentWeapon.TakeBack();
+        timelineModel.Show(PlayerTimelineModel.ShowModel.Morphine);
+        _cameraFllowTrans = timelineModel.camerTrans;
+        timelineModel._anim.CrossFade("Morphine", 0.1f);
+        await Async.WaitforSecondsRealTime(1.15f, gameObject);
+        _cameraFllowTrans = currentWeapon.cameraPoint;
+        UIController.Instance.canPhysiceback = true;
+        timelineModel.Hide();
+        currentWeapon.TakeOut();
+        _cameraFllowTrans = currentWeapon.cameraPoint;
+        RemoveStation(Station.Story);
+        inTimeline = false;
     }
 
     private void RefeshCheckPart()
@@ -920,6 +969,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             //DoEvCamFov(30f, 0.2f);
             PlayAudio("xiadun3");
         }
+        if (station == Station.DragMove)
+            dragMoveing = true;
         if (station == Station.Stealth)
             AddStealth();
         if(station == Station.Running)
@@ -959,6 +1010,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             //DoEvCamFov(45f, 0.2f);
             PlayAudio("xiadun4");
         }
+        if (station == Station.DragMove)
+            dragMoveing = false;
         if (station == Station.Stealth)
             RemoveStealth();
         if (station == Station.Running)
@@ -969,7 +1022,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     }
     #endregion
 
-    #region 角色下蹲,移动,旋转,闪避
+    #region 角色下蹲,移动,旋转
     public void StandOrSquat()
     {
         cameraRoot.DOLocalMove(new Vector3(0, isSquat ?argConfig.standHeight : argConfig.squatHeight, 0), 0.3f).SetId(gameObject).SetUpdate(true);
@@ -1120,10 +1173,12 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         //playerAnima.SetFloat("RotateH", currentRotateInput.x / 100f);
         Vector3 rotateDir = new Vector3(-v2.y, v2.x, 0);
         currentWeapon?.Rotate(currentRotateInput/100f);
-        float x = cameraRoot.localEulerAngles.x + (isAim ? argConfig.aimRotateSpeed*(1f+Setting.controllerSetting.aimSensitivity.value) :
-            argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value) * rotateDir.x;//*灵敏度设置
-        float y = transform.localEulerAngles.y + (isAim ? argConfig.aimRotateSpeed * (1f + Setting.controllerSetting.aimSensitivity.value) :
-            argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value) * rotateDir.y;//*灵敏度设置
+        //float x = cameraRoot.localEulerAngles.x + (isAim ? argConfig.aimRotateSpeed*(1f+Setting.controllerSetting.aimSensitivity.value) :
+        //    argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value) * rotateDir.x;//*灵敏度设置
+        //float y = transform.localEulerAngles.y + (isAim ? argConfig.aimRotateSpeed * (1f + Setting.controllerSetting.aimSensitivity.value) :
+        //    argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value) * rotateDir.y;//*灵敏度设置
+        float x = cameraRoot.localEulerAngles.x + argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value * rotateDir.x;//*灵敏度设置
+        float y = transform.localEulerAngles.y + argConfig.rotateSpeed * Setting.controllerSetting.sensitivity.value * rotateDir.y;//*灵敏度设置
         if (x > 180)
         {
             x = x - 360;
@@ -1155,6 +1210,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     }
     #endregion
 
+    #endregion
+
     #region 闪避
     private NavMeshPath navMeshPath;
     public float dodgeTime = 0.2f;
@@ -1170,7 +1227,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         if (ContainStation(Station.Dodge) || ContainStation(Station.Weak))
             return;
         ChangeStrength(-argConfig.dodgeExpend);
-        Vector3 dodgeDir = transform.forward*-1f;
+        Vector3 dodgeDir = transform.forward * -1f;
         if (Vector3.SqrMagnitude(currentMoveInput) > 0.001f)
         {
             //dodgeDir =new Vector3(currentMoveInput.x, 0, currentMoveInput.y).normalized;
@@ -1183,7 +1240,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         Vector3 basePos = transform.position + new Vector3(0, 0.2f, 0);
         Vector3 targetPos = basePos + dodgeDir * 5f;
         Ray ray;
-        ray = new Ray(basePos, targetPos- basePos);
+        ray = new Ray(basePos, targetPos - basePos);
         RaycastHit hit;
         GameDebug.DrawRay(basePos, targetPos - basePos, Color.red, 1f);
         //判断是否有障碍物
@@ -1191,18 +1248,19 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         {
             GameDebug.DrawRay(hit.point + (basePos - targetPos) * 0.1f, Vector3.down, Color.yellow, 1f);
             //如果有障碍物,检测是否可到达障碍物位置
-            ray = new Ray(hit.point + (basePos - targetPos)*0.2f, Vector3.down);//对检测到的点进行偏移
+            ray = new Ray(hit.point + (basePos - targetPos) * 0.2f, Vector3.down);//对检测到的点进行偏移
             if (Physics.Raycast(ray, out hit, 2f))//对新点做射线检测
             {
                 DodgeToTarger(hit.point);
             }
         }
-        else {
+        else
+        {
             GameDebug.DrawRay(targetPos, Vector3.down, Color.green, 1f);
             ray = new Ray(targetPos, Vector3.down);//无障碍物,使用目标点
             if (Physics.Raycast(ray, out hit, 2f))//对目标点向下射线
             {
-               
+
                 DodgeToTarger(hit.point);
             }
         }
@@ -1220,7 +1278,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 GameDebug.DrawLine(navMeshPath.corners[i], navMeshPath.corners[i + 1], Color.blue, 2f);
             }
             if (navMeshPath.status == NavMeshPathStatus.PathComplete && navPathDis < Vector3.Distance(transform.position, target) * 1.1f
-                &&Vector3.Distance(navMeshPath.corners[navMeshPath.corners.Length-1],target)<0.2f)
+                && Vector3.Distance(navMeshPath.corners[navMeshPath.corners.Length - 1], target) < 0.2f)
             {
                 GameObject debugObj = new GameObject("DebugObj01");
                 debugObj.transform.position = navMeshPath.corners[navMeshPath.corners.Length - 1];
@@ -1260,7 +1318,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             transform.position = hit.position;
             characterController.enabled = true;
         }
-        else {
+        else
+        {
             GameObject debugObj = new GameObject("DebugObj04");
             debugObj.transform.position = target;
             Destroy(debugObj, 2f);
@@ -1272,7 +1331,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
 
     private async void PhysicsDodge(Vector3 dir)
     {
-        Vector3 dodgeDir = Vector3.zero ;
+        Vector3 dodgeDir = Vector3.zero;
         float tt = 0f;
         Vector3 target = transform.position + dir * 5f;
         AddStation(Station.Dodge);
@@ -1294,6 +1353,30 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         currentWeapon.EndDodge();
     }
     #endregion
+
+    #region 被怪物拽走
+    private bool dragMoveing = false;
+    private Transform dragTarget;
+    public void StartDragMove(Transform target,AttackMonster monster)
+    {
+        dragTarget = target;
+        characterController.enabled = false;
+        cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject);
+        Vector3 lookPos = new Vector3(monster.transform.position.x, transform.position.y, monster.transform.position.z);
+        transform.rotation = Quaternion.LookRotation(lookPos-transform.position);
+        if (isSquat)//下蹲状态
+        {
+            StandOrSquat();
+        }
+        AddStation(Station.DragMove);
+    }
+
+    public void EndDragMove()
+    {
+        RemoveStation(Station.DragMove);
+        characterController.enabled = true;
+        characterController.Move(Vector3.zero);
+    }
     #endregion
 
     #region UI按钮响应,射击,瞄准,换弹
@@ -1452,12 +1535,18 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     /// <param name="hideProp">躲藏点</param>
     public void EnterHideProp(HideProp hideProp)
     {
-        AddStation(Station.Hiding);
         EventCenter.Dispatch<bool>(EventKey.PlayerHide, true);
         playerHideProp = hideProp;
-        player.characterController.enabled = false;
-        player.transform.position = playerHideProp.hidePoint.position;
-        player.transform.rotation = playerHideProp.hidePoint.rotation;
+        characterController.enabled = false;
+        transform.position = playerHideProp.hidePoint.position;
+        transform.rotation = playerHideProp.hidePoint.rotation;
+        if (currentWeapon.weaponType != WeaponType.Empty)
+        {
+            currentWeapon.TakeBack();
+            weaponManager.defualtWeapon.TakeOut();
+            _cameraFllowTrans = weaponManager.defualtWeapon.cameraPoint;
+        }
+        AddStation(Station.Hiding);
     }
     /// <summary>
     /// 退出躲藏点
@@ -1466,13 +1555,20 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     {
         if (playerHideProp != null)
         {
-            RemoveStation(Station.Hiding);
             EventCenter.Dispatch<bool>(EventKey.PlayerHide, false);
             playerHideProp.Exit();
-            player.transform.position = playerHideProp.outPoint.position;
-            player.transform.rotation = playerHideProp.outPoint.rotation;
+            transform.position = playerHideProp.outPoint.position;
+            transform.rotation = playerHideProp.outPoint.rotation;
+            if (currentWeapon.weaponType != WeaponType.Empty)
+            {
+                currentWeapon.TakeOut();
+                weaponManager.defualtWeapon.TakeBack();
+                _cameraFllowTrans = currentWeapon.cameraPoint;
+            }
             playerHideProp = null;
             player.characterController.enabled = true;
+            characterController.Move(Vector3.zero);
+            RemoveStation(Station.Hiding);
         }
     }
 
@@ -1508,7 +1604,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                     transform.position = timeline.playerPoint.position;
                     transform.rotation = timeline.playerPoint.rotation;
                     currentWeapon.TakeBack();
-                    timelineModel.Show(true);
+                    timelineModel.Show(PlayerTimelineModel.ShowModel.Weapon);
                     _cameraFllowTrans = timelineModel.camerTrans;
                     //timelineAnim.gameObject.OnActive(true);
                     //_cameraFllowTrans = timelineCamTrans;
@@ -1522,6 +1618,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                     timeline.Play(this, monster, () =>
                     {
                         characterController.enabled = true;
+                        characterController.Move(Vector3.zero);
                         EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, monster, TimeLineType.Ass);
                         timelineModel.Hide();
                         //timelineAnim.gameObject.OnActive(false);
@@ -1550,6 +1647,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         if (inTimeline)
             return;
         inTimeline = true;
+        monster.Exc();
         BattleController.GetCtrl<TimelineCtrl>().GetExcuteTimeline(monster, (timeline) =>
         {
             if (timeline != null)
@@ -1564,7 +1662,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 transform.position = timeline.playerPoint.position;
                 transform.rotation = timeline.playerPoint.rotation;
                 currentWeapon.TakeBack();
-                timelineModel.Show(true);
+                timelineModel.Show(PlayerTimelineModel.ShowModel.Weapon);
                 _cameraFllowTrans = timelineModel.camerTrans;
                 //timelineAnim.gameObject.OnActive(true);
                 //_cameraFllowTrans = timelineCamTrans;
@@ -1578,6 +1676,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 timeline.Play(this, monster, () =>
                 {
                     characterController.enabled = true;
+                    characterController.Move(Vector3.zero);
                     EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, monster, TimeLineType.Exc);
                     timelineModel.Hide();
                     currentWeapon.TakeOut();
@@ -1599,16 +1698,84 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         });
     }
     //挣脱怪物
-    public void GetoutMonster(Monster monster)
+    public void GetoutMonster(AttackMonster monster)
     {
         if (inTimeline)
             return;
         inTimeline = true;
-       
+        BattleController.GetCtrl<TimelineCtrl>().GetGetoutTimeline(monster, (timeline) =>
+        {
+            if (timeline != null)
+            {
+                characterController.enabled = false;
+                AddStation(Station.Excute);
+                cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject);
+                Vector3 lookPos = new Vector3(transform.position.x, monster.transform.position.y, transform.position.z);
+                monster.transform.rotation = Quaternion.LookRotation(lookPos - monster.transform.position);
+                timeline.transform.position = monster.transform.position;
+                timeline.transform.rotation = monster.transform.rotation;
+                transform.position = timeline.playerPoint.position;
+                transform.rotation = timeline.playerPoint.rotation;
+                currentWeapon.TakeBack();
+                timelineModel.Show(PlayerTimelineModel.ShowModel.None);
+                _cameraFllowTrans = timelineModel.camerTrans;
+                EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterTimeLine, monster, TimeLineType.GetOut);
+                timeline.Play(this, monster, () =>
+                {
+                    characterController.enabled = true;
+                    characterController.Move(Vector3.zero);
+                    EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, monster, TimeLineType.GetOut);
+                    timelineModel.Hide();
+                    currentWeapon.TakeOut();
+                    _cameraFllowTrans = currentWeapon.cameraPoint;
+                    RemoveStation(Station.Excute);
+                    inTimeline = false;
+                });
+            }
+            else
+            {
+                inTimeline = false;
+                GameDebug.Log("未找到怪物挣脱动画");
+            }
+        });
     }
     public void PlayStoryTimeline(string key,Action callback)
     {
         inTimeline = true;
+        TimelineController timeline = BattleController.GetCtrl<TimelineCtrl>().GetStoryTimeline(key);
+        if (timeline != null && timeline.canPlay)
+        {
+            characterController.enabled = false;
+            AddStation(Station.Story);
+            cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject).SetUpdate(true);
+            transform.position = timeline.playerPoint.position;
+            transform.rotation = timeline.playerPoint.rotation;
+            currentWeapon.TakeBack();
+            timelineModel.Show(PlayerTimelineModel.ShowModel.None);
+            _cameraFllowTrans = timelineModel.camerTrans;
+            if (isSquat)//站起来
+            {
+                StandOrSquat();
+            }
+            EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterTimeLine, null, TimeLineType.Story);
+            timeline.Play(this, null, () =>
+            {
+                characterController.enabled = true;
+                EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, null, TimeLineType.Story);
+                timelineModel.Hide();
+                currentWeapon.TakeOut();
+                _cameraFllowTrans = currentWeapon.cameraPoint;
+                inTimeline = false;
+                callback?.Invoke();
+                RemoveStation(Station.Story);
+            });
+        }
+        else
+        {
+            callback?.Invoke();
+            inTimeline = false;
+            GameDebug.LogFormat("未找到指定剧情动画,或不可播放:{0}", key);
+        }
     }
 
     #endregion
@@ -1630,7 +1797,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             PlayerDeathAnim();
             return;
         }
-        if (target is Monster monster)
+        if (target is AttackMonster monster)
         {
             PlayerDeathTimeline(monster);
         }
@@ -1640,9 +1807,48 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         }
     }
     //玩家死亡timeline动画判定
-    public void PlayerDeathTimeline(Monster monster)
+    public void PlayerDeathTimeline(AttackMonster monster)
     {
-      
+        BattleController.GetCtrl<TimelineCtrl>().GetDeathTimeline(monster, (timeline) =>
+        {
+            if (timeline != null)
+            {
+                inTimeline = true;
+                characterController.enabled = false;
+                AddStation(Station.Death);
+                cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject);
+                Vector3 lookPos = new Vector3(transform.position.x, monster.transform.position.y, transform.position.z);
+                monster.transform.rotation = Quaternion.LookRotation(lookPos - monster.transform.position);
+                timeline.transform.position = monster.transform.position;
+                timeline.transform.rotation = monster.transform.rotation;
+                transform.position = timeline.playerPoint.position;
+                transform.rotation = timeline.playerPoint.rotation;
+                currentWeapon.TakeBack();
+                timelineModel.Show(PlayerTimelineModel.ShowModel.None);
+                _cameraFllowTrans = timelineModel.camerTrans;
+                if (isSquat)//站起来
+                {
+                    StandOrSquat();
+                }
+                EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterTimeLine, monster, TimeLineType.KillPlayer);
+                timeline.Play(this, monster, () =>
+                {
+                    characterController.enabled = true;
+                    EventCenter.Dispatch<AttackMonster, TimeLineType>(EventKey.MonsterEndTimeLine, monster, TimeLineType.KillPlayer);
+                    timelineModel.Hide();
+                    currentWeapon.TakeOut();
+                    _cameraFllowTrans = currentWeapon.cameraPoint;
+                    WaitAlive();
+                    inTimeline = false;
+                });
+            }
+            else
+            {
+                //普通死亡
+                PlayerDeathAnim();
+                GameDebug.Log("未找到怪物处决动画");
+            }
+        });
     }
     //玩家死亡倒地动画
     public async void PlayerDeathAnim()
@@ -1656,7 +1862,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             StandOrSquat();
         }
         currentWeapon.TakeBack();
-        timelineModel.Show(false);
+        timelineModel.Show(PlayerTimelineModel.ShowModel.None);
         _cameraFllowTrans = timelineModel.camerTrans;
         timelineModel._anim.CrossFade("Death", 0.1f);
         await Async.WaitforSecondsRealTime(2.4f, gameObject);
@@ -1670,13 +1876,21 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     {
         BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.TrySendEvent(SendEventCondition.Dead);
         UIController.Instance.canPhysiceback = false;
-        BlackMaskChange.Instance.Black();//黑屏
+        if (BattleController.GetCtrl<TimelineCtrl>().deathStory != null)
+        {
+            BlackMaskChange.Instance.White();//白屏
+        }
+        else {
+            BlackMaskChange.Instance.Black();//黑屏
+        }
+        
         BattleController.Instance.ctrlProcedure.OnPlayerDead();
         //移动到出生点
         characterController.enabled = false;
         player.transform.position = BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.transform.position;
         player.transform.eulerAngles = BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.transform.eulerAngles;
         characterController.enabled = true;
+        characterController.Move(Vector3.zero);
         BattleController.Instance.Pause("PlayerDeath");
         ChangeHp(MaxHp);
         ChangeStrength(maxStrength);
@@ -1728,33 +1942,33 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
     /// <summary>
     /// 死亡剧情动画播放
     /// </summary>
-    private void PlayDeathStory()
+    private async void PlayDeathStory()
     {
-        BattleController.GetCtrl<TimelineCtrl>().GetDeathStory((timeline) =>
-        {
-            if (timeline != null)
-            {
-                timeline.Play(this, null, () =>
-                {
-                    Resurgence();
-                });
-            }
-            else {
-                Resurgence();
-            }
-        });
-        //if (BattleController.GetCtrl<TimelineCtrl>().deathStory != null)
-        //{ //如果需要播动画 
-        //    BattleController.GetCtrl<TimelineCtrl>().deathStory.Play(this, null, () =>
+        //BattleController.GetCtrl<TimelineCtrl>().GetDeathStory((timeline) =>
+        //{
+        //    if (timeline != null)
         //    {
-        //        BattleController.GetCtrl<TimelineCtrl>().NextDeathStory();
+        //        timeline.Play(this, null, () =>
+        //        {
+        //            Resurgence();
+        //        });
+        //    }
+        //    else {
         //        Resurgence();
-        //    });
-        //}
-        //else
-        //{ //如果不需要播动画
-        //    Resurgence();
-        //}
+        //    }
+        //});
+        if (BattleController.GetCtrl<TimelineCtrl>().deathStory != null)
+        {
+            await Async.WaitforSecondsRealTime(1f);
+            BattleController.GetCtrl<TimelineCtrl>().deathStory.Play(this, null, () =>
+            {
+                BattleController.GetCtrl<TimelineCtrl>().NextDeathStory();
+                Resurgence();
+            });
+        }
+        else {
+            Resurgence();
+        }
     }
 
     public async void Resurgence()
@@ -1768,10 +1982,8 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             await Async.WaitforSecondsRealTime(4f, gameObject);
         }
         UIController.Instance.canPhysiceback = true;
-        //AudioPlay.PlayBackGroundMusic(BattleController.Instance.ctrlProcedure.currentNode.nodeSetting.bgm);
-        RemoveStation(Station.Death);
         //播放复活动画
-        PlayWeakUp();
+        PlayWeakUp(() => { RemoveStation(Station.Death); });
         //关闭黑屏
         BlackMaskChange.Instance.Close();
         BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.TrySendEvent(SendEventCondition.PlayerBorn);
@@ -1784,8 +1996,9 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
         TimelineController timeline = BattleController.GetCtrl<TimelineCtrl>().GetReviveAnimtion(transform.position);
         if (timeline != null)
         {
+            AddStation(Station.Story);
             currentWeapon.TakeBack();
-            timelineModel.Show(false);
+            timelineModel.Show(PlayerTimelineModel.ShowModel.None);
             inTimeline = true;
             characterController.enabled = false;
             cameraRoot.DOLocalRotate(Vector3.zero, 0.2f).SetId(gameObject);
@@ -1795,10 +2008,12 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             timeline.Play(this, null, () =>
             {
                 characterController.enabled = true;
+                characterController.Move(Vector3.zero);
                 timelineModel.Hide();
                 currentWeapon.TakeOut();
                 _cameraFllowTrans = currentWeapon.cameraPoint;
                 inTimeline = false;
+                RemoveStation(Station.Story);
                 callback?.Invoke();
             });
         }
@@ -1808,6 +2023,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
             currentWeapon.TakeOut();
             timelineModel.Hide();
             _cameraFllowTrans = currentWeapon.cameraPoint;
+            callback?.Invoke();
         }
     }
     #endregion
@@ -1876,8 +2092,15 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 transform.position = flashTrans.position;
                 transform.rotation = flashTrans.rotation;
                 characterController.enabled = true;
+                characterController.Move(Vector3.zero);
             }
-            
+        }
+        if (logical == RunLogicalName.HoldGun)
+        {
+            currentWeapon.TakeBack();
+            currentWeapon = weaponManager.defualtWeapon;
+            currentWeapon.TakeOut();
+            _cameraFllowTrans = currentWeapon.cameraPoint;
         }
     }
 
@@ -1896,7 +2119,11 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 if (bullet.weapon.bulletCount == 0)
                 {
                     bullet.Get(1);
-                    weaponManager.OnGetWeapon(bullet.weapon.weaponID);
+                    Weapon w = weaponManager.OnGetWeapon(bullet.weapon.weaponID);
+                    if (w != null && w.entity.collectionStation == CollectionStation.NewGet)
+                    {
+                        ChangeWeapon(w);
+                    }
                 }
             }
         }
@@ -2018,6 +2245,7 @@ public class Player : MonoBehaviour, InteractiveSource, ITarget, ILocalSave
                 transform.position = BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.transform.position;
                 transform.rotation = BattleController.Instance.ctrlProcedure.currentNode.nodeParent.playerCreator.transform.rotation;
                 characterController.enabled = true;
+                characterController.Move(Vector3.zero);
 
             }
             if (GUI.Button(GetBtnRect(3, 1), "速度加一倍"))

@@ -39,7 +39,6 @@ public abstract class AttackMonster : Monster
     // }
 
     [TabGroup("挂点")] public PuppetMaster puppetMaster;
-
     [LabelText("断肢")] [TabGroup("挂点"), SerializeField] [TabGroup("挂点")]
     public SkinMeshInfo[] skinRender;
 
@@ -64,6 +63,7 @@ public abstract class AttackMonster : Monster
 
     [TabGroup("信息")] public bool breakPart;
     [TabGroup("信息")] public bool smoothDampToDir = true;
+    [TabGroup("信息"),ShowIf("smoothDampToDir")] public float smoothDampTime;
 
     [TabGroup("挂点")] public MonsterPart[] monsterParts;
     [TabGroup("挂点")] public Transform excPoint;
@@ -111,7 +111,7 @@ public abstract class AttackMonster : Monster
     {
         get
         {
-            if (!ContainStation(MonsterStation.TimeLine))
+            if (!ContainStation(MonsterStation.TimeLine) && !ContainStation(MonsterStation.Sleep))
             {
                 if ((fightState != FightState.Fight || ContainStation(MonsterStation.Paralysis)) &&
                     Vector3.Dot(transform.forward, Player.player.chasePoint - transform.position) < 0 &&
@@ -121,8 +121,8 @@ public abstract class AttackMonster : Monster
                 {
                     RaycastHit hit;
                     if (Physics.Raycast(assPoint.transform.position,
-                        Player.player.eyePoint.position - assPoint.transform.position, out hit,
-                        Player.player.argConfig.assDistance * 1.5f, MaskLayer.LookPointBlock))
+                            Player.player.eyePoint.position - assPoint.transform.position, out hit,
+                            Player.player.argConfig.assDistance * 1.5f, MaskLayer.LookPointBlock))
                     {
                         if (hit.collider.gameObject.layer == MaskLayer.Playerlayer)
                         {
@@ -141,6 +141,20 @@ public abstract class AttackMonster : Monster
     {
         base.Start();
         EventCenter.Register<bool>(EventKey.PlayerHide, OnPlayerHide);
+        for (int i = 0; i < skinRender.Length; i++)
+        {
+            if (centerPoint != null)
+            {
+                if (centerPoint != skinRender[i].skinRender.probeAnchor)
+                {
+                    skinRender[i].skinRender.probeAnchor = centerPoint;
+                }
+            }
+            else
+            {
+                GameDebug.LogError("cetenrPoint==null"+gameObject.name);
+            }
+        }
     }
     public void OnPlayerHide(bool isHide)
     {
@@ -184,37 +198,47 @@ public abstract class AttackMonster : Monster
 
     public bool Ass(int damage)
     {
+        var res = false;
         if (currentLevel.dbData.assKill == 1)
         {
-            return true;
+            res = true;
         }
         else
         {
-            var res = CanDead(damage);
-            return res;
+            res = CanDead(damage);
         }
+
+        return res;
     }
 
     public void AssEnd(int damage, int type)
     {
-        //直接死
-        MonsterPart prt = monsterParts.Find(part => part.partType == MonsterPartType.Head);
-        if (currentLevel.dbData.assKill == 1 || CanDead(damage))
-        {
-            if (type == 0)
-            {
-                OnDead(prt, DeadType.Ass1, new Damage());
-            }
-            else if (type == 1)
-            {
-                OnDead(prt, DeadType.Ass2, new Damage());
-            }
-        }
-        else
-        {
-            OnHurt(prt, new Damage() {damage = damage});
-            PlayAnimation("ass_miss", 3);
-        }
+         MonsterPart prt = monsterParts.Find(part => part.partType == MonsterPartType.Head);
+         if (prt == null)
+         {
+             prt = monsterParts[0];
+         }
+         if (currentLevel.dbData.assKill == 1 || CanDead(damage))
+         {
+             if (type == 0)
+             {
+                 OnDead(prt, DeadType.Ass1, new Damage());
+             }
+             else if (type == 1)
+             {
+                 OnDead(prt, DeadType.Ass2, new Damage());
+             }
+         }
+         else
+         {
+             OnHurt(prt, new Damage() {damage = damage});
+             PlayAnimation("ass_miss", 3);
+         }
+    }
+
+    public void Exc()
+    {
+        
     }
 
     public void ExcEnd(int damage)
@@ -250,16 +274,20 @@ public abstract class AttackMonster : Monster
 
     public override Damage OnHurt(ITarget target, Damage damage)
     {
-        var result = base.OnHurt(target, damage);
-        if (canHurt && !CanDead(damage))
+        if (canHurt)
         {
-            Chase();
-            ExitConfrontation();
-            //GetAgentCtrl<SkillCtrl>().ResetSkillCD();
+            if (!CanDead(damage))
+            {
+                Chase();
+                ExitConfrontation();
+            }
 
+            var result = base.OnHurt(target, damage);
+
+            return result;
         }
 
-        return result;
+        return damage;
     }
 
     public void Week(float time, float attDown, float moveDown)
@@ -294,14 +322,17 @@ public abstract class AttackMonster : Monster
     /// </summary>
     public virtual void Chase()
     {
-        if (SwitchFightState(FightState.Fight))
+        WakeUpFromSleep(() =>
         {
-            RemoveStation(MonsterStation.Sleep);
-            RemoveStation(MonsterStation.Paraller);
-            RemoveStation(MonsterStation.Wait);
-            StopCheck();
-            GetAgentCtrl<SimpleBehaviorCtrl>().SwitchBehavior(new Chase());
-        }
+            if (SwitchFightState(FightState.Fight))
+            {
+                RemoveStation(MonsterStation.Paraller);
+                RemoveStation(MonsterStation.Wait);
+                RemoveStation(MonsterStation.ResetToBorn);
+                StopCheck();
+                GetAgentCtrl<SimpleBehaviorCtrl>().SwitchBehavior(new Chase());
+            }
+        });
     }
 
     /// <summary>
@@ -333,22 +364,42 @@ public abstract class AttackMonster : Monster
             _seePlayerTime = seePlayerFightTime;
             missPlayerTime = 0;
         }
-
         return base.SwitchFightState(state);
     }
 
+    private float moveDirLerp;
 
     protected override void Update()
     {
         base.Update();
-        if (Mathf.Abs(navMoveCtrl.moveDirection.x) > 0.1f)
+        float temp = 0;
+        float sin = Mathf.Sin(rotateToMove * Mathf.Deg2Rad);
+        Vector3 result = navMoveCtrl.moveDirection;
+        if (result.z < 0)
         {
-            animator.SetFloat("moveDir", navMoveCtrl.moveDirection.x);
+            if (result.x > 0)
+            {
+                result.x = 1;
+            }
+            else if (result.x < 0)
+            {
+                result.x = -1;
+            }
+            else
+            {
+                result.x = 0;
+            }
+        }
+        
+        if (Mathf.Abs(navMoveCtrl.moveDirection.x) > sin)
+        {
+           temp= Mathf.SmoothDamp(animator.GetFloat("moveDir"), result.x, ref moveDirLerp, 0.1f);
         }
         else
         {
-            animator.SetFloat("moveDir", 0);
+            temp=  Mathf.SmoothDamp(animator.GetFloat("moveDir"), 0, ref moveDirLerp, 0.1f);
         }
+        animator.SetFloat("moveDir", temp);
 
         if (!isAlive) return;
         senserTime += TimeHelper.deltaTime;
@@ -455,24 +506,28 @@ public abstract class AttackMonster : Monster
             {
                 deadAnimation = "die_exc";
             }
-            // else
-            // {
-            //     if (part is HeadPart)
-            //     {
-            //         deadAnimation = "die_head";
-            //     }
-            // }
+            else
+            {
+                if (part is HeadPart)
+                {
+                    deadAnimation = "die_head";
+                }
+            }
 
             if (breakPart && deadType != DeadType.Ass1 && deadType != DeadType.Ass2 && deadType != DeadType.Exc)
             {
-                //if ((!Channel.isChina || Channel.isIOS))
+                if ((!Channel.isChina || Channel.isIOS))
                 {
                     BreakPart(part);
                 }
             }
 
-
-            var deadStation = PlayAnimation(deadAnimation, 3, AnimationFlag.ForceFadeOut | AnimationFlag.NotAutoOut);
+            AnimationFlag flag = AnimationFlag.ForceFadeOut | AnimationFlag.NotAutoOut;
+            if (deadType == DeadType.Ass1 || deadType == DeadType.Ass2 || deadType == DeadType.Exc)
+            {
+                flag = flag | AnimationFlag.NotFadeIn;
+            }
+            var deadStation = PlayAnimation(deadAnimation, 3, flag);
             if (deadStation != null)
             {
                 deadStation.onStationChange +=
@@ -480,17 +535,14 @@ public abstract class AttackMonster : Monster
                     {
                         if (st.isComplete)
                         {
-                            drop.GetDropBag(creator.matchInfo, bag => { bag.transform.position = transform.position; });
-                            initStation = InitStation.Dead;
-                            if (puppetMaster != null)
+                            drop.GetDropBag(creator.matchInfo, bag =>
                             {
-                                if (deadType != DeadType.Shot)
-                                {
-                                    puppetMaster.state = PuppetMaster.State.Frozen;
-                                    puppetMaster.mode = PuppetMaster.Mode.Disabled;
-                                    puppetMaster.gameObject.OnActive(false);
-                                }
-                            }
+                                bag.creator = creator;
+                                bag.transform.position = transform.position;
+
+                            });
+
+                            initStation = InitStation.Dead;
                         }
                     };
             }
@@ -510,17 +562,30 @@ public abstract class AttackMonster : Monster
             BattleController.GetCtrl<MonsterCtrl>().DeadMonster++;
             AnalyticsEvent.SendEvent(AnalyticsType.KillMonster, creator.id.ToString());
 
-            if (puppetMaster != null)
+            if (puppetMaster != null && monsterType != MonsterType.Boss)
             {
                 if (deadType == DeadType.Shot)
                 {
+                    Rigidbody[] body = transform.GetComponentsInChildren<Rigidbody>(true);
+                    for (int i = 0; i < body.Length; i++)
+                    {
+                        body[i].useGravity = true;
+                    }
+
                     puppetMaster.state = PuppetMaster.State.Dead;
                     puppetMaster.mode = PuppetMaster.Mode.Active;
-                    DOTween.To(() => puppetMaster.mappingWeight, value => puppetMaster.mappingWeight = value, 2, Player.player.currentWeapon.weaponArgs==null?0.1f:Player.player.currentWeapon.weaponArgs.animationToRagdollTime);
+                    DOTween.To(() => puppetMaster.mappingWeight, value => puppetMaster.mappingWeight = value, 2,
+                        Player.player.currentWeapon.weaponArgs == null
+                            ? 0.1f
+                            : Player.player.currentWeapon.weaponArgs.animationToRagdollTime);
                     if (Player.player.currentWeapon.weaponArgs != null)
                     {
                         StartCoroutine(WaitAddForce(part, damage));
                     }
+                }
+                else
+                {
+                    puppetMaster.gameObject.OnActive(false);
                 }
             }
 
@@ -534,10 +599,11 @@ public abstract class AttackMonster : Monster
     {
         yield return new WaitForSeconds(Player.player.currentWeapon.weaponArgs.forceDelay);
         part.rig.AddForceAtPosition(damage.dir * damage.force, damage.hitPoint);
-        yield return new WaitForSeconds(puppetMaster.stateSettings.killDuration);
         puppetMaster.state = PuppetMaster.State.Frozen;
+        //yield return new WaitForSeconds(puppetMaster.stateSettings.killDuration);
         //puppetMaster.state = PuppetMaster.State.Frozen;
-        puppetMaster.transform.GetChild(0).gameObject.OnActive(false);
+        //puppetMaster.state = PuppetMaster.State.Frozen;
+        //puppetMaster.transform.GetChild(0).gameObject.OnActive(false);
     }
 
 
@@ -774,6 +840,16 @@ public abstract class AttackMonster : Monster
                 monsterParts[i].partDir = MonsterDir.Mid;
             }
         }
+    }
+    [Button]
+    public void CloseGravity()
+    {
+        Rigidbody[] tt = transform.GetComponentsInChildren<Rigidbody>(true);
+        for (int i = 0; i < tt.Length; i++)
+        {
+            tt[i].useGravity = false;
+        }
+        
     }
 #endif
 }

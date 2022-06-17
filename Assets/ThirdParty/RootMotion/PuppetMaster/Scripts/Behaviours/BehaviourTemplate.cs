@@ -9,14 +9,22 @@ namespace RootMotion.Dynamics {
 	[AddComponentMenu("Scripts/RootMotion.Dynamics/PuppetMaster/Behaviours/BehaviourTemplate")]
 	public class BehaviourTemplate : BehaviourBase {
 
-		// Just for demonstrating the intended use of sub-behaviours. 
-		// The sub-behaviours take care of behaviour code reusability.
-		// While there can be only one active Puppet Behaviour at a time, that active behaviour can use multiple independent and reusable sub-behaviours simultaneously.
-		// For example the SubBehaviourCOM is responsible for calculating everything about the center of mass and can be used by any behaviour or even other sub-behaviours that need CoM calculations.
-		// This is the base abstract class for all sub-behaviours.
-		public SubBehaviourCOM centerOfMass;
+        // Used for switching behaviours with PuppetEvents
+        protected override string GetTypeSpring()
+        {
+            return typeSpring;
+        }
 
-		// Used by the SubBehaviourCOM
+        // Change this to the name of your behaviour class.
+        private const string typeSpring = "BehaviourTemplate";
+
+        // Just for demonstrating the intended use of sub-behaviours. 
+        // Sub-behaviours take care of behaviour code reusability.
+        // While there can be only one active Puppet Behaviour at a time, that active behaviour can use multiple independent and reusable sub-behaviours simultaneously.
+        // For example SubBehaviourCOM is responsible for calculating everything about the center of mass and can be used by any behaviour or even other sub-behaviours that need CoM information.
+        public SubBehaviourCOM centerOfMass;
+
+		// Used by SubBehaviourCOM
 		public LayerMask groundLayers;
 
 		// Just for demonstrating the intended use of PuppetEvents
@@ -46,7 +54,7 @@ namespace RootMotion.Dynamics {
 			// Called when this behaviour is exited. OnActivate is the place for resetting variables to defaults though.
 		}
 
-		protected override void OnFixedUpdate() {
+		protected override void OnFixedUpdate(float deltaTime) {
 			// Everything happening in the fixed time step.
 
 			// Example of using PuppetEvents
@@ -56,7 +64,7 @@ namespace RootMotion.Dynamics {
 			}
 		}
 
-		protected override void OnLateUpdate() {
+		protected override void OnLateUpdate(float deltaTime) {
 			// Everything happening in LateUpdate().
 		}
 

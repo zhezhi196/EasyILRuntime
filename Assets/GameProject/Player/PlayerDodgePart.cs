@@ -19,7 +19,7 @@ public class PlayerDodgePart:PlayerPart,IPoolObject
     {
         if (player != null)
         {
-            //GameDebug.LogError("完美闪避");
+            GameDebug.LogError("完美闪避");
             //增加一个完美闪避buff
             EventCenter.Dispatch(EventKey.PerfectDodge);
             Remove();

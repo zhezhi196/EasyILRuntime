@@ -15,6 +15,15 @@ public abstract class RemoteAttack : MonsterSkill
 
     [LabelText("投掷物速度")] public float moveSpeed = 5;
     protected abstract string[] animation { get; }
+
+    protected virtual float animationSpeed
+    {
+        get
+        {
+            return 1;
+        }
+    }
+
     [LabelText("释放技能时看着玩家")]
     public bool isAim;
     public override float stopMoveDistance => minDistance;

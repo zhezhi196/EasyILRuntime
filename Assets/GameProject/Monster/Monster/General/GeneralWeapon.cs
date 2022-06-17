@@ -113,14 +113,11 @@ public class GeneralWeapon : MonoBehaviour
         orgPoint = org;
 
         mesh.OnActive(true);
-        if(moveTweener.IsPlaying()) moveTweener.Kill();
-        moveTweener = transform.DOMove(point, moveTime).SetEase(moveCurve).OnComplete(() =>
-        {
-            Back();
-        });
+        if (moveTweener != null && moveTweener.IsPlaying()) moveTweener.Kill();
+        moveTweener = transform.DOMove(point, moveTime).SetEase(moveCurve).OnComplete(() => { Back(false); });
     }
 
-    public void Back()
+    public void Back(bool hurtPlayer)
     {
         if(moveTweener.IsPlaying()) moveTweener.Kill();
         moveTweener = transform.DOMove(orgPoint.position, backTime).SetEase(backCurve).OnComplete(() =>
@@ -130,6 +127,11 @@ public class GeneralWeapon : MonoBehaviour
             for (int i = 0; i < chains.Count; i++)
             {
                 chains[i].gameObject.OnActive(false);
+            }
+
+            if (hurtPlayer)
+            {
+                Player.player.EndDragMove();
             }
         });
     }

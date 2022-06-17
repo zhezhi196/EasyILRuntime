@@ -20,13 +20,8 @@ public class ShotGunChase : SimpleBehavior
         if (monster.target != null)
         {
             monster.LookAtPoint(monster.target.transform.position);
-            if (skillCtrl.readyRelease != null)
-            {
-                skillCtrl.TryRelease(null);
-            }
+            skillCtrl.UpdateRelease(null);
         }
-
-
         return TaskStatus.Running;
     }
 }

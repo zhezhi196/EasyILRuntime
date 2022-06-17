@@ -155,12 +155,12 @@ public class OpenLockUI : UIViewBase
 
     private void Update()
     {
-        openBtn.gameObject.OnActive(false);
+        // openBtn.gameObject.OnActive(false);
         if (_state != OpenOperationStage.ArrowMoving)
         {
             return;
         }
-        openBtn.gameObject.OnActive(true);
+        // openBtn.gameObject.OnActive(true);
         
         //箭头位置计算
         _arrowPosNormalized = Mathf.Clamp01(_arrowPosNormalized + _speedDirection * Time.unscaledDeltaTime * _speedScale * _curSpeed);

@@ -21,15 +21,15 @@ namespace RootMotion.Dynamics
         [System.Serializable]
         public enum Group
         {
-            Hips,
-            Spine,
-            Head,
-            Arm,
-            Hand,
-            Leg,
-            Foot,
-            Tail,
-            Prop
+            Hips = 0,
+            Spine = 1,
+            Head = 2,
+            Arm = 3,
+            Hand = 4,
+            Leg = 5,
+            Foot = 6,
+            Tail = 7,
+            Prop = 8
         }
 
         /// <summary>
@@ -67,9 +67,9 @@ namespace RootMotion.Dynamics
             /// </summary>
             [Range(0f, 1f)] public float mappingWeight = 1f;
 
-            [Tooltip("The weight (multiplier) of pinning this muscle to it's target's position using a simple AddForce command.")]
+            [Tooltip("The weight (multiplier) of pinning this muscle to its target's position using a simple AddForce command.")]
             /// <summary>
-            /// The weight (multiplier) of pinning this muscle to it's target's position using a simple AddForce command.
+            /// The weight (multiplier) of pinning this muscle to its target's position using a simple AddForce command.
             /// </summary>
             [Range(0f, 1f)] public float pinWeight = 1f;
 
@@ -85,11 +85,21 @@ namespace RootMotion.Dynamics
             /// </summary>
             [Range(0f, 1f)] public float muscleDamper = 1f;
 
-            [Tooltip("If true, will map the target to the world space position of the muscle. Normally this should be true for only the root muscle (the hips).")]
+            
+            //[Tooltip("If true, will map the target to the world space position of the muscle. Normally this should be true for only the root muscle (the hips).")]
             /// <summary>
             /// If true, will map the target to the world space position of the muscle. Normally this should be true for only the root muscle (the hips).
             /// </summary>
-            public bool mapPosition;
+            public bool mapPosition {
+                get
+                {
+                    return true;
+                }
+                set
+                {
+                    Debug.LogWarning("Setting Muscle.mapPosition is deprecated. MapPosition is forced to enabled since PuppetMaster v1.0");
+                }
+            }
 
             [Tooltip("Defines which muscles or muscle groups internal collisions are always ignored with.")]
             /// <summary>
@@ -121,16 +131,14 @@ namespace RootMotion.Dynamics
             /// <param name="muscleWeight">Muscle weight.</param>
             /// <param name="mappingWeight">Mapping weight.</param>
             /// <param name="muscleDamper">Muscle damper.</param>
-            /// <param name="mapPosition">If set to <c>true</c> the target will be mapped to also the world space position of the Muscle.</param>
             /// <param name="group">Group.</param>
-            public Props(float pinWeight, float muscleWeight, float mappingWeight, float muscleDamper, bool mapPosition, Group group = Group.Hips)
+            public Props(float pinWeight, float muscleWeight, float mappingWeight, float muscleDamper, Group group = Group.Hips)
             {
                 this.pinWeight = pinWeight;
                 this.muscleWeight = muscleWeight;
                 this.mappingWeight = mappingWeight;
                 this.muscleDamper = muscleDamper;
                 this.group = group;
-                this.mapPosition = mapPosition;
             }
 
             public void Clamp()
@@ -291,7 +299,7 @@ namespace RootMotion.Dynamics
         [HideInInspector] public JointBreakBroadcaster jointBreakBroadcaster;
 
         /// <summary>
-        /// Gets the offset of this muscle from it's target.
+        /// Gets the offset of this muscle from its target.
         /// </summary>
         [HideInInspector] public Vector3 positionOffset;
 
@@ -355,26 +363,26 @@ namespace RootMotion.Dynamics
         /// <summary>
         /// The additional pin joint (optional);
         /// </summary>
-        [SerializeField] [HideInInspector] public ConfigurableJoint additionalPin;
+        [HideInInspector] public ConfigurableJoint additionalPin;
 
         /// <summary>
         /// Target Transform of the additional pin.
         /// </summary>
-        [SerializeField] [HideInInspector] public Transform additionalPinTarget;
+        [HideInInspector] public Transform additionalPinTarget;
 
         /// <summary>
         /// Weight of the additional pin (multiplies this muscle's pin weight).
         /// </summary>
-        [SerializeField] [HideInInspector] public float additionalPinWeight;
+        [HideInInspector] public float additionalPinWeight;
 
         [HideInInspector] public Vector3 mappedVelocity;
         [HideInInspector] public Vector3 mappedAngularVelocity;
         [HideInInspector] public bool isPropMuscle;
 
-        [SerializeField] [HideInInspector] public int index = -1;
+        [HideInInspector] public int index = -1;
 
         /// <summary>
-        /// Gets the default sampled rotation offset of the Muscle from it's target. If the muscle's rotation matches with it's target's in the Editor (while not playing) this will return Quaternion.identity.
+        /// Gets the default sampled rotation offset of the Muscle from its target. If the muscle's rotation matches with its target's in the Editor (while not playing) this will return Quaternion.identity.
         /// </summary>
         public Quaternion targetRotationRelative { get; private set; }
 
@@ -495,7 +503,7 @@ namespace RootMotion.Dynamics
 
             if (forward == up)
             {
-                Debug.LogError("Joint " + joint.name + " secondaryAxis is in the exact same direction as it's axis. Please make sure they are not aligned.");
+                Debug.LogError("Joint " + joint.name + " secondaryAxis is in the exact same direction as its axis. Please make sure they are not aligned.");
                 return;
             }
 
@@ -529,7 +537,7 @@ namespace RootMotion.Dynamics
             angularZMotionDefault = joint.angularZMotion;
 
             // Mapping
-            if (joint.connectedBody == null) props.mapPosition = true;
+            //if (joint.connectedBody == null) props.mapPosition = true;
             targetRotationRelative = Quaternion.Inverse(rigidbody.transform.rotation) * target.rotation;
 
             // Resetting
@@ -771,6 +779,12 @@ namespace RootMotion.Dynamics
             joint.angularZMotion = ignore ? ConfigurableJointMotion.Free : angularZMotionDefault;
         }
 
+       // Moves targetl localPosition back to default (used for reconnecting limb in Dead state when animation is not overriding target localPosition)
+        public void ResetTargetLocalPosition()
+        {
+            target.localPosition = defaultTargetLocalPosition;
+        }
+
         // Reset target to its default localPosition and localRotation to protect from unanimated bone drifting
         public void FixTargetTransforms()
         {
@@ -801,7 +815,7 @@ namespace RootMotion.Dynamics
             lastRotationDamper = -1f;
         }
 
-        // Moves and rotates the muscle to match it's target
+        // Moves and rotates the muscle to match its target
         public void MoveToTarget()
         {
             if (!initiated) return;
@@ -809,11 +823,12 @@ namespace RootMotion.Dynamics
             //if (!IsValid(true)) return;
 
             // Moving rigidbodies only won't animate the pose. MoveRotation does not work on a kinematic Rigidbody that is connected to another by a Joint
-            transform.position = target.position;
-            transform.rotation = target.rotation * rotationRelativeToTarget;
-            rigidbody.MovePosition(transform.position);
-            rigidbody.MoveRotation(transform.rotation);
-
+            Vector3 p = target.position;
+            Quaternion r = target.rotation * rotationRelativeToTarget;
+            transform.SetPositionAndRotation(p, r);
+            rigidbody.MovePosition(p);
+            rigidbody.MoveRotation(r);
+            
             positionOffset = Vector3.zero;
 
             if (additionalPin != null)
@@ -831,8 +846,6 @@ namespace RootMotion.Dynamics
             if (additionalPin != null) additionalRigidbody.isKinematic = to;
         }
 
-        
-
         // Read the target
         public void Read()
         {
@@ -843,11 +856,12 @@ namespace RootMotion.Dynamics
 
             Vector3 tAM = V3Tools.TransformPointUnscaled(target, defaultTargetRotRelToMuscleInverse * rigidbody.centerOfMass); // Center of mass is unscaled, so can't use Transform.TransformPoint() here
 
-            if (readDeltaTime > 0f)
+            if (readDeltaTime > 0f && !ignoreTargetVelocity)
             {
                 targetVelocity = (tAM - targetAnimatedCenterOfMass) / readDeltaTime;
                 //targetAngularVelocity = QuaTools.FromToRotation(targetAnimatedWorldRotation, target.rotation).eulerAngles;
                 //targetAngularVelocity = QuaTools.ToBiPolar(targetAngularVelocity) / readDeltaTime;
+                //targetAngularVelocity *= Mathf.Deg2Rad;
             }
 
             //if (props.mapPosition) targetLocalPosition = target.localPosition;
@@ -858,9 +872,9 @@ namespace RootMotion.Dynamics
 
             if (additionalPin != null)
             {
-                Vector3 aTAM =V3Tools.TransformPointUnscaled(additionalPinTarget, additionalRigidbody.centerOfMass); // Center of mass is unscaled, so can't use Transform.TransformPoint() here
+                Vector3 aTAM = V3Tools.TransformPointUnscaled(additionalPinTarget, additionalRigidbody.centerOfMass); // Center of mass is unscaled, so can't use Transform.TransformPoint() here
 
-                if (readDeltaTime > 0f)
+                if (readDeltaTime > 0f && !ignoreTargetVelocity)
                 {
                     additionalTargetVelocity = (aTAM - additionalPinTargetAnimatedCenterOfMass) / readDeltaTime;
                     //additionalTargetVelocity = (additionalPinTarget.position - additionalTargetAnimatedPosition) / readDeltaTime;
@@ -938,6 +952,7 @@ namespace RootMotion.Dynamics
             //offset = Vector3.Lerp(offset, Vector3.zero, Time.deltaTime * 5f);
         }
 
+        [HideInInspector] public bool ignoreTargetVelocity;
         [HideInInspector] public Vector3 targetMappedPosition;
         [HideInInspector] public Quaternion targetMappedRotation = Quaternion.identity;
         [HideInInspector] public Vector3 targetSampledPosition;
@@ -963,48 +978,40 @@ namespace RootMotion.Dynamics
             Vector3 position = transform.position;
             Quaternion rotation = transform.rotation;
 
+            Vector3 p = position;
+            Quaternion r = rotation;
+            
             if (w >= 1f)
             {
-                target.rotation = rotation * targetRotationRelative;
+                r = rotation * targetRotationRelative;
+                p = position;
 
-                if (props.mapPosition)
+                if (connectedBodyTransform != null)
                 {
-                    if (connectedBodyTransform != null)
-                    {
-                        // Mapping in local space of the parent
-                        Vector3 relativePosition = connectedBodyTransform.InverseTransformPoint(position);
-                        target.position = connectedBodyTarget.TransformPoint(relativePosition);
-                    }
-                    else
-                    {
-                        target.position = position;
-                    }
+                    // Mapping in local space of the parent
+                    Vector3 relativePosition = InverseTransformPointUnscaled(connectedBodyTransform.position, connectedBodyTransform.rotation, position);
+                    p = connectedBodyTarget.position + connectedBodyTarget.rotation * relativePosition;
                 }
+
+                target.SetPositionAndRotation(p, r);
 
                 return;
             }
 
-            target.rotation = Quaternion.Lerp(target.rotation, rotation * targetRotationRelative, w);
+            r = Quaternion.Lerp(target.rotation, rotation * targetRotationRelative, w);
 
-            if (props.mapPosition)
+            if (connectedBodyTransform != null)
             {
-                if (connectedBodyTransform != null)
-                {
-                    // Mapping in local space of the parent
-                    Vector3 relativePosition = connectedBodyTransform.InverseTransformPoint(position);
-                    target.position = Vector3.Lerp(target.position, connectedBodyTarget.TransformPoint(relativePosition), w);
-                }
-                else
-                {
-                    target.position = Vector3.Lerp(target.position, position, w);
-                }
+                // Mapping in local space of the parent
+                Vector3 relativePosition = InverseTransformPointUnscaled(connectedBodyTransform.position, connectedBodyTransform.rotation, position);
+                p = Vector3.Lerp(target.position, connectedBodyTarget.position + connectedBodyTarget.rotation * relativePosition, w);
             }
-        }
+            else
+            {
+                p = Vector3.Lerp(target.position, position, w);
+            }
 
-        // Moves targetl localPosition back to default (used for reconnecting limb in Dead state when animation is not overriding target localPosition)
-        public void ResetTargetLocalPosition()
-        {
-            target.localPosition = defaultTargetLocalPosition;
+            target.SetPositionAndRotation(p, r);            
         }
 
         // How fast the mapped target is moving? Will be used to set rigidbody velocities when puppet is killed. 
@@ -1017,9 +1024,8 @@ namespace RootMotion.Dynamics
             {
                 mappedVelocity = (target.position - lastMappedPosition) / writeDeltaTime;
 
-                mappedAngularVelocity = QuaTools.FromToRotation(lastMappedRotation, target.rotation).eulerAngles;
-                mappedAngularVelocity = QuaTools.ToBiPolar(mappedAngularVelocity) / writeDeltaTime;
-
+                mappedAngularVelocity = PhysXTools.GetAngularVelocity(lastMappedRotation, target.rotation, writeDeltaTime);
+                
                 lastWriteTime = Time.time;
             }
 
@@ -1120,7 +1126,9 @@ namespace RootMotion.Dynamics
             Vector3 p = posOffset;
             if (deltaTime > 0f) p /= deltaTime;
 
-            Vector3 force = -r.velocity + targetVel * deltaTime + p;
+            if (ignoreTargetVelocity) targetVel = Vector3.zero;
+            Vector3 force = -r.velocity + targetVel + p;
+            if (r.useGravity) force -= Physics.gravity * deltaTime;
             force *= w;
             if (pinDistanceFalloff > 0f) force /= 1f + posOffset.sqrMagnitude * pinDistanceFalloff;
 

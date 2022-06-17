@@ -18,13 +18,13 @@ public class BilingBiling : MonoBehaviour
 
     private void Awake()
     {
+        renderTar = GetComponent<Renderer>();
         bilingObject = transform.GetComponentInParent<IBilingObject>();
     }
 
     private void OnBecameInvisible()
     {
         inCamera = false;
-        renderTar = GetComponent<Renderer>();
     }
 
     [Button]
@@ -61,6 +61,10 @@ public class BilingBiling : MonoBehaviour
 
     public void OnReset()
     {
+        if (renderTar == null)
+        {
+            renderTar = GetComponent<Renderer>();
+        }
         renderTar.material.SetFloat(field, 0);
     }
 }

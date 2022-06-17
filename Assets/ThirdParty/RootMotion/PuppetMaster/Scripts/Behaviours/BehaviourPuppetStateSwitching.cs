@@ -8,7 +8,7 @@ namespace RootMotion.Dynamics
     public partial class BehaviourPuppet : BehaviourBase
     {
 
-        private Vector3 getUpPosition;
+        public Vector3 getUpPosition { get; set; }
         private bool dropPropFlag;
 
         // Force the puppet to another state
@@ -64,7 +64,6 @@ namespace RootMotion.Dynamics
                     unpinnedTimer = 0f;
                     getUpTimer = 0f;
                     getupAnimationBlendWeight = 0f;
-                    getupAnimationBlendWeightV = 0f;
 
                     foreach (Muscle m in puppetMaster.muscles)
                     {
@@ -169,10 +168,20 @@ namespace RootMotion.Dynamics
                     }
 
                     // Set the target's rotation
-                    Vector3 spineDirection = puppetMaster.muscles[0].rigidbody.rotation * hipsUp;
-                    Vector3 normal = puppetMaster.targetRoot.up;
-                    Vector3.OrthoNormalize(ref normal, ref spineDirection);
-                    RotateTarget(Quaternion.LookRotation((isProne ? spineDirection : -spineDirection), puppetMaster.targetRoot.up));
+                    if (isQuadruped)
+                    {
+                        Vector3 spineDirection = puppetMaster.muscles[0].rigidbody.rotation * hipsForward;
+                        Vector3 normal = puppetMaster.targetRoot.up;
+                        Vector3.OrthoNormalize(ref normal, ref spineDirection);
+                        RotateTarget(Quaternion.LookRotation(spineDirection, puppetMaster.targetRoot.up));
+                    }
+                    else
+                    {
+                        Vector3 spineDirection = puppetMaster.muscles[0].rigidbody.rotation * hipsUp;
+                        Vector3 normal = puppetMaster.targetRoot.up;
+                        Vector3.OrthoNormalize(ref normal, ref spineDirection);
+                        RotateTarget(Quaternion.LookRotation((isProne ? spineDirection : -spineDirection), puppetMaster.targetRoot.up));
+                    }
 
                     // Set the target's position
                     puppetMaster.SampleTargetMappedState();
@@ -223,8 +232,13 @@ namespace RootMotion.Dynamics
                 {
                     c.material = props.puppetMaterial != null ? props.puppetMaterial : defaults.puppetMaterial;
 
-                    // Enable colliders
-                    if (props.disableColliders) c.enabled = false;
+                    // Disable colliders
+                    if (props.disableColliders)
+                    {
+                        Vector3 inertiaTensor = m.rigidbody.inertiaTensor;
+                        c.enabled = false;
+                        m.rigidbody.inertiaTensor = inertiaTensor;
+                    }
                 }
             }
         }

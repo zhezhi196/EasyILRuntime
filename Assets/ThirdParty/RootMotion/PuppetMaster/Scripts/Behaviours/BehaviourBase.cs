@@ -17,6 +17,7 @@ namespace RootMotion.Dynamics
         [HideInInspector] public PuppetMaster puppetMaster;
 
         public delegate void BehaviourDelegate();
+        public delegate void BehaviourUpdateDelegate(float deltaTime);
         public delegate void HitDelegate(MuscleHit hit);
         public delegate void CollisionDelegate(MuscleCollision collision);
 
@@ -24,14 +25,13 @@ namespace RootMotion.Dynamics
 
         public BehaviourDelegate OnPreActivate;
         public BehaviourDelegate OnPreInitiate;
-        public BehaviourDelegate OnPreFixedUpdate;
-        public BehaviourDelegate OnPreUpdate;
-        public BehaviourDelegate OnPreLateUpdate;
-        //public BehaviourDelegate OnPreDisable;
+        public BehaviourUpdateDelegate OnPreFixedUpdate;
+        public BehaviourUpdateDelegate OnPreUpdate;
+        public BehaviourUpdateDelegate OnPreLateUpdate;
+        public BehaviourUpdateDelegate OnPreRead;
+        public BehaviourUpdateDelegate OnPreWrite;
         public BehaviourDelegate OnPreDeactivate;
         public BehaviourDelegate OnPreFixTransforms;
-        public BehaviourDelegate OnPreRead;
-        public BehaviourDelegate OnPreWrite;
         public HitDelegate OnPreMuscleHit;
         public CollisionDelegate OnPreMuscleCollision;
         public CollisionDelegate OnPreMuscleCollisionExit;
@@ -59,29 +59,27 @@ namespace RootMotion.Dynamics
         protected virtual void OnActivate() { }
         protected virtual void OnDeactivate() { }
         protected virtual void OnInitiate() { }
-        protected virtual void OnFixedUpdate() { }
-        protected virtual void OnUpdate() { }
-        protected virtual void OnLateUpdate() { }
-        //protected virtual void OnDisableBehaviour() {}
+        protected virtual void OnFixedUpdate(float deltaTime) { }
+        protected virtual void OnUpdate(float deltaTime) { }
+        protected virtual void OnLateUpdate(float deltaTime) { }
+        protected virtual void OnReadBehaviour(float deltaTime) { }
+        protected virtual void OnWriteBehaviour(float deltaTime) { }
         protected virtual void OnDrawGizmosBehaviour() { }
         protected virtual void OnFixTransformsBehaviour() { }
-        protected virtual void OnReadBehaviour() { }
-        protected virtual void OnWriteBehaviour() { }
         protected virtual void OnMuscleHitBehaviour(MuscleHit hit) { }
         protected virtual void OnMuscleCollisionBehaviour(MuscleCollision collision) { }
         protected virtual void OnMuscleCollisionExitBehaviour(MuscleCollision collision) { }
         
         public BehaviourDelegate OnPostActivate;
         public BehaviourDelegate OnPostInitiate;
-        public BehaviourDelegate OnPostFixedUpdate;
-        public BehaviourDelegate OnPostUpdate;
-        public BehaviourDelegate OnPostLateUpdate;
-        //public BehaviourDelegate OnPostDisable;
+        public BehaviourUpdateDelegate OnPostFixedUpdate;
+        public BehaviourUpdateDelegate OnPostUpdate;
+        public BehaviourUpdateDelegate OnPostLateUpdate;
+        public BehaviourUpdateDelegate OnPostRead;
+        public BehaviourUpdateDelegate OnPostWrite;
         public BehaviourDelegate OnPostDeactivate;
         public BehaviourDelegate OnPostDrawGizmos;
         public BehaviourDelegate OnPostFixTransforms;
-        public BehaviourDelegate OnPostRead;
-        public BehaviourDelegate OnPostWrite;
         public HitDelegate OnPostMuscleHit;
         public CollisionDelegate OnPostMuscleCollision;
         public CollisionDelegate OnPostMuscleCollisionExit;
@@ -114,28 +112,28 @@ namespace RootMotion.Dynamics
             if (OnPostFixTransforms != null) OnPostFixTransforms();
         }
 
-        public void OnRead()
+        public void OnRead(float deltaTime)
         {
             if (!initiated) return;
             if (!enabled) return;
 
-            if (OnPreRead != null) OnPreRead();
+            if (OnPreRead != null) OnPreRead(deltaTime);
 
-            OnReadBehaviour();
+            OnReadBehaviour(deltaTime);
 
-            if (OnPostRead != null) OnPostRead();
+            if (OnPostRead != null) OnPostRead(deltaTime);
         }
 
-        public void OnWrite()
+        public void OnWrite(float deltaTime)
         {
             if (!initiated) return;
             if (!enabled) return;
 
-            if (OnPreWrite != null) OnPreWrite();
+            if (OnPreWrite != null) OnPreWrite(deltaTime);
 
-            OnWriteBehaviour();
+            OnWriteBehaviour(deltaTime);
 
-            if (OnPostWrite != null) OnPostWrite();
+            if (OnPostWrite != null) OnPostWrite(deltaTime);
         }
 
         public void OnMuscleHit(MuscleHit hit)
@@ -168,17 +166,6 @@ namespace RootMotion.Dynamics
             if (OnPostMuscleCollisionExit != null) OnPostMuscleCollisionExit(collision);
         }
 
-        void OnEnable()
-        {
-            if (!initiated)
-            {
-                // Discarding Unity's initial OnEnable call, because the starting behaviour will be determined by PuppetMaster
-                return;
-            }
-
-            Activate();
-        }
-
         public void Activate()
         {
             foreach (BehaviourBase b in puppetMaster.behaviours)
@@ -203,43 +190,43 @@ namespace RootMotion.Dynamics
             if (OnPostDeactivate != null) OnPostDeactivate();
         }
 
-        public void FixedUpdateB()
+        public void FixedUpdateB(float deltaTime)
         {
             if (!initiated) return;
             if (!enabled) return;
             if (puppetMaster.muscles.Length <= 0) return;
 
-            if (OnPreFixedUpdate != null && enabled) OnPreFixedUpdate();
+            if (OnPreFixedUpdate != null && enabled) OnPreFixedUpdate(deltaTime);
 
-            OnFixedUpdate();
+            OnFixedUpdate(deltaTime);
 
-            if (OnPostFixedUpdate != null && enabled) OnPostFixedUpdate();
+            if (OnPostFixedUpdate != null && enabled) OnPostFixedUpdate(deltaTime);
         }
 
-        public void UpdateB()
+        public void UpdateB(float deltaTime)
         {
             if (!initiated) return;
             if (!enabled) return;
             if (puppetMaster.muscles.Length <= 0) return;
 
-            if (OnPreUpdate != null && enabled) OnPreUpdate();
+            if (OnPreUpdate != null && enabled) OnPreUpdate(deltaTime);
 
-            OnUpdate();
+            OnUpdate(deltaTime);
 
-            if (OnPostUpdate != null && enabled) OnPostUpdate();
+            if (OnPostUpdate != null && enabled) OnPostUpdate(deltaTime);
         }
 
-        public void LateUpdateB()
+        public void LateUpdateB(float deltaTime)
         {
             if (!initiated) return;
             if (!enabled) return;
             if (puppetMaster.muscles.Length <= 0) return;
 
-            if (OnPreLateUpdate != null && enabled) OnPreLateUpdate();
+            if (OnPreLateUpdate != null && enabled) OnPreLateUpdate(deltaTime);
 
-            OnLateUpdate();
+            OnLateUpdate(deltaTime);
 
-            if (OnPostLateUpdate != null && enabled) OnPostLateUpdate();
+            if (OnPostLateUpdate != null && enabled) OnPostLateUpdate(deltaTime);
         }
 
         protected virtual void OnDrawGizmos()
@@ -249,6 +236,13 @@ namespace RootMotion.Dynamics
 
             if (OnPostDrawGizmos != null) OnPostDrawGizmos();
         }
+
+        protected virtual string GetTypeSpring()
+        {
+            return typeSpringBase;
+        }
+
+        private const string typeSpringBase = "BehaviourBase";
 
         /// <summary>
         /// Defines actions taken on certain events defined by the Puppet Behaviours.
@@ -294,19 +288,17 @@ namespace RootMotion.Dynamics
 
                     foreach (BehaviourBase behaviour in puppetMaster.behaviours)
                     {
-                        //if (behaviour != null && behaviour.GetType() == System.Type.GetType(switchToBehaviour)) {
-                        if (behaviour != null && behaviour.GetType().ToString() == "RootMotion.Dynamics." + switchToBehaviour)
+                        if (behaviour != null && behaviour.GetTypeSpring() == switchToBehaviour)
                         {
                             found = true;
-                            //behaviour.Activate();
-                            behaviour.enabled = true;
+                            behaviour.Activate();
                             break;
                         }
                     }
 
                     if (!found)
                     {
-                        Debug.LogWarning("No Puppet Behaviour of type '" + switchToBehaviour + "' was found. Can not switch to the behaviour, please check the spelling (also for empty spaces).");
+                        Debug.LogError("No Puppet Behaviour of type '" + switchToBehaviour + "' was found. Can not switch to the behaviour, please check the spelling (also for empty spaces).");
                     }
                 }
             }

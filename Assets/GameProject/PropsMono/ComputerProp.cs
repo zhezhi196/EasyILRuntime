@@ -6,5 +6,5 @@ using UnityEngine;
 /// </summary>
 public class ComputerProp : OnlyInteractive
 {
-
+    public override InterActiveStyle interactiveStyle => InterActiveStyle.Handle;
 }

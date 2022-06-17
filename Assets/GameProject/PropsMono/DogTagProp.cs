@@ -7,6 +7,6 @@ using UnityEngine;
 /// <summary>
 /// 美军狗牌
 /// </summary>
-public class DogTagProp : InteractiveToBag
+public class DogTagProp : OnlyWatchProps
 {
 }

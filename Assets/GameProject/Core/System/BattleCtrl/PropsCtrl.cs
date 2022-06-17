@@ -6,7 +6,7 @@ using UnityEngine;
 public class PropsCtrl: BattleSystem
 {
     public RunTimeAction loadPros = null;
-    public List<PropsBase> exitProps = new List<PropsBase>();
+    // public List<PropsBase> exitProps = new List<PropsBase>();
     public List<PropEntity> propPopupedMarkList = new List<PropEntity>();
 
 
@@ -19,10 +19,10 @@ public class PropsCtrl: BattleSystem
             {
                 Voter v = new Voter(PropsCreator.editorList.Count, () =>
                 {
-                    BattleController.Instance.NextFinishAction("loadPros");
                     loadPros = null;
+                    BattleController.Instance.NextFinishAction("loadPros");
                 });
-                exitProps.Clear();
+                // exitProps.Clear();
                 // Dictionary<PropsCreator,bool> ssss = new Dictionary<PropsCreator, bool>();
                 for (int i = 0; i < PropsCreator.editorList.Count; i++)
                 {
@@ -35,10 +35,10 @@ public class PropsCtrl: BattleSystem
                     // }
                     creator.OnNodeEnter(task, props =>
                     {
-                        if (props != null && props.isActive)
-                        {
-                            exitProps.Add(props);
-                        }
+                        // if (props != null && props.isActive)
+                        // {
+                        //     exitProps.Add(props);
+                        // }
 
                         // ssss[creator] = true;
                         v.Add();
@@ -54,11 +54,17 @@ public class PropsCtrl: BattleSystem
                         //     }
                         // }
                         // GameDebug.Log($"{v.count} {v.maxCount}");
-                    });
+                    },enterType);
                 }
             }
         });
     }
+
+    public bool IsLoadingNode()
+    {
+        return loadPros != null;
+    }
+    
 
     public override void Save()
     {

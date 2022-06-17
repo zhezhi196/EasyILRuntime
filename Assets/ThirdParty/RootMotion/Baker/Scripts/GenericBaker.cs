@@ -126,7 +126,7 @@ namespace RootMotion
 
             if (mode != Baker.Mode.AnimationClips)
             {
-                clip.wrapMode = loop ? WrapMode.Loop : WrapMode.Default;
+                clip.wrapMode = settings.loopTime ? WrapMode.Loop : WrapMode.Default;
             }
         }
 #endif

@@ -31,6 +31,7 @@ public class MainProcedure: BattleProcedure
         AddAction(BattleController.GetCtrl<SceneCtrl>().loadScene);
         AddAction(BattleController.GetCtrl<SceneCtrl>().unloadScene);
         AddAction(BattleController.GetCtrl<PlayerCtrl>().loadPlayer);
+        AddAction(BattleController.GetCtrl<TimelineCtrl>().deathTimeline);
         AddAction(BattleController.GetCtrl<BulletCtrl>().initBullet);
         AddAction(BattleController.GetCtrl<PlayerCtrl>().bronPlayer);
         AddAction(BattleController.GetCtrl<GiftCtrl>().initGift);

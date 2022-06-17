@@ -9,7 +9,9 @@ public class LookPoint : MonoBehaviour
     public static float interDistance = 2f;
     public static float interactiveAngle = 30;
     public static float circleDistance = 3f;
-    
+
+    [LabelText("显示距离补正")]
+    public float distanceFix = 1;
     [ReadOnly]
     public bool inCamera;
     [ReadOnly,LabelText("在角色前方")]
@@ -73,13 +75,15 @@ public class LookPoint : MonoBehaviour
     public void OnBecameVisible() 
     {
         inCamera = true;
-        this.enabled = true;
+        // this.enabled = true;
+        OpenInteractionNode();
     }
 
     public void OnBecameInvisible()
     {
         inCamera = false;
-        this.enabled = false;
+        // this.enabled = false;
+        CloseInteractionNode(true);
     }
 
     private bool CanInteractive()
@@ -150,7 +154,7 @@ public class LookPoint : MonoBehaviour
             return false;
         }
 
-        if (currInterDistance < interDistance * k) //是否在可视距离
+        if (currInterDistance < interDistance * k * distanceFix) //是否在可视距离
         {
             float angle = (transform.position - source.eyePoint.position).Angle(source.eyePoint.forward);
             if (angle < interactiveAngle * k) //是否在视角内
@@ -177,7 +181,7 @@ public class LookPoint : MonoBehaviour
             isForward = Vector3.Dot(eyePos - position, source.eyePoint.forward) <= 0;
             //和玩家的距离
             currInterDistance = eyePos.Distance(position);
-            if (currInterDistance >= circleDistance)
+            if (currInterDistance >= circleDistance * distanceFix)
             {
                 LogPoint("距离太远");
             }
@@ -203,7 +207,7 @@ public class LookPoint : MonoBehaviour
             if(source==null) LogPoint("没有为玩家");
         }
 
-        CloseInteractionNode();
+        CloseInteractionNode(true);
     }
     
     private bool RayPlayer(Vector3 eyePos)
@@ -238,19 +242,22 @@ public class LookPoint : MonoBehaviour
         }
     }
 
-    public void CloseInteractionNode()
+    public void CloseInteractionNode(bool @return)
     {
         if (uiNode != null)
         {
             PropsCtrl.OnShowLookPoint(false, this, null);
-            ObjectPool.ReturnToPool(uiNode);
+            if (@return)
+            {
+                ObjectPool.ReturnToPool(uiNode);
+            }
             uiNode = null;
         }
     }
 
     private void OnDisable()
     {
-        CloseInteractionNode();
+        CloseInteractionNode(false);
     }
 
     public virtual bool Interactive()

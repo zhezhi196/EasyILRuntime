@@ -58,11 +58,11 @@ namespace ProjectUI
         {
             if (winName == "BattleSettingUI")
             {
-                UIController.Instance.Open("DIYGameUI", UITweenType.None,"半透");
+                UIController.Instance.Open("DIYGameUI", UITweenType.None,0.9f);
             }
             else
             {
-                UIController.Instance.Open("DIYGameUI", UITweenType.None,"全黑");
+                UIController.Instance.Open("DIYGameUI", UITweenType.None,1f);
             }
         }
 

@@ -13,19 +13,20 @@ public class PropSave
     public bool mapIsGet;  //道具是否已经获取了，地图用
     
 
-    public string GetWriteStr(PropsBase props)
+    public string GetWriteStr(PropsCreator creator)
     {
-        if (props != null)
-        {
-            if(props.ContainStation(PropsStation.Destroyed))
-            {
-                initStation = (int) SaveStation.UnActive;
-            }
-        }
-        else
-        {
-            initStation = (int) SaveStation.Unload;
-        }
+        initStation = (int) creator.GetTrueSaveStation();
+        // if (props != null)
+        // {
+        //     if(props.ContainStation(PropsStation.Destroyed))
+        //     {
+        //         initStation = (int) SaveStation.UnActive;
+        //     }
+        // }
+        // else
+        // {
+        //     initStation = (int) SaveStation.Unload;
+        // }
 
 
         return JsonMapper.ToJson(this);

@@ -31,7 +31,7 @@ public class RewardUI : UIViewBase
             reward.GetIcon(TypeList.High, sp =>
             {
                 icon.sprite = sp;
-                //icon.SetNativeSize();
+                icon.SetNativeSize();
                 canvas.DOFade(1,0.2f).SetUpdate(true);
             });
             rewardDes.text = reward.GetText(TypeList.GetDes);

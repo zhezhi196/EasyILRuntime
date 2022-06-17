@@ -33,7 +33,7 @@ public class SupplyBoxProp : PropsBase
     protected override bool OnInteractive(bool fromMonster = false)
     {
         UIController.Instance.Open("SupplyBox", UITweenType.None, this); 
-        RunLogicalOnSelf(RunLogicalName.On);
+
         // AudioPlay.PlayOneShot("baozang_open").SetIgnorePause(true);
         // AnalyticsEvent.SendEvent(AnalyticsType.GetPropBox, entity.dbData.ID.ToString(),false);
         return true;
@@ -65,5 +65,10 @@ public class SupplyBoxProp : PropsBase
     {
         openedObj.OnActive(true);
         closedObj.OnActive(false);
+    }
+
+    public void OnOpen()
+    {
+        RunLogicalOnSelf(RunLogicalName.On);
     }
 }

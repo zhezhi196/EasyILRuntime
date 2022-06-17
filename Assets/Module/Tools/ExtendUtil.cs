@@ -1044,19 +1044,26 @@ namespace Module
 
         public static void ClearSame<T>(this IList<T> list)
         {
-            if (!list.IsNullOrEmpty() && list.Count > 1)
+            int totalCount = list.Count;
+            while (totalCount > 0)
             {
-                for (int i = 0; i < list.Count - 1; i++)
+                totalCount = 0;
+                if (!list.IsNullOrEmpty() && list.Count > 1)
                 {
-                    for (int j = i + 1; j < list.Count; j++)
+                    for (int i = 0; i < list.Count - 1; i++)
                     {
-                        if (list[i].Equals(list[j]))
+                        for (int j = i + 1; j < list.Count; j++)
                         {
-                            list.RemoveAt(j);
+                            if (list[i].Equals(list[j]))
+                            {
+                                list.RemoveAt(j);
+                                totalCount++;
+                            }
                         }
                     }
                 }
             }
+
         }
 
         public static bool IsSame<T>(this IList<T> ori, IList<T> result)

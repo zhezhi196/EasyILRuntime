@@ -112,7 +112,7 @@ namespace RootMotion
             for (int i = 0; i < bakerMuscles.Length; i++) bakerMuscles[i].SetLoopFrame(time);
 
             rootQT.MoveLastKeyframes(time);
-
+            
             leftFootQT.SetLoopFrame(time);
             rightFootQT.SetLoopFrame(time);
             leftHandQT.SetLoopFrame(time);
@@ -158,11 +158,11 @@ namespace RootMotion
             rootQT.SetKeyframes(time, bodyPosition, bodyRotation);
 
             Vector3 bodyPositionScaled = bodyPosition * animator.humanScale;
-            leftFootQT.SetIKKeyframes(time, animator.avatar, animator.humanScale, bodyPositionScaled, bodyRotation);
-            rightFootQT.SetIKKeyframes(time, animator.avatar, animator.humanScale, bodyPositionScaled, bodyRotation);
+            leftFootQT.SetIKKeyframes(time, animator.avatar, animator.transform, animator.humanScale, bodyPositionScaled, bodyRotation);
+            rightFootQT.SetIKKeyframes(time, animator.avatar, animator.transform, animator.humanScale, bodyPositionScaled, bodyRotation);
 
-            leftHandQT.SetIKKeyframes(time, animator.avatar, animator.humanScale, bodyPositionScaled, bodyRotation);
-            rightHandQT.SetIKKeyframes(time, animator.avatar, animator.humanScale, bodyPositionScaled, bodyRotation);
+            leftHandQT.SetIKKeyframes(time, animator.avatar, animator.transform, animator.humanScale, bodyPositionScaled, bodyRotation);
+            rightHandQT.SetIKKeyframes(time, animator.avatar, animator.transform, animator.humanScale, bodyPositionScaled, bodyRotation);
         }
 
         private void UpdateHumanPose()
@@ -184,10 +184,12 @@ namespace RootMotion
 #if UNITY_EDITOR
         protected override void SetClipSettings(AnimationClip clip, UnityEditor.AnimationClipSettings settings)
         {
+            /* v2.0
             settings.loopBlendOrientation = true;
             settings.loopBlendPositionY = true;
             settings.keepOriginalOrientation = true;
             settings.keepOriginalPositionY = true;
+            */
         }
 #endif
     }

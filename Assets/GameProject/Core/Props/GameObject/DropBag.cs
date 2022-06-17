@@ -4,10 +4,12 @@ using Module;
 using UnityEngine;
 
 
-public class DropBag : MonoBehaviour, InteractiveObject
+public class DropBag : MonoBehaviour, InteractiveObject,IProgressOption
 {
     public Drop drop;
     public LookPoint lookpoint;
+    public MonsterCreator creator;
+    public bool isGetReward;
 
     public bool isActive
     {
@@ -43,6 +45,7 @@ public class DropBag : MonoBehaviour, InteractiveObject
 
     public bool Interactive(bool fromMonster = false)
     {
+        isGetReward = true;
         this.drop.GetReward();
         StartCoroutine(DestroySelf());
         return true;
@@ -63,5 +66,36 @@ public class DropBag : MonoBehaviour, InteractiveObject
         }
 
         lookpoint.Init(this);
+    }
+
+    public int key
+    {
+        get { return creator.key; }
+    }
+
+    // public ProgressOption progressOption
+    // {
+    //     get
+    //     {
+    //         return creator.progressOption;
+    //     }
+    // }
+
+    public bool progressIsComplete
+    {
+        get
+        {
+            return isGetReward;
+        }
+    }
+
+    public Vector3 GetTipsPos()
+    {
+        return transform.position;
+    }
+
+    public void SetDropProgress(MonsterCreator creator)
+    {
+        this.creator = creator;
     }
 }

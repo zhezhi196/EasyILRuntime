@@ -80,7 +80,7 @@ namespace RootMotion.Dynamics {
 			velocity = Vector3.zero;
 		}
 
-		private void OnPreLateUpdate() {
+		private void OnPreLateUpdate(float deltaTime) {
 			// Ground contact
 			isGrounded = IsGrounded();
 
@@ -89,7 +89,7 @@ namespace RootMotion.Dynamics {
 				centerOfPressure = GetFeetCentroid();
 			} else {
 				Vector3 centerOfPressureTarget = isGrounded? GetCenterOfPressure(): GetFeetCentroid();
-				centerOfPressure = centerOfPressureSpeed <= 02? centerOfPressureTarget: Vector3.Lerp(centerOfPressure, centerOfPressureTarget, Time.deltaTime * centerOfPressureSpeed);
+				centerOfPressure = centerOfPressureSpeed <= 02? centerOfPressureTarget: Vector3.Lerp(centerOfPressure, centerOfPressureTarget, deltaTime * centerOfPressureSpeed);
 			}
 
 			// COM
@@ -103,7 +103,7 @@ namespace RootMotion.Dynamics {
 			velocityTarget = Vector3.ClampMagnitude(velocityTarget, velocityMax);
 
 			// Add velocity to position
-			velocity = velocityLerpSpeed <= 0f? velocityTarget: Vector3.Lerp(velocity, velocityTarget, Time.deltaTime * velocityLerpSpeed);
+			velocity = velocityLerpSpeed <= 0f? velocityTarget: Vector3.Lerp(velocity, velocityTarget, deltaTime * velocityLerpSpeed);
 			position += velocity * velocityDamper;
 			position += behaviour.puppetMaster.targetRoot.rotation * offset;
 

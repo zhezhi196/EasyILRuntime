@@ -18,7 +18,7 @@ namespace RootMotion.Dynamics {
 			Vector3 up = Vector3.Cross(forward, joint.axis).normalized;
 
 			if (forward == up) {
-				Debug.LogWarning("Joint " + joint.name + " secondaryAxis is in the exact same direction as it's axis. Please make sure they are not aligned.");
+				Debug.LogWarning("Joint " + joint.name + " secondaryAxis is in the exact same direction as its axis. Please make sure they are not aligned.");
 			}
 
 			return Quaternion.LookRotation(forward, up);
@@ -29,7 +29,7 @@ namespace RootMotion.Dynamics {
 			Vector3 up = Vector3.Cross(forward, joint.axis).normalized;
 			
 			if (forward == up) {
-				Debug.LogWarning("Joint " + joint.name + " swingAxis is in the exact same direction as it's axis. Please make sure they are not aligned.");
+				Debug.LogWarning("Joint " + joint.name + " swingAxis is in the exact same direction as its axis. Please make sure they are not aligned.");
 			}
 			
 			return Quaternion.LookRotation(forward, up);

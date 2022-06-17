@@ -6,7 +6,11 @@ using UnityEngine;
 /// </summary>
 public class SwitchGateProp : OnlyInteractive
 {
+    public GameObject redLight;
+    public GameObject greenLight;
+    
     public override bool canInteractive => base.canInteractive && !IsAnimating;
+    public override InterActiveStyle interactiveStyle => InterActiveStyle.Handle;
 
     public Transform handle;
     protected override bool OnInteractive(bool fromMonster = false)
@@ -64,15 +68,19 @@ public class SwitchGateProp : OnlyInteractive
         if (anim)
         {
             IsAnimating = true;
-            handle.transform.localRotation = Quaternion.Euler(179,0,0);
-            handle.DOLocalRotateQuaternion(Quaternion.Euler(0,0,0), 1).SetEase(Ease.InOutSine).OnComplete(() =>
+            handle.transform.localRotation = Quaternion.Euler(-75,0,0);
+            handle.DOLocalRotateQuaternion(Quaternion.Euler(50,0,0), 1).SetEase(Ease.InOutSine).OnComplete(() =>
             {
+                greenLight.OnActive(true);
+                redLight.OnActive(false);
                 IsAnimating = false;    
             });
         }
         else
         {
-            handle.transform.localRotation = Quaternion.Euler(0,0,0);
+            greenLight.OnActive(true);
+            redLight.OnActive(false);
+            handle.transform.localRotation = Quaternion.Euler(50,0,0);
         }
     }
 
@@ -85,15 +93,19 @@ public class SwitchGateProp : OnlyInteractive
         if (anim)
         {
             IsAnimating = true;
-            handle.transform.localRotation = Quaternion.Euler(0,0,0);
-            handle.DOLocalRotateQuaternion(Quaternion.Euler(179, 0, 0), 1).SetEase(Ease.InOutSine).OnComplete(() =>
+            handle.transform.localRotation = Quaternion.Euler(50,0,0);
+            handle.DOLocalRotateQuaternion(Quaternion.Euler(-75, 0, 0), 1).SetEase(Ease.InOutSine).OnComplete(() =>
             {
+                greenLight.OnActive(false);
+                redLight.OnActive(true);
                 IsAnimating = false;
             });
         }
         else
         {
-            handle.transform.localRotation = Quaternion.Euler(180,0,0);
+            greenLight.OnActive(false);
+            redLight.OnActive(true);
+            handle.transform.localRotation = Quaternion.Euler(-75,0,0);
         }
     }
     

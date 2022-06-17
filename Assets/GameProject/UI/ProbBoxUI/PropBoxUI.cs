@@ -18,6 +18,7 @@ public class PropBoxUI: UIViewBase
     public Text rewardCount;
     public RewardBag bag;
     public RewardContent content;
+    private SupplyBoxProp supplyBox;
     protected override void OnChildStart()
     {
         danbei.AddListener(OnDanbei);
@@ -40,6 +41,7 @@ public class PropBoxUI: UIViewBase
             }
         }
         MoneyInfo info=MoneyInfo.GetMoneyEntity(box.type);
+        supplyBox = box;
         info.GetIcon(TypeList.High, sp => { rewardIcon.sprite = sp; });
         rewardCount.text = ConstKey.Cheng + box.creator.count;
         content = Commercialize.GetRewardContent(info.dbData.ID, box.creator.count);
@@ -72,6 +74,10 @@ public class PropBoxUI: UIViewBase
         seq.OnComplete(() =>
         {
             UIController.Instance.Open("GameUI", UITweenType.None, OpenFlag.Insertion);
+            if (supplyBox != null)
+            {
+                supplyBox.OnOpen();
+            }
         });
     }
 }

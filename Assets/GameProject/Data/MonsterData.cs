@@ -96,5 +96,13 @@ namespace Project.Data
         /// 重置CD概率
         /// <summary>
         public float skillCD { get; set; }
+        /// <summary>
+        /// 是否有玩家挣脱动画
+        /// <summary>
+        public int outAnim { get; set; }
+        /// <summary>
+        /// 是否有处决玩家动画
+        /// <summary>
+        public int excuteAnim { get; set; }
     }
 }

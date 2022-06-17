@@ -39,7 +39,7 @@ public class TimelineController : MonoBehaviour
         isInit = true;
     }
 
-    public virtual void Play(Player player, Monster enemy, UnityAction callBack, params object[] args)
+    public virtual void Play(Player player, AttackMonster enemy, UnityAction callBack, params object[] args)
     {
         if (!isInit)
             Init();

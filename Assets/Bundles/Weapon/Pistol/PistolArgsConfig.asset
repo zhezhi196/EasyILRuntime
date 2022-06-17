@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: PistolArgsConfig
   m_EditorClassIdentifier: 
   attckDistance: 2000
+  attackForce: 1500
+  forceDelay: 0.3
+  animationToRagdollTime: 0.3
+  firstBulletCount: 21
   getBulletCount: 7
   moveMul: 2
   crouchMoveMul: 1.5
@@ -21,11 +25,12 @@ MonoBehaviour:
   fallAccurate: 80
   Recoil: 7
   MaxRecoil: 30
-  attackSoundRange: 100
+  diffusionArea: 100
+  attackSoundRange: 80
   hitSoundRange: 10
-  fireAudio: 
+  fireAudio: qiang_kai
   toAimAudio: 
   toNoAimAudio: 
-  emptyFireAuido: 
-  reloadAudio: 
-  emptyReloadAudio: 
+  emptyFireAuido: M1911_fire3
+  reloadAudio: M1911_change2
+  emptyReloadAudio: M1911_change1

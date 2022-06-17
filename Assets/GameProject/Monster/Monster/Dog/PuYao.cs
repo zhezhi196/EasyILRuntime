@@ -18,6 +18,7 @@ public class PuYao : MonsterSkill
     public string animation = "Puyao";
     public Bounds damageBounds;
     protected bool isHurtPlayer;
+    public Vector3 puPoint;
     public override float stopMoveDistance
     {
         get { return maxPuDistance; }
@@ -33,7 +34,7 @@ public class PuYao : MonsterSkill
     public override void OnInit(ISkillObject owner)
     {
         base.OnInit(owner);
-        runAction = new PredicateAction(owner, () => monster.toPlayerDistance <= maxPuDistance);
+        runAction = new PredicateAction(owner, () => puPoint.Distance(monster.transform.position) <= maxPuDistance);
         PushAction(runAction);
         PushAction(new AnimationAction(animation, 0, owner));
         monster.onAnimationCallback += OnAnimationCallback;
@@ -54,6 +55,7 @@ public class PuYao : MonsterSkill
 
     protected override void OnReleaseStart()
     {
+        puPoint = Player.player.transform.position;
         LookAtPlayer();
         isHurtPlayer = false;
     }
@@ -78,6 +80,14 @@ public class PuYao : MonsterSkill
         }
     }
 
+    protected override void OnActionUpdate(ISkillAction arg1, float percent)
+    {
+        if (arg1 == runAction)
+        {
+            monster.MoveTo(MoveStyle.Run, puPoint, null);
+        }
+    }
+
     protected virtual void OnAnimationCallback(AnimationEvent @event, int index)
     {
         if (@event.animatorClipInfo.clip.name == animation && monster.skillCtrl.currActive == this)
@@ -95,12 +105,11 @@ public class PuYao : MonsterSkill
     {
         if (monster.target != null)
         {
-            monster.MoveTo(MoveStyle.Walk, Player.player.chasePoint, ((status, b) =>
+            monster.MoveTo(MoveStyle.Run, Player.player.chasePoint, ((status, b) =>
             {
                 if (b && monster.ContainStation(MonsterStation.IsSeePlayHide))
                 {
                     GameDebug.LogError("出来吧小子");
-
                 }
             } ));
         }

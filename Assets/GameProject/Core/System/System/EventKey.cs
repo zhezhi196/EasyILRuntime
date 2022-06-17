@@ -40,6 +40,8 @@ public static class EventKey
     public const string EnterBattle = "EnterBattle";
     public const string TeachEvent = "TeachEvent";
     public const string OnNodeEnter = "OnNodeEnter";
+
+    public const string MapInteractionEvent = "MapInteractionEvent"; // 场景交互 影响地图显示
     
     //小游戏
     public const string WireRefresh = "WireRefresh";

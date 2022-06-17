@@ -50,8 +50,8 @@ public class Closer : RemoteAttack
                 PlayerDamage damage = GetDamage();
                 if (monster.HurtPlayer(damage, damageBounds, general.flyWeapon.transform))
                 {
-                    GameDebug.LogError("玩家拉着走了");
-                    general.flyWeapon.Back();
+                    Player.player.StartDragMove(general.flyWeapon.transform,monster);
+                    general.flyWeapon.Back(true);
                     isHurtPlayer = true;
                 }
             }

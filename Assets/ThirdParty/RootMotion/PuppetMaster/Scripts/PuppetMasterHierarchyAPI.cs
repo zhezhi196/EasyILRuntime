@@ -112,7 +112,7 @@ namespace RootMotion.Dynamics {
         }
 
         /// <summary>
-        /// Disconnects muscle from index. In Sever mode, the muscle and it's children will be disconnected in one piece (cutting limb off). In Explode mode the muscle and all it's children will be cut off. If Deactivate is true, the disconnected muscle GameObjects will be deactivated.
+        /// Disconnects muscle from index. In Sever mode, the muscle and its children will be disconnected in one piece (cutting limb off). In Explode mode the muscle and all its children will be cut off. If Deactivate is true, the disconnected muscle GameObjects will be deactivated.
         /// </summary>
         public void DisconnectMuscleRecursive(int index, MuscleDisconnectMode disconnectMode = MuscleDisconnectMode.Sever, bool deactivate = false)
         {
@@ -155,7 +155,7 @@ namespace RootMotion.Dynamics {
         /// <summary>
         /// NB! Make sure to call this from FixedUpdate!
         /// Creates a new muscle for the specified "joint" and targets it to the "target". The joint will be connected to the specified "connectTo" Muscle.
-        /// Note that the joint will be binded to it's current position and rotation relative to the "connectTo", so make sure the added object is positioned correctly when calling this.
+        /// Note that the joint will be binded to its current position and rotation relative to the "connectTo", so make sure the added object is positioned correctly when calling this.
         /// This method allocates memory, avoid using it each frame.
         /// </summary>
         public void AddMuscle(ConfigurableJoint joint, Transform target, Rigidbody connectTo, Transform targetParent, Muscle.Props muscleProps = null, bool forceTreeHierarchy = false, bool forceLayers = true) {
@@ -256,7 +256,7 @@ namespace RootMotion.Dynamics {
 		}
 
 		/// <summary>
-		/// Complete rebuild of this puppet's muscle hierarchy to it's default state as it was at first initiation (required that none of the original components have been destroyed).
+		/// Complete rebuild of this puppet's muscle hierarchy to its default state as it was at first initiation (required that none of the original components have been destroyed).
 		/// </summary>
 		public void Rebuild() {
 			rebuildFlag = true;
@@ -473,7 +473,11 @@ namespace RootMotion.Dynamics {
 			}
 
 			hierarchyIsFlat = true;
-		}
+
+#if UNITY_EDITOR
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+#endif
+        }
 
 		/// <summary>
 		/// Builds a hierarchy tree from the muscles.
@@ -487,19 +491,33 @@ namespace RootMotion.Dynamics {
 			}
 
 			hierarchyIsFlat = false;
-		}
 
-		/// <summary>
-		/// Moves all muscles to the positions of their targets.
-		/// </summary>
-		[ContextMenu("Fix Muscle Positions")]
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Moves all muscles to the positions of their targets.
+        /// </summary>
+        [ContextMenu("Fix Muscle Positions")]
 		public void FixMusclePositions() {
 			foreach (Muscle m in muscles) {
 				if (m.joint != null && m.target != null) {
 					m.joint.transform.position = m.target.position;
 				}
 			}
-		}
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+            }
+#endif
+        }
 
         /// <summary>
 		/// Moves all muscles to the positions and rotations of their targets.
@@ -515,6 +533,13 @@ namespace RootMotion.Dynamics {
                     m.joint.transform.rotation = m.target.rotation;
                 }
             }
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+            }
+#endif
         }
 
         /// <summary>
@@ -710,12 +735,15 @@ namespace RootMotion.Dynamics {
 
                 foreach (Muscle m in muscles)
                 {
+                    if (m.isPropMuscle) continue;
                     m.state.isDisconnected = false;
                     m.FixTargetTransforms();
                 }
 
                 foreach (Muscle m in muscles)
                 {
+                    if (m.isPropMuscle) continue;
+
                     m.Reset();
                     m.Read();
                     m.ClearVelocities();
@@ -727,6 +755,9 @@ namespace RootMotion.Dynamics {
             for (int i = 0; i < muscles[index].childIndexes.Length; i++)
             {
                 int childIndex = muscles[index].childIndexes[i];
+
+                if (muscles[childIndex].isPropMuscle) continue;
+
                 ReconnectMuscle(muscles[childIndex]);
             }
         }

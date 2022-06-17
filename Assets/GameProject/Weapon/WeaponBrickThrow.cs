@@ -102,7 +102,7 @@ public class WeaponBrickThrow : MonoBehaviour, IPoolObject
                 //声音
                 //AudioPlay.PlayOneShot("Break_the_bottle", transform.position).Set3D();
                 if (BattleController.GetCtrl<MonsterCtrl>() != null)
-                    BattleController.GetCtrl<MonsterCtrl>().TrySensorMonster(SensorMonsterType.Shot, transform.position, _weapon.weaponArgs.hitSoundRange);
+                    BattleController.GetCtrl<MonsterCtrl>().TrySensorMonster(SensorMonsterType.MonsterAttention, transform.position, _weapon.weaponArgs.hitSoundRange);
                 pool.ReturnObject(this);
             }
             lastPos = transform.position;

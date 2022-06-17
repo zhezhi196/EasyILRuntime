@@ -246,8 +246,17 @@ namespace ProjectUI
                     break;
                 case Player.Station.Hiding:
                     hideBtn.OnActive(true);
+                    reloadBtn.OnActive(false);
+                    weaponBtn.OnActive(false);
+                    showCrouchBtn = false;
+                    crouchBtn.OnActive(false);
+                    attackBtn.OnActive(false);
+                    attackBtn1.OnActive(false);
+                    dodgeBtn.OnActive(false);
+                    leftJoyStick.OnActive(false);
                     break;
                 case Player.Station.Dodge:
+                case Player.Station.DragMove:
                     uiCanvas.blocksRaycasts = false;
                     break;
                 default:
@@ -313,8 +322,18 @@ namespace ProjectUI
                     break;
                 case Player.Station.Hiding:
                     hideBtn.OnActive(false);
+                    reloadBtn.OnActive(Player.player.currentWeapon.weaponType != WeaponType.Empty&& Player.player.currentWeapon.weaponType != WeaponType.MeleeWeapon);
+                    weaponBtn.OnActive(Player.player.currentWeapon.weaponType != WeaponType.Empty);
+                    //todo 检测是否完成下蹲教学
+                    showCrouchBtn = true;
+                    crouchBtn.OnActive(true);
+                    attackBtn.OnActive(Player.player.currentWeapon.weaponType != WeaponType.Empty);
+                    attackBtn1.OnActive(Player.player.currentWeapon.weaponType != WeaponType.Empty);
+                    dodgeBtn.OnActive(true);
+                    leftJoyStick.OnActive(true);
                     break;
                 case Player.Station.Dodge:
+                case Player.Station.DragMove:
                     uiCanvas.blocksRaycasts = true;
                     break;
                 default:
@@ -341,6 +360,7 @@ namespace ProjectUI
         {
             //BattleController.Instance.Continue();//解决游戏暂定bug,待测试
             Player.player?.StartMove();
+            runRoot.OnActive(!Player.player.NotRun);
         }
 
         public void RoleMove(Vector2 arg1, Vector2 arg2, float arg3)
@@ -578,7 +598,7 @@ namespace ProjectUI
         protected override void Update()
         {
             base.Update();
-            strengthCircle.fillAmount = Player.player.strength / Player.player.playerAtt.strength;
+            strengthCircle.fillAmount = Player.player.strength / Player.player.MaxStrength;
 #if LOG_ENABLE
             labdelText.text = string.Format("生命{0}\n能量{1}\n体力{2}", Player.player.hp, Player.player.energy, Player.player.strength);
 #endif

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Module;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -197,6 +198,23 @@ public class AudioRoom : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // bool isShow = false;
+        // for (int i = 0; i < transform.childCount; i++)
+        // {
+        //     if (Selection.activeGameObject == this.gameObject ||
+        //         Selection.activeGameObject == transform.GetChild(i).gameObject)
+        //     {
+        //         isShow = true;
+        //         break;
+        //     }
+        // }
+        //
+        // if (isShow)
+        // {
+        //     Gizmos.color = Color.yellow;
+        //     var c = GetComponent<BoxCollider>();
+        //     Gizmos.DrawWireCube(c.bounds.center,c.bounds.size);
+        // }
         Gizmos.color = Color.yellow;
         var c = GetComponent<BoxCollider>();
         Gizmos.DrawWireCube(c.bounds.center,c.bounds.size);

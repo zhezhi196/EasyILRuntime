@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class FirstGameTimeline : TimelineController
 {
-    public override void Play(Player player, Monster enemy, UnityAction callBack, params object[] args)
+    public override void Play(Player player, AttackMonster enemy, UnityAction callBack, params object[] args)
     {
         onFinishEvent = callBack;
         playable.Play();

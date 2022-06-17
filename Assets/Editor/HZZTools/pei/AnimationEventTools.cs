@@ -13,7 +13,7 @@ using UnityEditor.Animations;
 /// </summary>
 public class AnimationEventTools : Editor
 {
-    [MenuItem("Assets/AnimToos/清除动画事件")]
+    [MenuItem("Assets/Pei/清除动画事件")]
     static void ClearSelectClipEvent()
     {
         if (Selection.objects.Length > 0)
@@ -300,7 +300,8 @@ public class AnimtionEvnentEditoWindow : OdinEditorWindow
         public int intArg;
         [EnableIf("editor")]
         public float floatArg;
-        private static List<string> eventNames = new List<string>() { "Reload", "TakeBack", "TakeOut", "Attack", "ToAim", "ToNoAim", "PlayAudio", "SkillEvent"};
+        private static List<string> eventNames = new List<string>() { "Reload", "TakeBack", "TakeOut", "Attack", "ToAim", "ToNoAim",
+            "PlayAudio", "SkillEvent","MeleeAttackStart","MeleeAttackEnd","HideModel","StartReload"};
     }
 
     Rect rect = new Rect(0, 0, 500, 50);

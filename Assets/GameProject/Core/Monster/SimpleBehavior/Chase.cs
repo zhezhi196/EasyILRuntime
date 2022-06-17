@@ -15,14 +15,7 @@ public class Chase : SimpleBehavior
 
    public override TaskStatus OnUpdate()
    {
-      if (skillCtrl.readyRelease != null)
-      {
-         if (!skillCtrl.TryRelease(null))
-         {
-            skillCtrl.UpdateCheck();
-         }
-      }
-
+      skillCtrl.UpdateRelease(null);
       return TaskStatus.Running;
    }
 }

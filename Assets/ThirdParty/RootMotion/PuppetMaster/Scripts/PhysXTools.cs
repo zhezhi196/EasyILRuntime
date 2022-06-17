@@ -116,6 +116,24 @@ namespace RootMotion.Dynamics {
 		public static void ScaleByInertia(ref Vector3 v, Quaternion rotation, Vector3 inertiaTensor) {
 			v = rotation * Vector3.Scale(Quaternion.Inverse(rotation) * v, inertiaTensor);
 		}
+
+        /// <summary>
+        /// Returns angular velocity from lastRotation to rotation
+        /// </summary>
+        public static Vector3 GetAngularVelocity(Quaternion lastRotation, Quaternion rotation, float deltaTime)
+        {
+            Quaternion rotationDelta = rotation * Quaternion.Inverse(lastRotation);
+            float angle = 0f;
+            Vector3 aV = Vector3.zero;
+            rotationDelta.ToAngleAxis(out angle, out aV);
+            if (float.IsNaN(aV.x)) return Vector3.zero;
+            if (float.IsInfinity(aV.x)) return Vector3.zero;
+            angle *= Mathf.Deg2Rad;
+            angle /= deltaTime;
+            angle = QuaTools.ToBiPolar(angle);
+            aV *= angle;
+            return aV;
+        }
 		
 		/// <summary>
 		/// Returns the angular acceleration from one vector to another.
@@ -145,7 +163,7 @@ namespace RootMotion.Dynamics {
 		}
 
         /// <summary>
-		/// Adds torque to the Ridigbody that accelerates it from it's current rotation to another using any force mode.
+		/// Adds torque to the Ridigbody that accelerates it from its current rotation to another using any force mode.
 		/// </summary>
         public static void AddFromToTorque(Rigidbody r, Quaternion toR, ForceMode forceMode) {
             Vector3 requiredAcceleration = GetAngularAcceleration(r.rotation, toR); // Acceleration required for a single solver step
@@ -272,5 +290,82 @@ namespace RootMotion.Dynamics {
 		public static Vector3 Div(Vector3 v, Vector3 v2) {
 			return new Vector3(v.x / v2.x, v.y / v2.y, v.z / v2.z);
 		}
-	}
+
+        /// <summary>
+        /// Returns true if a ray from 'origin' with 'direction' intersects with a CapsuleCollider. The scale of the CapsuleCollider's Transform is ignored.
+        /// </summary>
+        public static bool RayCapsuleIntersectUnscaled(Vector3 origin, Vector3 direction, CapsuleCollider capsule)
+        {
+            return RayCapsuleIntersect(origin, direction, capsule.transform.position, capsule.transform.rotation, capsule.center, capsule.radius, capsule.height, capsule.direction, 1f);
+        }
+
+        /// <summary>
+        /// Returns true if a ray from 'origin' with 'direction' intersects with a CapsuleCollider.
+        /// </summary>
+        public static bool RayCapsuleIntersect(Vector3 origin, Vector3 direction, CapsuleCollider capsule, float uniformScale)
+        {
+            return RayCapsuleIntersect(origin, direction, capsule.transform.position, capsule.transform.rotation, capsule.center, capsule.radius, capsule.height, capsule.direction, uniformScale);
+        }
+
+        /// <summary>
+        /// Returns true if a ray from 'origin' with 'direction' intersects with the specified CapsuleCollider parameters. The scale of the CapsuleCollider's Transform is ignored.
+        /// </summary>
+        public static bool RayCapsuleIntersect(Vector3 origin, Vector3 direction, Vector3 capsuleTransformPos, Quaternion capsuleTransformRot, Vector3 capsuleCenter, float capsuleRadius, float capsuleHeight, int capsuleDir, float scale)
+        {
+            float r = capsuleRadius;
+            float h = Mathf.Max(r, capsuleHeight);
+            r *= scale;
+            h *= scale;
+
+            Vector3 dir = capsuleDir == 0 ? Vector3.right : capsuleDir == 1 ? Vector3.up : Vector3.forward;
+            dir = capsuleTransformRot * dir;
+            float o = (h * 0.5f - r);
+            Vector3 dirO = dir * o;
+
+            Vector3 cCenterWorld = capsuleTransformPos + capsuleTransformRot * capsuleCenter * scale;
+
+            Vector3 c1 = cCenterWorld - dirO;
+            Vector3 c2 = cCenterWorld + dirO;
+
+            return RayCapsuleIntersect(origin, direction, c1, c2, r);
+        }
+
+        /// <summary>
+        /// Returns true if a ray from 'rayOrigin' with direction if 'rayDir' intersects with a capsule from point 'c1' to 'c2' with radius of 'cRadius'.
+        /// </summary>
+        public static bool RayCapsuleIntersect(Vector3 rayOrigin, Vector3 rayDir, Vector3 c1, Vector3 c2, float cRadius)
+        {
+            Vector3 cDir = c2 - c1;
+            Vector3 c1R = rayOrigin - c1;
+
+            float cDirDot = Vector3.Dot(cDir, cDir);
+            float cDirToRayDir = Vector3.Dot(cDir, rayDir);
+            float cDirToc1R = Vector3.Dot(cDir, c1R);
+            float rayDirToc1R = Vector3.Dot(rayDir, c1R);
+            float c1RDot = Vector3.Dot(c1R, c1R);
+
+            float a = cDirDot - cDirToRayDir * cDirToRayDir;
+            float b = cDirDot * rayDirToc1R - cDirToc1R * cDirToRayDir;
+            float c = cDirDot * c1RDot - cDirToc1R * cDirToc1R - cRadius * cRadius * cDirDot;
+            float h = b * b - a * c;
+            if (h >= 0.0)
+            {
+                float t = (-b - Mathf.Sqrt(h)) / a;
+
+                float y = cDirToc1R + t * cDirToRayDir;
+
+                if (y > 0.0f && y < cDirDot) return t > 0.0f;
+
+                Vector3 oc = (y <= 0.0f) ? c1R : rayOrigin - c2;
+                b = Vector3.Dot(rayDir, oc);
+                c = Vector3.Dot(oc, oc) - cRadius * cRadius;
+                h = b * b - c;
+                if (h > 0.0f)
+                {
+                    return (-b - Mathf.Sqrt(h)) > 0.0f;
+                }
+            }
+            return false;
+        }
+    }
 }

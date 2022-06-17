@@ -69,7 +69,7 @@ namespace Module
             }
         }
 
-        public ISkillObject owner { get; }
+        public ISkillObject  owner{ get; }
 
         /// <summary>
         /// 当前正在释放的技能

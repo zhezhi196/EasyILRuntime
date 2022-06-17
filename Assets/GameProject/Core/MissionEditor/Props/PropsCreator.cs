@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using LitJson;
 using Module;
 using Sirenix.OdinInspector;
@@ -17,10 +18,11 @@ using UnityEngine;
 /// <summary>
 /// 场景道具生成器，每一个道具对应一个生成器，生成器负责控制道具的初始化逻辑
 /// </summary>
+[ExecuteInEditMode]
 public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 {
     private static string[] pathNames = new[] {LocalSave.savePath,LocalSave.save2Path};
-    
+    private SaveStation _saveStation;
     #region 字段、属性
 
     /// <summary>
@@ -31,16 +33,32 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 
     [LabelText("连接")]
     public List<PropsCreator> link;
-    
+
     [LabelText("保存状态"), SerializeField, ReadOnly]
-    private SaveStation saveStation;
+    public SaveStation saveStation
+    {
+        get
+        {
+            if (props == null) return SaveStation.Unload;
+            if (!props.gameObject.activeInHierarchy) return SaveStation.UnActive;
+            return _saveStation;
+        }
+        set
+        {
+            _saveStation = value;
+        }
+    }
+    
     
     [HideInInspector] 
     public PropEntity entity;
     [LabelText("目标Prop"), ReadOnly] 
     public PropsBase props;
 
-    private string lastLogical;
+    private PropSave propSave;
+
+    [HideInInspector]
+    public string lastLogical;
     private string[] lastLogicalArgs;
     private PropsStation lastStation;
     private string lastPropsWriteData;
@@ -49,26 +67,24 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
     //是否创建过了
     private bool _isCreated;
 
-    public ProgressOption progressOption => extuil.progress;
+    // public ProgressOption progressOption => extuil.progress;
 
     public bool progressIsComplete
     {
         get
         {
-            if (BattleController.Instance.ctrlProcedure.currentNode.id == initNodeID)
+            //如果道具状态是卸载或者不激活的话，就返回成功
+            if (saveStation != SaveStation.Init && saveStation != SaveStation.None)
             {
-                if (_isCreated)
-                {
-                    if (props != null && (entity == null || entity.showProgress))
-                    {
-                        return !props.isProgressShow;
-                    }
-                    
-                    return true;
-                }
-                
-                return false;
+                return true;
             }
+            
+            //如果已经初始化了，那么在判断propbase的状态
+            if (saveStation == SaveStation.Init && _isCreated)
+            {
+                return props.progressIsComplete;
+            }
+
             return true;
         }
     }
@@ -96,6 +112,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 
     [Space]
     [OnValueChanged("OnModelChanged")] public int id;
+    [ReadOnly]public int idBackUp;
     [LabelText("组")] public string group;
     
     
@@ -185,7 +202,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
     }
 
     public MapType mapType => extuil.mapType;
-    public string mapId => extuil.mapId;
+    public int mapId => extuil.mapId;
 
     private const string ModelPath = "Props/Scene/{0}.prefab";
     private const string NormalTriggerPath = "Props/Scene/NormalTrigger.prefab";
@@ -215,6 +232,13 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 
     private void Awake()
     {
+        idBackUp = id;
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+        
         editorList.Add(this);
         lastLogical = initLogical.runLogical.ToString();
         lastLogicalArgs = initLogical.args;
@@ -232,6 +256,11 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 
     private void Start()
     {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+        
         if (!@group.IsNullOrEmpty())
         {
             Group.GetGroup(group, this);
@@ -260,15 +289,23 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
     
     
     #region 初始化prop逻辑
-
-     public async void OnNodeEnter(TaskNode node, Action<PropsBase> callback)
+    /// <summary>
+    /// 节点进入，初始化物品。分为三种情况，新游戏进入无存档，继续游戏有存档，游戏内切节点有存档
+    /// </summary>
+    /// <param name="node"></param>
+    /// <param name="callback"></param>
+    /// <param name="enterType"></param>
+    public async void OnNodeEnter(TaskNode node, Action<PropsBase> callback , EnterNodeType enterType)
     {
-        var tempStation = saveStation;
-        saveStation = SaveStation.None;
-        if (tempStation == SaveStation.None) //没有状态 正常初始化且不读存档
+        if (id == 1)
+        {
+            
+        }
+        if (enterType == EnterNodeType.Restart || saveStation == SaveStation.None) //没有状态 正常初始化且不读存档
         {
             if (node.id == unloadNodeID)
             {
+                _saveStation = SaveStation.Unload;
                 if (props != null)
                 {
                     props.RunLogicalOnSelf(RunLogicalName.ForceDestroy);
@@ -282,6 +319,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
             if (node.id == loadNodeID) //这一步加载模型
             {
                 isLoading = true;
+                _saveStation = SaveStation.Load;
                 LoadModel(() => { isLoading = false; });
             }
 
@@ -289,6 +327,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
 
             if (node.id == initNodeID) //是否需要初始化
             {
+                _saveStation = SaveStation.Init;
                 InitPropNew(callback);
             }
             else
@@ -296,24 +335,59 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
                 callback?.Invoke(props);
             }
         }
-        else if (tempStation == SaveStation.Load || tempStation == SaveStation.Init) //有状态 读取存档
+        else
         {
-            string data = LocalSave.Read(this);
-            if (!data.IsNullOrEmpty())
+            if (enterType == EnterNodeType.FromSave)
             {
-                PropSave save = JsonMapper.ToObject<PropSave>(data);
-                _isGet = save.mapIsGet;
-                if (save.initStation == (int) SaveStation.Unload) //卸载
+                if (propSave != null)
                 {
-                    if (staticLoad)
-                    {
-                        props.DestroyThis(true);
-                    }
-
+                    _isGet = propSave.mapIsGet;
+                    InitPropFromSave(propSave, callback);
+                }
+                else
+                {
+                    GameDebug.LogError($"没有存档且SaveStation不是none : {id}");
+                    callback?.Invoke(props);
+                }
+            }
+            else
+            {
+                //游戏内切节点，SaveStation处理一下
+                if (node.id == unloadNodeID)
+                {
+                    _saveStation = SaveStation.Unload;
+                }
+                else if (node.id == initNodeID)
+                {
+                    _saveStation = SaveStation.Init;
+                }
+                else if (node.id == loadNodeID)
+                {
+                    _saveStation = SaveStation.Load;
+                }
+                else //如果都不是，维持上一个节点的样子，不用动
+                {
                     callback?.Invoke(props);
                     return;
                 }
-                else if (save.initStation == (int) SaveStation.UnActive) //隐藏
+
+                //如果状态发生了变化，就根据新的状态初始化当前道具
+                if (_saveStation == SaveStation.Load)
+                {
+                    LoadModel(() =>
+                    {
+                        callback?.Invoke(props);
+                    });
+                }
+                else if (_saveStation == SaveStation.Init)
+                {
+                    InitPropNew(callback);
+                }
+                else if (_saveStation == SaveStation.Unload)
+                {
+                    UnloadProp(callback);
+                }
+                else if(_saveStation == SaveStation.UnActive)
                 {
                     LoadModel(() =>
                     {
@@ -322,22 +396,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
                     });
                     return;
                 }
-
-                InitPropFromSave(save, callback);
             }
-            else if (tempStation == SaveStation.Init) //读存档但是存档没有找到，那么也走普通初始化
-            {
-                InitPropNew(callback);
-            }
-            else //没有找到存档呢！应该是有问题的！
-            {
-                // GameDebug.LogError($"需要加载但是没有找到存档！ 状态：{tempStation} id:{id}");
-                InitPropNew(callback);
-            }
-        }
-        else if (tempStation == SaveStation.Unload)
-        {
-            UnloadProp(callback);
         }
     }
 
@@ -362,8 +421,13 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
     {
         LoadModel(() =>
         {
+
             props.Init(PropsInitLogical.GetInit(save), entity, save.propsData);
-            props.interactiveCount = save.interactiveCount;
+            //有可能props在Init的时候forceDestroy了
+            if (props != null)
+            {
+                props.interactiveCount = save.interactiveCount;
+            }
             callBack?.Invoke(props);
         });
     }
@@ -372,13 +436,10 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
     {
         if (staticLoad)
         {
-            if (props == null)
-            {
-                GameDebug.LogError($"{id}物品prop为null，staticLoad：{staticLoad}");
-            }
-            else
+            if (props != null)
             {
                 props.RunLogicalOnSelf(RunLogicalName.ForceDestroy);
+                // GameDebug.LogError($"{id}物品prop为null，staticLoad：{staticLoad}");
             }
         }
 
@@ -407,7 +468,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
         save.propsData = lastPropsWriteData;
         save.interactiveCount = lastInterCount;
         save.saveStation = (int) lastStation;
-        return save.GetWriteStr(props);
+        return save.GetWriteStr(this);
     }
 
     public static string GetPrefabPath(string name)
@@ -420,7 +481,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
         _isCreated = true;
         if (!staticLoad)
         {
-            if (props != null)
+            if (props != null) //已经加载的了，返回
             {
                 callback?.Invoke();
                 return;
@@ -485,16 +546,33 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
             {
                 loadNodeID = 1;
             }
-            saveStation = BattleController.Instance.ctrlProcedure.GetSaveStation(unloadNodeID, loadNodeID, initNodeID);
+            
+            string data = LocalSave.Read(this);
+            if (data.IsNullOrEmpty())
+            {
+                saveStation = SaveStation.None; //没有存档，就没有存档状态
+                propSave = null;
+            }
+            else
+            {
+                propSave = JsonMapper.ToObject<PropSave>(data); //有的话读取存档状态
+                saveStation = (SaveStation)propSave.initStation;
+            }
+            // saveStation = BattleController.Instance.ctrlProcedure.GetSaveStation(unloadNodeID, loadNodeID, initNodeID);
         }
     }
 
     public void Save()
     {
-        if (lastLogical != initLogical.runLogical.ToString() && _isCreated)
+        if (!BattleController.GetCtrl<PropsCtrl>().IsLoadingNode())
         {
-            LocalSave.Write(this);
+            LocalSave.Write(this);    
         }
+        
+        // if (lastLogical != initLogical.runLogical.ToString() && _isCreated)
+        // {
+        //     LocalSave.Write(this);
+        // }
     }
 
     public void EventCallback(int eventID, IEventCallback receiver)
@@ -523,6 +601,7 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
                 receiver[i].ResetValue();
             }
 
+            GameDebug.Log($"{id}收到了重置的消息，重置了部分属性");
             props.interactiveCount = 0;
             props.gameObject.OnActive(true);
             props.isInit = true;
@@ -531,16 +610,24 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
         {
             //调用PropBase的Run
             props.RunLogical(logical, sender, flag, senderArg, args);
+            //记录状态
+            FlushData(logical, args);
             if (save && (flag & RunLogicalFlag.Save) != 0)
             {
-                StartCoroutine(ReadProps(logical, args));
+                BattleController.Instance.Save(0);
+                // ReadProps(logical, args);
+                // StartCoroutine(ReadProps(logical, args)); 
             }
+            // else
+            // {
+            //
+            //     // StartCoroutine(FlushDataCO(logical, args)); //道具每次状态改变都要flush
+            // }
         }
     }
 
-    private IEnumerator ReadProps(RunLogicalName logical, params string[] args)
+    private void FlushData(RunLogicalName logical, params string[] args)
     {
-        yield return new WaitForEndOfFrame(); //这里等到帧尾是为了让RunLogical先走完，然后在存档。
         lastLogical = logical.ToString();
         lastLogicalArgs = args;
         if (props != null)
@@ -548,9 +635,27 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
             lastStation = props.station;
             lastPropsWriteData = props.writeData;
             lastInterCount = props.interactiveCount;
-            BattleController.Instance.Save(0);
         }
     }
+    //
+    // private IEnumerator FlushDataCO(RunLogicalName logical, params string[] args)
+    // {
+    //     yield return new WaitForEndOfFrame(); //这里等到帧尾是为了让RunLogical先走完，然后在存档。
+    //     lastLogical = logical.ToString();
+    //     lastLogicalArgs = args;
+    //     if (props != null)
+    //     {
+    //         lastStation = props.station;
+    //         lastPropsWriteData = props.writeData;
+    //         lastInterCount = props.interactiveCount;
+    //     }
+    // }
+
+    // private void ReadProps(RunLogicalName logical, params string[] args)
+    // {
+    //     // yield return FlushDataCO(logical , args);
+    //     BattleController.Instance.Save(0);
+    // }
 
     public bool TryPredicate(SendEventCondition predicate, string[] sendArg, string[] predicateArgs)
     {
@@ -609,6 +714,12 @@ public partial class PropsCreator : SerializedMonoBehaviour, IMissionEditor
             return null;
         }
         return (T)link[0].props;
+    }
+
+
+    public SaveStation GetTrueSaveStation()
+    {
+        return _saveStation;
     }
     
     
