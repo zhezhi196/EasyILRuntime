@@ -65,7 +65,7 @@ namespace Module
             }
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             if (currPlay != null)
             {
@@ -74,6 +74,8 @@ namespace Module
                     currPlay[i].OnUpdate();
                 }
             }
+
+            return true;
         }
 
         public void Pause()

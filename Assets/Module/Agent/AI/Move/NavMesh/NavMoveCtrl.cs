@@ -19,7 +19,7 @@ namespace Module
         private bool _isPause;
         private MoveStation _station = MoveStation.Idle;
         private NavMeshPathStatus _pathStatus;
-        private NavMeshPath tempPath;
+        public NavMeshPath movePath;
         private Action<NavMeshPathStatus, bool> callback;
         private bool _isStop;
         private bool isRotate;
@@ -99,11 +99,12 @@ namespace Module
             owner.navmesh.autoBraking = !isStop;
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             if (!isPause && station == MoveStation.Moving)
             {
                 var path = owner.navmesh.path;
+                OnOwnerSwitchStation();
                 if (dynamicCallback)
                 {
                     var newStatus = path.status;
@@ -121,6 +122,8 @@ namespace Module
                 
                 Rotate();
             }
+
+            return true;
         }
 
 
@@ -184,17 +187,17 @@ namespace Module
 
         public bool CanMoveTo(Vector3 moveTarget)
         {
-            return CalculatePath(moveTarget) && tempPath.status == NavMeshPathStatus.PathComplete;
+            return CalculatePath(moveTarget) && movePath.status == NavMeshPathStatus.PathComplete;
         }
 
         private bool CalculatePath(Vector3 moveTarget)
         {
-            if (tempPath == null)
+            if (movePath == null)
             {
-                tempPath = new NavMeshPath();
+                movePath = new NavMeshPath();
             }
 
-            var temp = owner.navmesh.CalculatePath(moveTarget, tempPath);
+            var temp = owner.navmesh.CalculatePath(moveTarget, movePath);
             return temp;
         }
         

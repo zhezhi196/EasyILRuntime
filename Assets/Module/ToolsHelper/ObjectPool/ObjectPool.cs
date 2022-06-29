@@ -381,7 +381,11 @@ namespace Module
             if (obj != null)
             {
                 FindData(obj).SetActive(true);
-                if (autoActive) obj.OnActive(false);
+                if (autoActive && obj.activeSelf)
+                {
+                    obj.OnActive(false);
+                }
+
                 if (obj.gameObject != null)
                 {
                     obj.gameObject.transform.SetParentZero(parentRoot);

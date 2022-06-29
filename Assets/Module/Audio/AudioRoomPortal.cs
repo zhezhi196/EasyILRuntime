@@ -4,8 +4,6 @@ using System.Linq;
 using DG.Tweening;
 using Module;
 using Sirenix.OdinInspector;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Serialization;
 

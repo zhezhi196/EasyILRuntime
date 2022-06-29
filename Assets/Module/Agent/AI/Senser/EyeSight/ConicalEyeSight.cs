@@ -9,6 +9,7 @@ namespace Module
         private Vector3[] viewCornors = new Vector3[4];
         public float aspect;
 
+        public bool isBlind { get; set; }
         public Vector3 offset { get; }
         public List<IEyeSight> includeSights { get; }
         public List<IEyeSight> excludeSights { get; }
@@ -32,6 +33,7 @@ namespace Module
 
         public bool ContainPoint(Vector3 point)
         {
+            if (isBlind) return false;
             bool result = true;
             RefreshCornors(viewDistance);
             result = result && GetPlane(viewCornors, point);
@@ -105,6 +107,7 @@ namespace Module
         }
         public void DrawGizmos(Color color)
         {
+            if(isBlind) return;
             Gizmos.color = color;
             DrawTools.DrawCameraView(transform, viewAngle, aspect, viewDistance);
             if (!includeSights.IsNullOrEmpty())

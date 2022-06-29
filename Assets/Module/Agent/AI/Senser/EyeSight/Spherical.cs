@@ -5,6 +5,7 @@ namespace Module
 {
     public class Spherical : IEyeSight
     {
+        public bool isBlind { get; set; }
         public Vector3 offset { get; }
         public List<IEyeSight> includeSights { get; }
         public List<IEyeSight> excludeSights { get; }
@@ -31,6 +32,7 @@ namespace Module
 
         public bool ContainPoint(Vector3 point)
         {
+            if (isBlind) return false;
             float dis = center.Distance(point);
             bool result = dis <= radius;
             if (!includeSights.IsNullOrEmpty())
@@ -57,6 +59,7 @@ namespace Module
 
         public void DrawGizmos(Color color)
         {
+            if(isBlind) return;
             Gizmos.color = color;
             Gizmos.DrawWireSphere(center, radius);
             if (!includeSights.IsNullOrEmpty())

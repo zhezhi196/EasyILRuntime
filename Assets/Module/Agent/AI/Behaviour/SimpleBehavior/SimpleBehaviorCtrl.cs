@@ -8,6 +8,7 @@
         
         public ISimpleBehavior currBehavior;
 
+
         public SimpleBehaviorCtrl(ISimpleBehaviorObject owner)
         {
             this.owner = owner;
@@ -25,20 +26,25 @@
             {
                 currBehavior.OnStart(owner, args);
             }
+
+            owner.LogFormat("切换行为树{0}", behbavior);
         }
 
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             if (currBehavior != null && !isPause)
             {
                 var status = currBehavior.OnUpdate();
+                
                 if (status == TaskStatus.Success || status == TaskStatus.Failure)
                 {
                     currBehavior.OnEnd();
                     currBehavior = null;
                 }
             }
+
+            return true;
         }
 
         public void Pause()

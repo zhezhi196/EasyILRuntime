@@ -3,7 +3,7 @@ using Module.SkillAction;
 
 namespace Module
 {
-    public interface ISkill : ILogObject, IconObject, ITextObject
+    public interface ISkill : ILogObject, IconObject, ITextObject,IRandomWeight
     {
         ISkillAction cd { get; set; }
         bool isReadyRelease { get; }
@@ -15,6 +15,6 @@ namespace Module
         void Continue();
         bool Break(BreakSkillFlag flag);
         void OnUnload();
-        void OnUpdate();
+        bool OnUpdate();
     }
 }

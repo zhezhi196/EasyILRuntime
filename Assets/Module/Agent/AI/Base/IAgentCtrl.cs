@@ -3,7 +3,7 @@
     public interface IAgentCtrl
     {
         bool isPause { get; }
-        void OnUpdate();
+        bool OnUpdate();
         void Pause();
         void Continue();
         void OnAgentDead();

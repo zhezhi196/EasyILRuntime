@@ -11,7 +11,7 @@ namespace Module
         public static GraphicSetting graphicSetting = new GraphicSetting();
         public static ControllerSetting controllerSetting = new ControllerSetting();
         public static UILocationSetting uiLocationSetting = new UILocationSetting();
-        
+
         public static AsyncLoadProcess Init(AsyncLoadProcess process)
         {
             process.Reset();

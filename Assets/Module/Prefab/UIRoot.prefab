@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 232488239}
   - component: {fileID: 232488242}
   - component: {fileID: 232488241}
+  - component: {fileID: 7860278022014085346}
   m_Layer: 5
   m_Name: TeachingMask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &232488239
 RectTransform:
   m_ObjectHideFlags: 0
@@ -74,6 +75,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7860278022014085346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232488238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78bedcab5b6350342b905d966d3a22d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maskParent: {fileID: 0}
+  maskChildIndex: 0
+  maskImage: {fileID: 0}
 --- !u!1 &944862696
 GameObject:
   m_ObjectHideFlags: 0
@@ -6311,7 +6327,7 @@ GameObject:
   - component: {fileID: 530463618140829303}
   - component: {fileID: 530463618140829301}
   - component: {fileID: 530463618140829300}
-  - component: {fileID: 530463618140829194}
+  - component: {fileID: 661262606}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -6378,8 +6394,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
---- !u!114 &530463618140829194
+  m_Text: "\u52A0\u8F7D\u4E2D\u2026\u2026"
+--- !u!114 &661262606
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6388,11 +6404,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 530463618140829302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a076c1c4d59e4533a4878223820bdfea, type: 3}
+  m_Script: {fileID: 11500000, guid: fe25fab41e9b04848853130b214d572c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 530463618140829300}
   textLanguage: 6
+  Key: 742
+  flag: 0
 --- !u!1 &531145684005324052
 GameObject:
   m_ObjectHideFlags: 0
@@ -7104,13 +7122,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.333, g: 0.333, b: 0.333, a: 0}
   m_RaycastTarget: 0
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 863405566f6ca33419c396cb4aa2114e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3cade02510407d546ac5d5230b2fe8fa, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7361,7 +7379,7 @@ MonoBehaviour:
   endValueFloat: 0
   endValueV3: {x: 0, y: 0, z: 0}
   endValueV2: {x: 0, y: 0}
-  endValueColor: {r: 1, g: 1, b: 1, a: 0.09803922}
+  endValueColor: {r: 0.333, g: 0.333, b: 0.333, a: 0.87058824}
   endValueString: 
   endValueRect:
     serializedVersion: 2

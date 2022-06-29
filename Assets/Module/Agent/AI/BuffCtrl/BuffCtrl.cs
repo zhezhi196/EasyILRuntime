@@ -17,7 +17,7 @@ namespace Module
             buffList = new List<Buff>();
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             if (buffList.Count > 0)
             {
@@ -42,6 +42,8 @@ namespace Module
                     }
                 }
             }
+
+            return true;
         }
 
         public void Pause()

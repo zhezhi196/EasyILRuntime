@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Module;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]

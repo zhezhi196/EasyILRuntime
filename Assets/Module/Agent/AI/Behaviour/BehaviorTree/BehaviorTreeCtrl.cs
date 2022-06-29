@@ -128,8 +128,9 @@ namespace Module
         {
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
+            return true;
         }
 
         public void Pause()

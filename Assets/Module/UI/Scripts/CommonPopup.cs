@@ -117,6 +117,15 @@ namespace Module
                         Instance.buttons[i].noIconContent.gameObject.OnActive(true);
                         Instance.buttons[i].noIconContent.text = option[i].title;
                     }
+
+                    if (option.Length == 1 && i == 0)
+                    {
+                        Instance.buttons[i].button.image.color = new Color(0.44313f, 0.1294f, 0.1137f, 1f);
+                    }
+                    else if(option.Length != 1 && i == 0)
+                    {
+                        Instance.buttons[i].button.image.color = new Color(0.4353f, 0.4353f, 0.4353f, 1f);
+                    }
                 }
                 else
                 {

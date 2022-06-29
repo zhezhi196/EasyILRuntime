@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Module.SkillAction;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -45,7 +46,7 @@ namespace Module
             get { return isActive && station == SkillStation.Ready; }
         }
 
-        public float cdTotalTime
+        public virtual float cdTotalTime
         {
             get
             {
@@ -58,7 +59,7 @@ namespace Module
             }
         }
 
-        public float cdTime
+        public virtual float cdTime
         {
             get
             {
@@ -71,7 +72,7 @@ namespace Module
             }
         }
 
-        public SkillStation station
+        public virtual SkillStation station
         {
             get { return _station; }
             set
@@ -82,6 +83,12 @@ namespace Module
                     onStationChanged?.Invoke(isActive, value);
                 }
             }
+        }
+
+
+        public virtual SkillStation GetStation()
+        {
+            return _station;
         }
 
         public ISkillAction runningAction
@@ -152,7 +159,7 @@ namespace Module
             station = SkillStation.CD;
             cd.OnStart();
             OnCdStart();
-            LogFormat("{0}开技能{1}进入CD", owner, GetType().Name);
+            LogFormat("开技能{0}进入CD",GetType().Name);
         }
 
         public void EnterReady()
@@ -316,15 +323,16 @@ namespace Module
             OnDispose();
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             var temp = runningAction;
             if (temp != null)
             {
                 if (temp.isEnd)
                 {
-                    temp.OnEnd(true);
+                     temp.OnEnd(true);
                      EndAction(temp, true);
+                     return false;
                 }
                 else
                 {
@@ -348,6 +356,8 @@ namespace Module
                     }
                 }
             }
+
+            return true;
         }
 
         public T GetAction<T>(int index) where T : ISkillAction
@@ -381,5 +391,6 @@ namespace Module
         
         #endregion
 
+        public virtual float randomWeight { get; }
     }
 }

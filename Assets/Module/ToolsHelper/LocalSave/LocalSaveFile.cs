@@ -107,9 +107,11 @@ namespace Module
         public static void GmDeleteAllFile(bool deleteDB)
         {
             var pathSave = $"{Application.persistentDataPath}/SaveData";
+            var pathSave2 = $"{Application.persistentDataPath}/SaveData2";
             if (File.Exists(pathSave))
             {
                 File.Delete(pathSave);
+                File.Delete(pathSave2);
                 GameDebug.Log("删除所有本地存档文件成功!");
             }
 

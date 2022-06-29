@@ -46,7 +46,7 @@ namespace Module
             if (parent != null && !parent.gameObject.activeInHierarchy) return play;
             play.pool = AssetLoad.LoadGameObject<EffectBase>(GetPath(name), parent, (effect, args) =>
             {
-                if (effect.gameObject.activeInHierarchy)
+                if (effect != null && !effect.gameObject.IsNullOrDestroyed() && effect.gameObject.activeInHierarchy)
                 {
                     if (effect == null)
                     {
@@ -57,10 +57,12 @@ namespace Module
                     effect.play = play;
                     play.onLoadFinish?.Invoke(effect);
 
-                    play.playCoroutine = effect.StartCoroutine(play.StartPlay(effect));
                     effect.transform.SetParent(parent);
                     effect.transform.position = pos;
                     effect.transform.eulerAngles = dir;
+                    
+                    play.playCoroutine = effect.StartCoroutine(play.StartPlay(effect));
+
 
                     if (scale != 1)
                     {

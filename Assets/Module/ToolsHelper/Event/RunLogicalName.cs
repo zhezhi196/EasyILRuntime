@@ -38,7 +38,9 @@ public enum RunLogicalName
     
     [LabelText("怪掉落道具")]MonsterDrop,
     [LabelText("收枪")]HoldGun,
-
+    [LabelText("章节飘字")] flyFont1,
+    
+    [LabelText("根据难度解锁")]UnlockWithDifficult,
 }
 
 public enum SendEventCondition
@@ -48,8 +50,9 @@ public enum SendEventCondition
     [LabelText("添加状态")] AddStation,
     [LabelText("移除状态")] RemoveStation,
     [LabelText("死亡")] Dead,
-    [LabelText("玩家出生")]
-    PlayerBorn,
+    [LabelText("玩家出生")]PlayerBorn,
+    [LabelText("开始游戏")]StartFight,
+    [LabelText("放入背包")]PutToBag,
 }
 
 // public class EventContent

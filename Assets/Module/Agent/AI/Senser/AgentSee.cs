@@ -7,10 +7,30 @@ namespace Module
 {
     public class AgentSee : AgentSensor, IEyeSight,ILogObject
     {
+        private bool _isActive;
         public ISee owner;
         [SerializeField]
         private Vector3 _offset;
         [ShowInInspector] public List<ISensorTarget> onViewTarget = new List<ISensorTarget>();
+
+        public bool isBlind
+        {
+            get
+            {
+                if (!_isActive) return false;
+                for (int i = 0; i < includeSights.Count; i++)
+                {
+                    if (includeSights[i].isBlind) return true;
+                }
+
+                return false;
+            }
+            set
+            {
+                _isActive = value;
+            }
+        }
+
         public Vector3 offset => _offset;
         public List<IEyeSight> includeSights { get; } = new List<IEyeSight>();
         public List<IEyeSight> excludeSights { get; } = new List<IEyeSight>();
@@ -32,6 +52,7 @@ namespace Module
 
         public bool ContainPoint(Vector3 point)
         {
+            if (isBlind) return false;
             bool result = false;
             if (!includeSights.IsNullOrEmpty())
             {

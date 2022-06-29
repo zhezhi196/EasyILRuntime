@@ -118,7 +118,7 @@ namespace Module
 
         public float percent
         {
-            get { return Mathf.Clamp01(remainTime / targetTime); }
+            get { return Mathf.Clamp01(currentTime / targetTime); }
         }
 
         public float remainTime

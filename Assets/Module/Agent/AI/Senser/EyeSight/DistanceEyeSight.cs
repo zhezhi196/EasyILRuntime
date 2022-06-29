@@ -8,6 +8,7 @@ namespace Module
         public float distance { get; }
         public float viewAngle { get; }
 
+        public bool isBlind { get; set; }
         public Vector3 offset { get; }
         public List<IEyeSight> includeSights { get; }
         public List<IEyeSight> excludeSights { get; }
@@ -28,6 +29,7 @@ namespace Module
 
         public bool ContainPoint(Vector3 point)
         {
+            if (isBlind) return false;
             Vector3 slicePos = point - center;
             Vector3 tarDir = new Vector3(slicePos.x, 0, slicePos.z);
             float angle = Vector3.Angle(tarDir, transform.forward);
@@ -57,6 +59,7 @@ namespace Module
 
         public void DrawGizmos(Color color)
         {
+            if(isBlind) return;
             Gizmos.color = color;
             Quaternion rotation = Quaternion.LookRotation(Vector3.up, transform.right);
             DrawTools.DrawSector(transform.position, rotation, distance, viewAngle, color);

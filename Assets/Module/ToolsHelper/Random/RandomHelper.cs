@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Module
 {
+    public interface IRandomWeight
+    {
+        float randomWeight { get; }
+    }
     public static class RandomHelper
     {
         /// <summary>
@@ -86,18 +90,43 @@ namespace Module
             if (temp == 0) return -1;
             return temp;
         }
-        
-        public static int RandomWeight(params float[] rate)
+
+        public static int RandomWeight<T>(IList<T> weights) where T: IRandomWeight
         {
             float sum = 0;
-            for (int i = 0; i < rate.Length; i++)
+            for (int i = 0; i < weights.Count; i++)
+            {
+                sum += weights[i].randomWeight;
+            }
+
+            float value = UnityEngine.Random.Range(0f, sum);
+            float org = 0;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                if (value >= org && value < org + weights[i].randomWeight)
+                {
+                    return i;
+                }
+                else
+                {
+                    org += weights[i].randomWeight;
+                }
+            }
+
+            return -1;
+        }
+        
+        public static int RandomWeight(IList<float> rate)
+        {
+            float sum = 0;
+            for (int i = 0; i < rate.Count; i++)
             {
                 sum += rate[i];
             }
 
             float value = UnityEngine.Random.Range(0f, sum);
             float org = 0;
-            for (int i = 0; i < rate.Length; i++)
+            for (int i = 0; i < rate.Count; i++)
             {
                 if (value >= org && value < org + rate[i])
                 {

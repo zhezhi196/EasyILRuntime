@@ -19,7 +19,7 @@ namespace Module
     public class CharacterMoveCtrl: IAgentCtrl
     {
         public bool isPause { get; }
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             throw new NotImplementedException();
         }

@@ -59,10 +59,10 @@ namespace Module
                 }
             }
 
-            for (int i = 0; i < ct.animationClips.Length; i++)
-            {
-                SetAnimationEvent(ct.animationClips[i]);
-            }
+            // for (int i = 0; i < ct.animationClips.Length; i++)
+            // {
+            //     SetAnimationEvent(ct.animationClips[i]);
+            // }
 
             AssetDatabase.Refresh();
         }

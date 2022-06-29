@@ -58,12 +58,14 @@ namespace Module
 #endif
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
             for (int i = 0; i < layer.Length; i++)
             {
                 layer[i].OnUpdate();
             }
+
+            return true;
         }
 
         private void OnOwnerSwitchStation()

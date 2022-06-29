@@ -30,6 +30,11 @@ namespace Module
         public bool isBusy
         {
             get { return currActive != null; }
+            set {
+                if (!value)
+                {
+                    _currActive = null;
+                } }
         }
 
         public List<Skill> allSkill
@@ -87,13 +92,21 @@ namespace Module
             this.owner = owner;
         }
 
-        public void OnUpdate()
+        public bool OnUpdate()
         {
-            readyRelease = owner.RefreshReadySkill();
+            if (!isBusy)
+            {
+                readyRelease = owner.RefreshReadySkill();
+            }    
             for (int i = 0; i < allSkill.Count; i++)
             {
-                allSkill[i].OnUpdate();
+                if (!allSkill[i].OnUpdate())
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
 
         public bool UpdateRelease(Action<bool> callback)
@@ -244,11 +257,20 @@ namespace Module
             }
         }
 
-        public void ClearCD()
+        private bool isReadClearCD;
+        public async void ClearCD()
         {
+            if(isReadClearCD) return;
+            if (_currActive != null)
+            {
+                isReadClearCD = true;
+                await Async.WaitUntil(() => _currActive == null);
+            }
+
+            isReadClearCD = false;
             for (int i = 0; i < allSkill.Count; i++)
             {
-                if (allSkill[i].cd != null)
+                if (allSkill[i].cd != null && allSkill[i].station == SkillStation.CD)
                 {
                     allSkill[i].EnterReady();
                 }
